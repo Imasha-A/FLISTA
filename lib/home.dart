@@ -10,6 +10,7 @@ import 'main.dart';
 class HomePage extends StatefulWidget {
   final String selectedDate;
   const HomePage({Key? key, required this.selectedDate}) : super(key: key);
+  
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   late String destinationCountryCode;
   late String _userName = 'User Name';
   late String _userId = '123456';
+ 
 
   bool _isLoading = true;
   List<Map<String, String>> _filteredOriginCountries = [];
@@ -398,46 +400,51 @@ class _HomePageState extends State<HomePage> {
   }
 
   OverlayEntry _createOverlayEntry(
-    TextEditingController controller,
-    FocusNode focusNode,
-    List<Map<String, String>> suggestions,
-    void Function(Map<String, String>) onSelect,
-  ) {
-
-    RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) {
-      return OverlayEntry(
-          builder: (context) =>
-              const SizedBox.shrink()); // Add fallback or error logging
-    }
-
-    if (focusNode.context?.findRenderObject() is! RenderBox) {
-      return OverlayEntry(
-          builder: (context) => const SizedBox.shrink()); // Safe fallback
-    }
-    RenderBox textFieldRenderBox =
-        focusNode.context!.findRenderObject() as RenderBox;
-
-    var textFieldSize = textFieldRenderBox.size;
-    var textFieldOffset = textFieldRenderBox.localToGlobal(Offset.zero);
-
+  TextEditingController controller,
+  FocusNode focusNode,
+  List<Map<String, String>> suggestions,
+  void Function(Map<String, String>) onSelect,
+) {
+  RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+  if (renderBox == null) {
     return OverlayEntry(
-      builder: (context) => Positioned(
-        left: textFieldOffset.dx,
-        top: textFieldOffset.dy + textFieldSize.height * 0.5,
-        width: textFieldSize.width * 1,
-        child: Material(
-          elevation: 4.0,
+      builder: (context) => const SizedBox.shrink(),
+    ); // Add fallback or error logging
+  }
+
+  if (focusNode.context?.findRenderObject() is! RenderBox) {
+    return OverlayEntry(
+      builder: (context) => const SizedBox.shrink(),
+    ); // Safe fallback
+  }
+  RenderBox textFieldRenderBox =
+      focusNode.context!.findRenderObject() as RenderBox;
+
+  var textFieldSize = textFieldRenderBox.size;
+  var textFieldOffset = textFieldRenderBox.localToGlobal(Offset.zero);
+
+final screenHeight = MediaQuery.of(context).size.height;
+
+  return OverlayEntry(
+    builder: (context) => Positioned(
+      left: textFieldOffset.dx,
+      top: textFieldOffset.dy + textFieldSize.height * 0.5,
+      width: textFieldSize.width * 1,
+      child: Material(
+        elevation: 4.0,
+        child: SizedBox(
+          height: screenHeight * 0.18, 
           child: ListView(
             padding: EdgeInsets.zero,
-            shrinkWrap: true,
+            shrinkWrap: true, // Ensures it scrolls properly
             children: suggestions.map((suggestion) {
               return ListTile(
                 title: Text(
-                  abbreviateAirportName(suggestion['name']!),
+                  '${suggestion['name']} (${suggestion['code']})',
                   style: const TextStyle(fontSize: 13.4),
                 ),
                 onTap: () {
+                  controller.text = '${suggestion['name']} (${suggestion['code']})';
                   onSelect(suggestion);
                 },
               );
@@ -445,8 +452,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -535,14 +544,14 @@ class _HomePageState extends State<HomePage> {
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: screenWidth * 0.05,
+                                            fontSize: screenWidth * 0.04,
                                           ),
                                         ),
                                         Text(
                                           _userId,
                                           style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: screenWidth * 0.042,
+                                            fontSize: screenWidth * 0.037,
                                           ),
                                         ),
                                       ],
@@ -1024,14 +1033,14 @@ class _HomePageState extends State<HomePage> {
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: screenWidth * 0.05,
+                                                fontSize: screenWidth * 0.042,
                                               ),
                                             ),
                                             Text(
                                               _userId,
                                               style: TextStyle(
                                                 color: Colors.white,
-                                                fontSize: screenWidth * 0.042,
+                                                fontSize: screenWidth * 0.037,
                                               ),
                                             ),
                                           ],
@@ -1172,6 +1181,7 @@ class _HomePageState extends State<HomePage> {
                           if (value.isEmpty) {
                             _flightSearchModel.selectedOriginCountry = null;
                             _flightSearchModel.selectedOriginCountryCode = null;
+                            
                           }
                         });
                         _filterOriginCountries(value);
