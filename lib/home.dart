@@ -10,7 +10,6 @@ import 'main.dart';
 class HomePage extends StatefulWidget {
   final String selectedDate;
   const HomePage({Key? key, required this.selectedDate}) : super(key: key);
-  
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -22,7 +21,6 @@ class _HomePageState extends State<HomePage> {
   late String destinationCountryCode;
   late String _userName = 'User Name';
   late String _userId = '123456';
- 
 
   bool _isLoading = true;
   List<Map<String, String>> _filteredOriginCountries = [];
@@ -238,31 +236,31 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
- void _navigateToSelectDatePage(BuildContext context) async {
-  final shouldClearControllers = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => SelectDatePage(
-        selectedDate: selectedDate,
-        originCountryCode: _flightSearchModel.selectedOriginCountryCode ?? '',
-        destinationCountryCode: _flightSearchModel.selectedDestinationCountryCode ?? '',
+  void _navigateToSelectDatePage(BuildContext context) async {
+    final shouldClearControllers = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SelectDatePage(
+          selectedDate: selectedDate,
+          originCountryCode: _flightSearchModel.selectedOriginCountryCode ?? '',
+          destinationCountryCode:
+              _flightSearchModel.selectedDestinationCountryCode ?? '',
+        ),
       ),
-    ),
-  );
+    );
 
-  // Clear controllers if the result is `true`
-  if (shouldClearControllers == true) {
-    setState(() {
-      _originController.clear();
-      _destinationController.clear();
-      _flightSearchModel.selectedOriginCountry = null;
-      _flightSearchModel.selectedOriginCountryCode = null;
-      _flightSearchModel.selectedDestinationCountry = null;
-      _flightSearchModel.selectedDestinationCountryCode = null;
-      
-    });
+    // Clear controllers if the result is `true`
+    if (shouldClearControllers == true) {
+      setState(() {
+        _originController.clear();
+        _destinationController.clear();
+        _flightSearchModel.selectedOriginCountry = null;
+        _flightSearchModel.selectedOriginCountryCode = null;
+        _flightSearchModel.selectedDestinationCountry = null;
+        _flightSearchModel.selectedDestinationCountryCode = null;
+      });
+    }
   }
-}
 
   BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       IconData icon, String label, bool isHighlighted) {
@@ -400,62 +398,62 @@ class _HomePageState extends State<HomePage> {
   }
 
   OverlayEntry _createOverlayEntry(
-  TextEditingController controller,
-  FocusNode focusNode,
-  List<Map<String, String>> suggestions,
-  void Function(Map<String, String>) onSelect,
-) {
-  RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-  if (renderBox == null) {
+    TextEditingController controller,
+    FocusNode focusNode,
+    List<Map<String, String>> suggestions,
+    void Function(Map<String, String>) onSelect,
+  ) {
+    RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return OverlayEntry(
+        builder: (context) => const SizedBox.shrink(),
+      ); // Add fallback or error logging
+    }
+
+    if (focusNode.context?.findRenderObject() is! RenderBox) {
+      return OverlayEntry(
+        builder: (context) => const SizedBox.shrink(),
+      ); // Safe fallback
+    }
+    RenderBox textFieldRenderBox =
+        focusNode.context!.findRenderObject() as RenderBox;
+
+    var textFieldSize = textFieldRenderBox.size;
+    var textFieldOffset = textFieldRenderBox.localToGlobal(Offset.zero);
+
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return OverlayEntry(
-      builder: (context) => const SizedBox.shrink(),
-    ); // Add fallback or error logging
-  }
-
-  if (focusNode.context?.findRenderObject() is! RenderBox) {
-    return OverlayEntry(
-      builder: (context) => const SizedBox.shrink(),
-    ); // Safe fallback
-  }
-  RenderBox textFieldRenderBox =
-      focusNode.context!.findRenderObject() as RenderBox;
-
-  var textFieldSize = textFieldRenderBox.size;
-  var textFieldOffset = textFieldRenderBox.localToGlobal(Offset.zero);
-
-final screenHeight = MediaQuery.of(context).size.height;
-
-  return OverlayEntry(
-    builder: (context) => Positioned(
-      left: textFieldOffset.dx,
-      top: textFieldOffset.dy + textFieldSize.height * 0.5,
-      width: textFieldSize.width * 1,
-      child: Material(
-        elevation: 4.0,
-        child: SizedBox(
-          height: screenHeight * 0.18, 
-          child: ListView(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true, // Ensures it scrolls properly
-            children: suggestions.map((suggestion) {
-              return ListTile(
-                title: Text(
-                  '${suggestion['name']} (${suggestion['code']})',
-                  style: const TextStyle(fontSize: 13.4),
-                ),
-                onTap: () {
-                  controller.text = '${suggestion['name']} (${suggestion['code']})';
-                  onSelect(suggestion);
-                },
-              );
-            }).toList(),
+      builder: (context) => Positioned(
+        left: textFieldOffset.dx,
+        top: textFieldOffset.dy + textFieldSize.height * 0.5,
+        width: textFieldSize.width * 1,
+        child: Material(
+          elevation: 4.0,
+          child: SizedBox(
+            height: screenHeight * 0.18,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true, // Ensures it scrolls properly
+              children: suggestions.map((suggestion) {
+                return ListTile(
+                  title: Text(
+                    '${suggestion['name']} (${suggestion['code']})',
+                    style: const TextStyle(fontSize: 13.4),
+                  ),
+                  onTap: () {
+                    controller.text =
+                        '${suggestion['name']} (${suggestion['code']})';
+                    onSelect(suggestion);
+                  },
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -613,7 +611,8 @@ final screenHeight = MediaQuery.of(context).size.height;
                                     .topCenter, // Align the text to the top center
                                 child: Padding(
                                   padding: EdgeInsets.only(
-                                      top: screenHeight * 0.01), // Add gap from top
+                                      top: screenHeight *
+                                          0.01), // Add gap from top
                                   child: Text(
                                     'Search Your Next Flight',
                                     style: TextStyle(
@@ -636,53 +635,78 @@ final screenHeight = MediaQuery.of(context).size.height;
                                 ),
                               ),
                               Autocomplete<String>(
-                                optionsBuilder: (TextEditingValue textEditingValue) {
+                                optionsBuilder:
+                                    (TextEditingValue textEditingValue) {
                                   if (textEditingValue.text.isEmpty) {
                                     return const Iterable<String>.empty();
                                   }
                                   // Filter by name or code
                                   return _filteredOriginCountries
                                       .where((country) =>
-                                          country['name']!.toLowerCase().contains(textEditingValue.text.toLowerCase()) ||
-                                          country['code']!.toLowerCase().contains(textEditingValue.text.toLowerCase()))
-                                      .map((country) => '${country['name']} (${country['code']})') // Show name and code together in suggestions
+                                          country['name']!
+                                              .toLowerCase()
+                                              .contains(textEditingValue.text
+                                                  .toLowerCase()) ||
+                                          country['code']!
+                                              .toLowerCase()
+                                              .contains(textEditingValue.text
+                                                  .toLowerCase()))
+                                      .map((country) =>
+                                          '${country['name']} (${country['code']})') // Show name and code together in suggestions
                                       .toList();
                                 },
                                 onSelected: (String selection) {
                                   // Extract the country name from the selected suggestion
-                                  final selectedCountry = _filteredOriginCountries.firstWhere(
-                                    (country) => '${country['name']} (${country['code']})' == selection,
+                                  final selectedCountry =
+                                      _filteredOriginCountries.firstWhere(
+                                    (country) =>
+                                        '${country['name']} (${country['code']})' ==
+                                        selection,
                                   );
                                   setState(() {
-                                    _flightSearchModel.selectedOriginCountry = selectedCountry['name'];
-                                    _flightSearchModel.selectedOriginCountryCode = selectedCountry['code'];
+                                    _flightSearchModel.selectedOriginCountry =
+                                        selectedCountry['name'];
+                                    _flightSearchModel
+                                            .selectedOriginCountryCode =
+                                        selectedCountry['code'];
                                   });
                                 },
-                                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                                fieldViewBuilder: (context, controller,
+                                    focusNode, onEditingComplete) {
                                   return TextField(
                                     controller: controller,
                                     focusNode: focusNode,
                                     decoration: const InputDecoration(
                                       hintText: 'Enter & Select Origin',
-                                      hintStyle: TextStyle(color: Colors.white54),
+                                      hintStyle:
+                                          TextStyle(color: Colors.white54),
                                     ),
                                     style: const TextStyle(color: Colors.white),
                                     onChanged: (value) {
                                       setState(() {
-                                        _filteredOriginCountries = _flightSearchModel.originCountries
-                                            .where((country) =>
-                                                country['name']!.toLowerCase().contains(value.toLowerCase()) ||
-                                                country['code']!.toLowerCase().contains(value.toLowerCase()))
-                                            .toList();
+                                        _filteredOriginCountries =
+                                            _flightSearchModel.originCountries
+                                                .where((country) =>
+                                                    country['name']!
+                                                        .toLowerCase()
+                                                        .contains(value
+                                                            .toLowerCase()) ||
+                                                    country['code']!
+                                                        .toLowerCase()
+                                                        .contains(value
+                                                            .toLowerCase()))
+                                                .toList();
                                       });
                                     },
                                   );
                                 },
-                                optionsViewBuilder: (context, onSelected, options) {
+                                optionsViewBuilder:
+                                    (context, onSelected, options) {
                                   return Align(
                                     alignment: Alignment.topLeft,
                                     child: Material(
-                                      color: const Color.fromARGB(255, 255, 255, 255),
+                                      color: const Color.fromARGB(
+                                          255, 255, 255, 255),
                                       child: ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxWidth: screenWidth * 0.8,
@@ -692,9 +716,12 @@ final screenHeight = MediaQuery.of(context).size.height;
                                           padding: EdgeInsets.zero,
                                           itemCount: options.length,
                                           itemBuilder: (context, index) {
-                                            final option = options.elementAt(index);
+                                            final option =
+                                                options.elementAt(index);
                                             return ListTile(
-                                              title: Text(option, style: const TextStyle(color: Colors.black)),
+                                              title: Text(option,
+                                                  style: const TextStyle(
+                                                      color: Colors.black)),
                                               onTap: () => onSelected(option),
                                             );
                                           },
@@ -716,59 +743,94 @@ final screenHeight = MediaQuery.of(context).size.height;
                                 ),
                               ),
                               Autocomplete<String>(
-                                optionsBuilder: (TextEditingValue textEditingValue) {
+                                optionsBuilder:
+                                    (TextEditingValue textEditingValue) {
                                   if (textEditingValue.text.isEmpty) {
                                     return const Iterable<String>.empty();
                                   }
                                   // Filter by name or code, excluding selected origin airport
                                   return _filteredDestinationCountries
                                       .where((country) =>
-                                          country['name']!.toLowerCase().contains(textEditingValue.text.toLowerCase()) ||
-                                          country['code']!.toLowerCase().contains(textEditingValue.text.toLowerCase()))
+                                          country['name']!
+                                              .toLowerCase()
+                                              .contains(textEditingValue.text
+                                                  .toLowerCase()) ||
+                                          country['code']!
+                                              .toLowerCase()
+                                              .contains(textEditingValue.text
+                                                  .toLowerCase()))
                                       .where((country) =>
-                                          country['name'] != _flightSearchModel.selectedOriginCountry &&
-                                          country['code'] != _flightSearchModel.selectedOriginCountryCode) // Exclude origin airport
-                                      .map((country) => '${country['name']} (${country['code']})') // Show name and code together in suggestions
+                                          country['name'] !=
+                                              _flightSearchModel
+                                                  .selectedOriginCountry &&
+                                          country['code'] !=
+                                              _flightSearchModel
+                                                  .selectedOriginCountryCode) // Exclude origin airport
+                                      .map((country) =>
+                                          '${country['name']} (${country['code']})') // Show name and code together in suggestions
                                       .toList();
                                 },
                                 onSelected: (String selection) {
                                   // Extract the country name from the selected suggestion
-                                  final selectedCountry = _filteredDestinationCountries.firstWhere(
-                                    (country) => '${country['name']} (${country['code']})' == selection,
+                                  final selectedCountry =
+                                      _filteredDestinationCountries.firstWhere(
+                                    (country) =>
+                                        '${country['name']} (${country['code']})' ==
+                                        selection,
                                   );
                                   setState(() {
-                                    _flightSearchModel.selectedDestinationCountry = selectedCountry['name'];
-                                    _flightSearchModel.selectedDestinationCountryCode = selectedCountry['code'];
+                                    _flightSearchModel
+                                            .selectedDestinationCountry =
+                                        selectedCountry['name'];
+                                    _flightSearchModel
+                                            .selectedDestinationCountryCode =
+                                        selectedCountry['code'];
                                   });
                                 },
-                                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                                fieldViewBuilder: (context, controller,
+                                    focusNode, onEditingComplete) {
                                   return TextField(
                                     controller: controller,
                                     focusNode: focusNode,
                                     decoration: const InputDecoration(
                                       hintText: 'Enter & Select Destination',
-                                      hintStyle: TextStyle(color: Colors.white54),
+                                      hintStyle:
+                                          TextStyle(color: Colors.white54),
                                     ),
                                     style: const TextStyle(color: Colors.white),
                                     onChanged: (value) {
                                       setState(() {
-                                        _filteredDestinationCountries = _flightSearchModel.destinationCountries
-                                            .where((country) =>
-                                                country['name']!.toLowerCase().contains(value.toLowerCase()) ||
-                                                country['code']!.toLowerCase().contains(value.toLowerCase()))
-                                            .where((country) =>
-                                                country['name'] != _flightSearchModel.selectedOriginCountry &&
-                                                country['code'] != _flightSearchModel.selectedOriginCountryCode) // Exclude origin airport
-                                            .toList();
+                                        _filteredDestinationCountries =
+                                            _flightSearchModel
+                                                .destinationCountries
+                                                .where((country) =>
+                                                    country['name']!
+                                                        .toLowerCase()
+                                                        .contains(value
+                                                            .toLowerCase()) ||
+                                                    country['code']!
+                                                        .toLowerCase()
+                                                        .contains(value
+                                                            .toLowerCase()))
+                                                .where((country) =>
+                                                    country['name'] !=
+                                                        _flightSearchModel
+                                                            .selectedOriginCountry &&
+                                                    country['code'] !=
+                                                        _flightSearchModel
+                                                            .selectedOriginCountryCode) // Exclude origin airport
+                                                .toList();
                                       });
                                     },
                                   );
                                 },
-                                optionsViewBuilder: (context, onSelected, options) {
+                                optionsViewBuilder:
+                                    (context, onSelected, options) {
                                   return Align(
                                     alignment: Alignment.topLeft,
                                     child: Material(
-                                      color: const Color.fromARGB(255, 255, 255, 255),
+                                      color: const Color.fromARGB(
+                                          255, 255, 255, 255),
                                       child: ConstrainedBox(
                                         constraints: BoxConstraints(
                                           maxWidth: screenWidth * 0.8,
@@ -778,9 +840,12 @@ final screenHeight = MediaQuery.of(context).size.height;
                                           padding: EdgeInsets.zero,
                                           itemCount: options.length,
                                           itemBuilder: (context, index) {
-                                            final option = options.elementAt(index);
+                                            final option =
+                                                options.elementAt(index);
                                             return ListTile(
-                                              title: Text(option, style: const TextStyle(color: Colors.black)),
+                                              title: Text(option,
+                                                  style: const TextStyle(
+                                                      color: Colors.black)),
                                               onTap: () => onSelected(option),
                                             );
                                           },
@@ -796,27 +861,36 @@ final screenHeight = MediaQuery.of(context).size.height;
                               Center(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    if (_flightSearchModel.selectedOriginCountry == null ||
-                                        _flightSearchModel.selectedDestinationCountry == null ||
-                                        _flightSearchModel.selectedOriginCountry!.isEmpty ||
-                                        _flightSearchModel.selectedDestinationCountry!.isEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                    if (_flightSearchModel
+                                                .selectedOriginCountry ==
+                                            null ||
+                                        _flightSearchModel
+                                                .selectedDestinationCountry ==
+                                            null ||
+                                        _flightSearchModel
+                                            .selectedOriginCountry!.isEmpty ||
+                                        _flightSearchModel
+                                            .selectedDestinationCountry!
+                                            .isEmpty) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         const SnackBar(
-                                          content: Text('Please select both origin and destination countries'),
+                                          content: Text(
+                                              'Please select both origin and destination countries'),
                                         ),
                                       );
                                     } else {
                                       // Save selected countries and navigate
                                       _saveSelectedCountries();
                                       _navigateToSelectDatePage(context);
-
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(9.0),
                                     ),
-                                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.009),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: screenWidth * 0.009),
                                     elevation: 0,
                                     backgroundColor: Colors.transparent,
                                   ),
@@ -832,14 +906,16 @@ final screenHeight = MediaQuery.of(context).size.height;
                                       ),
                                       borderRadius: BorderRadius.circular(9.0),
                                     ),
-                                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: screenHeight * 0.02),
                                     child: Center(
                                       child: Text(
                                         'Check Availability',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: screenWidth * 0.038, // Adjust font size as needed
+                                          fontSize: screenWidth *
+                                              0.038, // Adjust font size as needed
                                         ),
                                       ),
                                     ),
@@ -1022,8 +1098,10 @@ final screenHeight = MediaQuery.of(context).size.height;
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Transform.translate(
-                                        offset: Offset(0,
-                                            screenHeight * -0.022), // Adjust this value to move the text up or down
+                                        offset: Offset(
+                                            0,
+                                            screenHeight *
+                                                -0.022), // Adjust this value to move the text up or down
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -1110,212 +1188,396 @@ final screenHeight = MediaQuery.of(context).size.height;
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Expanded(
-  child: Transform.translate(
-    offset: const Offset(0.85, -20.0),
-    child: Container(
-      margin: EdgeInsets.only(left: screenWidth * 0.05),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: screenHeight * 0.23,
-                padding:  EdgeInsets.symmetric(vertical: screenHeight * 0.005, horizontal: screenWidth * 0.005),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white.withOpacity(0.8)),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8.0),
-                    bottomLeft: Radius.circular(8.0),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Center(
-                      child: Text(
-                        'From',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: screenWidth * 0.053,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.002),
-                    if (_flightSearchModel.selectedOriginCountry != null &&
-                        _flightSearchModel.selectedOriginCountryCode != null)
-                      Center(
-                        child: Text(
-                          _flightSearchModel.selectedOriginCountryCode!,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.08,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    TextField(
-                      controller: _originController,
-                      focusNode: _originFocusNode,
-                      decoration: InputDecoration(
-                        hintText: 'Enter & Select Origin',
-                        hintStyle: TextStyle(
-                          color: Colors.white54,
-                          fontSize: screenWidth * 0.043,
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.045,
-                      ),
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
-                      maxLines: 4,
-                      cursorColor: const Color.fromARGB(255, 255, 102, 0),
-                      cursorHeight: screenHeight*0.025,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value.isEmpty) {
-                            _flightSearchModel.selectedOriginCountry = null;
-                            _flightSearchModel.selectedOriginCountryCode = null;
-                            
-                          }
-                        });
-                        _filterOriginCountries(value);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              if (_originController.text.isNotEmpty)
-                Positioned(
-                  top: -3, 
-                  right: 0, 
-                  child: IconButton(
-                    icon: Icon(Icons.close, color: const Color.fromARGB(255, 208, 84, 1), size: screenWidth*0.06),
-                    onPressed: () {
-                      setState(() {
-                        _originController.clear();
-                        _flightSearchModel.selectedOriginCountry = null;
-                        _flightSearchModel.selectedOriginCountryCode = null;
-                      });
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ),
-),
-
+                                                child: Transform.translate(
+                                                  offset:
+                                                      const Offset(0.85, -20.0),
+                                                  child: Container(
+                                                    margin: EdgeInsets.only(
+                                                        left:
+                                                            screenWidth * 0.05),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Container(
+                                                              height:
+                                                                  screenHeight *
+                                                                      0.23,
+                                                              padding: EdgeInsets.symmetric(
+                                                                  vertical:
+                                                                      screenHeight *
+                                                                          0.005,
+                                                                  horizontal:
+                                                                      screenWidth *
+                                                                          0.005),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white
+                                                                        .withOpacity(
+                                                                            0.8)),
+                                                                borderRadius:
+                                                                    const BorderRadius
+                                                                        .only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          8.0),
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          8.0),
+                                                                ),
+                                                              ),
+                                                              child: Column(
+                                                                children: [
+                                                                  Center(
+                                                                    child: Text(
+                                                                      'From',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            screenWidth *
+                                                                                0.053,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                      height: screenHeight *
+                                                                          0.002),
+                                                                  if (_flightSearchModel
+                                                                              .selectedOriginCountry !=
+                                                                          null &&
+                                                                      _flightSearchModel
+                                                                              .selectedOriginCountryCode !=
+                                                                          null)
+                                                                    Center(
+                                                                      child:
+                                                                          Text(
+                                                                        _flightSearchModel
+                                                                            .selectedOriginCountryCode!,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontSize:
+                                                                              screenWidth * 0.08,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  TextField(
+                                                                    controller:
+                                                                        _originController,
+                                                                    focusNode:
+                                                                        _originFocusNode,
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      hintText:
+                                                                          'Enter & Select Origin',
+                                                                      hintStyle:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .white54,
+                                                                        fontSize:
+                                                                            screenWidth *
+                                                                                0.043,
+                                                                      ),
+                                                                      border: InputBorder
+                                                                          .none,
+                                                                      isDense:
+                                                                          true,
+                                                                      contentPadding:
+                                                                          EdgeInsets
+                                                                              .zero,
+                                                                    ),
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          screenWidth *
+                                                                              0.045,
+                                                                    ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    textAlignVertical:
+                                                                        TextAlignVertical
+                                                                            .center,
+                                                                    maxLines: 4,
+                                                                    cursorColor:
+                                                                        const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            255,
+                                                                            102,
+                                                                            0),
+                                                                    cursorHeight:
+                                                                        screenHeight *
+                                                                            0.025,
+                                                                    onChanged:
+                                                                        (value) {
+                                                                      setState(
+                                                                          () {
+                                                                        if (value
+                                                                            .isEmpty) {
+                                                                          _flightSearchModel.selectedOriginCountry =
+                                                                              null;
+                                                                          _flightSearchModel.selectedOriginCountryCode =
+                                                                              null;
+                                                                        }
+                                                                      });
+                                                                      _filterOriginCountries(
+                                                                          value);
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            if (_originController
+                                                                .text
+                                                                .isNotEmpty)
+                                                              Positioned(
+                                                                top: -3,
+                                                                right: 0,
+                                                                child:
+                                                                    IconButton(
+                                                                  icon: Icon(
+                                                                      Icons
+                                                                          .close,
+                                                                      color: const Color
+                                                                          .fromARGB(
+                                                                          255,
+                                                                          208,
+                                                                          84,
+                                                                          1),
+                                                                      size: screenWidth *
+                                                                          0.06),
+                                                                  onPressed:
+                                                                      () {
+                                                                    setState(
+                                                                        () {
+                                                                      _originController
+                                                                          .clear();
+                                                                      _flightSearchModel
+                                                                              .selectedOriginCountry =
+                                                                          null;
+                                                                      _flightSearchModel
+                                                                              .selectedOriginCountryCode =
+                                                                          null;
+                                                                    });
+                                                                  },
+                                                                ),
+                                                              ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                               Expanded(
-  child: Transform.translate(
-    offset: const Offset(0.50, -20.0),
-    child: Container(
-      margin: EdgeInsets.only(right: screenWidth * 0.05),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: screenHeight * 0.23,
-                                padding:  EdgeInsets.symmetric(vertical: screenHeight * 0.005, horizontal: screenWidth * 0.005),
-
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white.withOpacity(0.8)),
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(8.0),
-                    bottomRight: Radius.circular(8.0),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Center(
-                      child: Text(
-                        'To',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: screenWidth * 0.053,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.002),
-                    if (_flightSearchModel.selectedDestinationCountry != null &&
-                        _flightSearchModel.selectedDestinationCountryCode != null)
-                      Center(
-                        child: Text(
-                          _flightSearchModel.selectedDestinationCountryCode!,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: screenWidth * 0.08,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    TextField(
-                      controller: _destinationController,
-                      focusNode: _destinationFocusNode,
-                      decoration: InputDecoration(
-                        hintText: 'Enter & Select Destination',
-                        hintStyle: TextStyle(
-                          color: Colors.white54,
-                          fontSize: screenWidth * 0.043,
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.045,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 4,
-                      cursorColor: const Color.fromARGB(255, 255, 102, 0),
-                      cursorHeight: screenHeight * 0.025,
-                      onChanged: (value) {
-                        setState(() {
-                          if (value.isEmpty) {
-                            _flightSearchModel.selectedDestinationCountry = null;
-                            _flightSearchModel.selectedDestinationCountryCode = null;
-                          }
-                        });
-                        _filterDestinationCountries(value);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              if (_destinationController.text.isNotEmpty)
-                Positioned(
-                   top: -3, 
-                  right: 0, 
-                  child: IconButton(
-                    icon: Icon(Icons.close, color: const Color.fromARGB(255, 208, 84, 1), size: screenWidth*0.06),
-                    onPressed: () {
-                      setState(() {
-                        _destinationController.clear();
-                        _flightSearchModel.selectedDestinationCountry = null;
-                        _flightSearchModel.selectedDestinationCountryCode = null;
-                      });
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ),
-)
-
+                                                child: Transform.translate(
+                                                  offset:
+                                                      const Offset(0.50, -20.0),
+                                                  child: Container(
+                                                    margin: EdgeInsets.only(
+                                                        right:
+                                                            screenWidth * 0.05),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Stack(
+                                                          children: [
+                                                            Container(
+                                                              height:
+                                                                  screenHeight *
+                                                                      0.23,
+                                                              padding: EdgeInsets.symmetric(
+                                                                  vertical:
+                                                                      screenHeight *
+                                                                          0.005,
+                                                                  horizontal:
+                                                                      screenWidth *
+                                                                          0.005),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white
+                                                                        .withOpacity(
+                                                                            0.8)),
+                                                                borderRadius:
+                                                                    const BorderRadius
+                                                                        .only(
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          8.0),
+                                                                  bottomRight: Radius
+                                                                      .circular(
+                                                                          8.0),
+                                                                ),
+                                                              ),
+                                                              child: Column(
+                                                                children: [
+                                                                  Center(
+                                                                    child: Text(
+                                                                      'To',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            screenWidth *
+                                                                                0.053,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                      height: screenHeight *
+                                                                          0.002),
+                                                                  if (_flightSearchModel
+                                                                              .selectedDestinationCountry !=
+                                                                          null &&
+                                                                      _flightSearchModel
+                                                                              .selectedDestinationCountryCode !=
+                                                                          null)
+                                                                    Center(
+                                                                      child:
+                                                                          Text(
+                                                                        _flightSearchModel
+                                                                            .selectedDestinationCountryCode!,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontSize:
+                                                                              screenWidth * 0.08,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  TextField(
+                                                                    controller:
+                                                                        _destinationController,
+                                                                    focusNode:
+                                                                        _destinationFocusNode,
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      hintText:
+                                                                          'Enter & Select Destination',
+                                                                      hintStyle:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .white54,
+                                                                        fontSize:
+                                                                            screenWidth *
+                                                                                0.043,
+                                                                      ),
+                                                                      border: InputBorder
+                                                                          .none,
+                                                                      isDense:
+                                                                          true,
+                                                                      contentPadding:
+                                                                          EdgeInsets
+                                                                              .zero,
+                                                                    ),
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          screenWidth *
+                                                                              0.045,
+                                                                    ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    maxLines: 4,
+                                                                    cursorColor:
+                                                                        const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            255,
+                                                                            102,
+                                                                            0),
+                                                                    cursorHeight:
+                                                                        screenHeight *
+                                                                            0.025,
+                                                                    onChanged:
+                                                                        (value) {
+                                                                      setState(
+                                                                          () {
+                                                                        if (value
+                                                                            .isEmpty) {
+                                                                          _flightSearchModel.selectedDestinationCountry =
+                                                                              null;
+                                                                          _flightSearchModel.selectedDestinationCountryCode =
+                                                                              null;
+                                                                        }
+                                                                      });
+                                                                      _filterDestinationCountries(
+                                                                          value);
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            if (_destinationController
+                                                                .text
+                                                                .isNotEmpty)
+                                                              Positioned(
+                                                                top: -3,
+                                                                right: 0,
+                                                                child:
+                                                                    IconButton(
+                                                                  icon: Icon(
+                                                                      Icons
+                                                                          .close,
+                                                                      color: const Color
+                                                                          .fromARGB(
+                                                                          255,
+                                                                          208,
+                                                                          84,
+                                                                          1),
+                                                                      size: screenWidth *
+                                                                          0.06),
+                                                                  onPressed:
+                                                                      () {
+                                                                    setState(
+                                                                        () {
+                                                                      _destinationController
+                                                                          .clear();
+                                                                      _flightSearchModel
+                                                                              .selectedDestinationCountry =
+                                                                          null;
+                                                                      _flightSearchModel
+                                                                              .selectedDestinationCountryCode =
+                                                                          null;
+                                                                    });
+                                                                  },
+                                                                ),
+                                                              ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
                                             ],
                                           ),
                                           Transform.translate(
