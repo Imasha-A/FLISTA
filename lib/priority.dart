@@ -35,6 +35,8 @@ class _PriorityState extends State<PriorityPage> {
   List<StaffMember> staffMembers = [];
   bool isLoading = true;
   int _selectedIndex = 0;
+  late String _userName = 'User Name';
+  late String _userId = '123456';
 
   @override
   void initState() {
@@ -44,6 +46,22 @@ class _PriorityState extends State<PriorityPage> {
         widget.selectedUL; // Initialize selectedUL with the passed value
     ulList = widget.ulList;
     fetchData();
+  }
+
+  Future<void> _loadUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? displayName = prefs.getString('displayName');
+    setState(() {
+      _userName = displayName ?? 'User Name';
+    });
+  }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    setState(() {
+      _userId = userId ?? '123456';
+    });
   }
 
   // Add this function to handle logout
@@ -157,7 +175,7 @@ class _PriorityState extends State<PriorityPage> {
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeigth*0.153),
+        preferredSize: Size.fromHeight(screenHeigth * 0.153),
         child: AppBar(
           backgroundColor: Colors.transparent,
           titleTextStyle:
@@ -211,7 +229,7 @@ class _PriorityState extends State<PriorityPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: screenHeigth*0.007),
+                      SizedBox(height: screenHeigth * 0.007),
                       // Image above the form card
                       SizedBox(
                         height:
@@ -272,8 +290,7 @@ class _PriorityState extends State<PriorityPage> {
               ),
             )
           : Transform.translate(
-              offset:
-                  Offset(screenWidth*0.01, 0),
+              offset: Offset(screenWidth * 0.01, 0),
               child: SingleChildScrollView(
                 // Wrap the form with SingleChildScrollView
                 child: Column(
@@ -284,7 +301,7 @@ class _PriorityState extends State<PriorityPage> {
                     Container(
                       padding: const EdgeInsets.all(16.0),
                       margin: const EdgeInsets.all(14.0),
-                      width: screenWidth*0.95,
+                      width: screenWidth * 0.95,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
@@ -393,8 +410,29 @@ class _PriorityState extends State<PriorityPage> {
                                   ),
                                 )
                               else
+
                                 Column(
                                   children: staffMembers.map((staff) {
+                                    // Mask fields if the name doesn't match _userName
+                                    String fullName =
+                                        '${staff.firstName} ${staff.lastName}';
+                                    if (fullName != _userName ||
+                                        staff.staffID != _userId) {
+                                      // Mask sensitive fields
+                                      staff = StaffMember(
+                                        title: 'xxx',
+                                        firstName:
+                                            'xxxxxx', // Masked first name
+                                        lastName: 'xxxxxx', // Masked last name
+                                        staffID: 'xxxxxxxx', // Masked staff ID
+                                        priority: staff.priority,
+                                        status: staff.status,
+                                        pnr: staff.pnr,
+                                        actionStatus: staff.actionStatus,
+                                      );
+                                    }
+                                    _loadUserName();
+                                    _loadUserId();
                                     return Column(
                                       children: [
                                         SizedBox(

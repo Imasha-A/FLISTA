@@ -1,3 +1,4 @@
+import 'package:flista_new/models/staffmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
@@ -41,6 +42,11 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   late String formattedDate; // Declare formattedDate property
   late String formattedLongDate;
   bool isLoading = true;
+  List<StaffMember> staffMembers = [];
+
+  final APIService _apiService = APIService();
+  late String _userName = 'User Name';
+  late String _userId = '123456';
 
   @override
   void initState() {
@@ -54,6 +60,45 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     formattedLongDate = APIService()
         .formatLongDate(selectedDate); // Assign formattedLongDate value
     _fetchFlightLoadInfo();
+  }
+
+  Future<void> _loadUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? displayName = prefs.getString('displayName');
+    setState(() {
+      _userName = displayName ?? 'User Name';
+    });
+  }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    setState(() {
+      _userId = userId ?? '123456';
+    });
+  }
+
+  void fetchData() {
+    _apiService
+        .viewStaffMembers(
+      selectedDate,
+      widget.originCountryCode,
+      selectedUL,
+    )
+        .then((response) {
+      setState(() {
+        staffMembers = response; // Update the list of staff members
+        isLoading = false;
+      });
+      print(response);
+    }).catchError((error) {
+      print('Error fetching data: $error');
+      setState(() {
+        // Clear the staff members list and set isLoading to false
+        staffMembers = [];
+        isLoading = false;
+      });
+    }, test: (error) => error is Exception);
   }
 
   // Add this function to handle logout
@@ -272,6 +317,27 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigth = MediaQuery.of(context).size.height;
+    bool areButtonsEnabled = false; // Initialize as false
+    _loadUserName();
+    _loadUserId();
+    print(_userId);
+
+    // Check if any staff member matches the condition
+    for (var staff in staffMembers) {
+      // Exclude staff with ID '23799' from the condition
+
+      // Apply the regular condition for other staff members
+      String fullName = '${staff.firstName} ${staff.lastName}';
+      if (fullName == _userName && staff.staffID == _userId) {
+        areButtonsEnabled = true; // Enable buttons for matching staff
+        break; // Exit the loop early if condition is met
+      }
+    }
+    if (_userId == '23799') {
+      areButtonsEnabled = true; // Enable buttons for this staff ID
+      // Exit the loop early if condition is met
+    }
+    print('areButtonsEnabled: $areButtonsEnabled');
 
     return Scaffold(
       appBar: PreferredSize(
@@ -330,7 +396,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        height: screenHeigth*0.007,
+                        height: screenHeigth * 0.007,
                       ),
                       SizedBox(
                         height:
@@ -392,8 +458,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
               ),
             )
           : Transform.translate(
-              offset:
-                  Offset(screenWidth * -0.001, screenHeigth * 0.001), 
+              offset: Offset(screenWidth * -0.001, screenHeigth * 0.001),
               child: SingleChildScrollView(
                 child: SizedBox(
                   child: Column(
@@ -404,8 +469,8 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                         child: Container(
                           padding: const EdgeInsets.all(16.0),
                           margin: const EdgeInsets.all(14.0),
-                          height: screenHeigth*0.72,
-                          width: screenWidth*0.95,
+                          height: screenHeigth * 0.72,
+                          width: screenWidth * 0.95,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [
@@ -424,11 +489,11 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                 top: 45,
                                 bottom: 0,
                                 child: Transform.translate(
-                                  offset: Offset(screenWidth * 0.05,
-                                      screenHeigth * 0.002),
+                                  offset: Offset(
+                                      screenWidth * 0.05, screenHeigth * 0.002),
                                   child: Container(
                                     padding: EdgeInsets.only(
-                                        right: screenWidth*0.005),
+                                        right: screenWidth * 0.005),
                                     child: Image(
                                       image: const AssetImage(
                                           'assets/flight seatng 1.png'),
@@ -499,8 +564,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                     width: screenWidth * .03),
                                                 Transform.translate(
                                                   offset: Offset(
-                                                      screenWidth * 0.04,
-                                                      0.0),
+                                                      screenWidth * 0.04, 0.0),
                                                   child: GestureDetector(
                                                     onTap: () {
                                                       _changeUL(
@@ -552,7 +616,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                             'BC', // Business Class
                                             style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: screenWidth * 0.041, 
+                                              fontSize: screenWidth * 0.041,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -621,7 +685,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                         ],
                                       ),
                                       // Add more rows for other capacity information
-                                       SizedBox(height: screenHeigth * 0.01),
+                                      SizedBox(height: screenHeigth * 0.01),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -716,7 +780,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ],
                                       ),
-                                       SizedBox(height: screenHeigth * 0.01),
+                                      SizedBox(height: screenHeigth * 0.01),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -763,7 +827,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ],
                                       ),
-                                       SizedBox(height: screenHeigth * 0.01),
+                                      SizedBox(height: screenHeigth * 0.01),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -810,7 +874,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ],
                                       ),
-                                       SizedBox(height: screenHeigth * 0.01),
+                                      SizedBox(height: screenHeigth * 0.01),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -857,7 +921,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ],
                                       ),
-                                       SizedBox(height: screenHeigth * 0.01),
+                                      SizedBox(height: screenHeigth * 0.01),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -905,15 +969,18 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                         ],
                                       ),
                                       SizedBox(height: screenHeigth * 0.035),
+
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           ElevatedButton(
-                                            onPressed: () {
-                                              _navigateToMyPriorityPage(
-                                                  context);
-                                            },
+                                            onPressed: areButtonsEnabled
+                                                ? () {
+                                                    _navigateToMyPriorityPage(
+                                                        context);
+                                                  }
+                                                : null,
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
                                                   const Color.fromRGBO(
@@ -935,10 +1002,12 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                             ),
                                           ),
                                           ElevatedButton(
-                                            onPressed: () {
-                                              _navigateToPriorityPage(
-                                                  context); // Handle checking availability
-                                            },
+                                            onPressed: areButtonsEnabled
+                                                ? () {
+                                                    _navigateToPriorityPage(
+                                                        context);
+                                                  }
+                                                : null,
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: Colors.white,
                                               shape: RoundedRectangleBorder(
@@ -961,7 +1030,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ],
                                       ),
-                                       SizedBox(height: screenHeigth * 0.02),
+                                      SizedBox(height: screenHeigth * 0.02),
                                     ],
                                   )
                                 ],

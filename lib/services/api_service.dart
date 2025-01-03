@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:http/http.dart' as http;
 import '../models/flightloadmodel.dart';
 import 'dart:core';
@@ -8,19 +9,8 @@ class APIService {
   static const String baseUrl =
       'https://ulmobservices.srilankan.com/ULRESTAPP/api';
 
-  // // Hard-coded user details
-  // final Map<String, dynamic> hardcodedUserDetails = {
-  //   "PATH":
-  //       "LDAP://srilankan.corp/CN=Chamila Kanchana - 23799,OU=Users,OU=Information Technology,OU=CAK,DC=srilankan,DC=corp",
-  //   "USERID": "23799",
-  //   "DISPLAYNAME": "Chamila Kanchana",
-  //   "GRADE": "PERMANENT-CONFIRM",
-  //   "PERMISSIONLEVEL": null,
-  //   "WORKINGSCREENID": "",
-  //   "RESPONSE_CODE": "1",
-  //   "RESPONSE_MESSAGE": "Login Successful",
-  //   "USER_NAME": "Chamila Kanchana"
-  // };
+  static const String baseUrl2 =
+      'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api';
 
   // Function to format the origin country code
   String formatOriginCountryCode(String originCountryCode) {
@@ -53,34 +43,32 @@ class APIService {
     }
   }
 
-  // Future<Map<String, dynamic>> login(String username, String password) async {
-  //   return Future.value(hardcodedUserDetails);
-  // }
-
-   // Add login method to main.dart
+  // Add login method to main.dart
   Future<Map<String, dynamic>> login(String username, String password) async {
-  final response = await http.post(
-    Uri.parse('https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/Authentication/ADAuthenticateWithoutApsec'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'USERNAME': username,
-      'PASSWORD': password,
-      'APPSECAPPID': 'NONE',
-    }),
-  );
+    final response = await http.post(
+      Uri.parse(
+          'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/Authentication/ADAuthenticateWithoutApsec'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'USERNAME': username,
+        'PASSWORD': password,
+        'APPSECAPPID': 'NONE',
+      }),
+    );
 
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body)[0];
-    final path = data['PATH'];
-    final userName = path.split('CN=')[1].split(',')[0];
-    data['USER_NAME'] = userName; // Add the extracted name to the response data
-    return data;
-  } else {
-    throw Exception('Failed to authenticate');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)[0];
+      final path = data['PATH'];
+      final userName = path.split('CN=')[1].split(',')[0];
+      data['USER_NAME'] =
+          userName; // Add the extracted name to the response data
+      return data;
+    } else {
+      throw Exception('Failed to authenticate');
+    }
   }
-}
 
   // Modified getFlightInfo method to use formatted country codes
   Future<List<dynamic>> getFlightInfo(String selectedDate,
@@ -236,7 +224,7 @@ class APIService {
 
     final response = await http.get(
       Uri.parse(
-          '$baseUrl/FLIGHTINFO/STAFFALL?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'),
+          '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'),
     );
 
     // Check if the response status code indicates success
@@ -254,6 +242,38 @@ class APIService {
       throw Exception('Failed to load staff members');
     }
   }
+//take pnr from viewStaffMembers and send to viewTicketInformation when popup is created.
+  Future<TicketInformation> viewTicketInformation(String pnr) async {
+  // Set up the API endpoint
+  final url = Uri.parse(
+      'https://ulmobservices.srilankan.com/AmadeusLiveServices/api/AmadeusServices/GetPNRDetailsFlista');
+
+  // Set up the request headers and body
+  final headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
+  final body = 'PNRNo=$pnr';
+
+  // Send the POST request
+  final response = await http.post(
+    url,
+    headers: headers,
+    body: body,
+  );
+
+  // Check if the response status code indicates success
+  if (response.statusCode == 200) {
+    // Parse the response body to a JSON object
+    final data = json.decode(response.body);
+
+    // Convert the JSON object to a TicketInformation instance
+    return TicketInformation.fromJson(data);
+  } else {
+    // If the request was not successful, throw an error
+    throw Exception('Failed to load ticket information');
+  }
+}
+
 
   Future<Map<String, dynamic>> viewCheckInStatus(String flightDate,
       String boardPoint, String flightNo, String staffID) async {
@@ -264,3 +284,5 @@ class APIService {
     return json.decode(response.body);
   }
 }
+
+

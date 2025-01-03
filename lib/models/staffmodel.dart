@@ -6,6 +6,8 @@ class StaffMember {
   final String status;
   final String title;
   final String actionStatus;
+  final String pnr;
+  
 
   StaffMember({
     required this.firstName,
@@ -15,6 +17,7 @@ class StaffMember {
     required this.status,
     required this.title,
     required this.actionStatus,
+    required this.pnr,
   });
 
   factory StaffMember.fromJson(Map<String, dynamic> json) {
@@ -26,6 +29,7 @@ class StaffMember {
       status: json['Status'] ?? '',
       title: json['Title'] ?? '',
       actionStatus: json['ActionStatus'] ?? '',
+      pnr: json['PNR'] ?? '',
     );
   }
 }
