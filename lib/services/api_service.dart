@@ -242,38 +242,40 @@ class APIService {
       throw Exception('Failed to load staff members');
     }
   }
-//take pnr from viewStaffMembers and send to viewTicketInformation when popup is created.
-  Future<TicketInformation> viewTicketInformation(String pnr) async {
-  // Set up the API endpoint
+Future<List<TicketInformation>> viewTicketInformation(String pnr) async {
   final url = Uri.parse(
       'https://ulmobservices.srilankan.com/AmadeusLiveServices/api/AmadeusServices/GetPNRDetailsFlista');
 
-  // Set up the request headers and body
   final headers = {
     'Content-Type': 'application/x-www-form-urlencoded',
   };
   final body = 'PNRNo=$pnr';
 
-  // Send the POST request
   final response = await http.post(
     url,
     headers: headers,
     body: body,
   );
 
-  // Check if the response status code indicates success
   if (response.statusCode == 200) {
-    // Parse the response body to a JSON object
     final data = json.decode(response.body);
 
-    // Convert the JSON object to a TicketInformation instance
-    return TicketInformation.fromJson(data);
+    // Check if PassengerInformation exists and is a list
+    if (data['PassengerInformation'] != null &&
+        data['PassengerInformation'] is List) {
+      // Map each passenger's info to a TicketInformation object
+      List<dynamic> passengerInfo = data['PassengerInformation'];
+      return passengerInfo
+          .map((info) => TicketInformation.fromJson(info))
+          .toList();
+    } else {
+      throw Exception('Invalid response format');
+    }
   } else {
-    // If the request was not successful, throw an error
-    throw Exception('Failed to load ticket information');
+    throw Exception(
+        'Failed to load ticket information: ${response.reasonPhrase}');
   }
 }
-
 
   Future<Map<String, dynamic>> viewCheckInStatus(String flightDate,
       String boardPoint, String flightNo, String staffID) async {
@@ -284,5 +286,3 @@ class APIService {
     return json.decode(response.body);
   }
 }
-
-

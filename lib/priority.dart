@@ -83,7 +83,19 @@ class _PriorityState extends State<PriorityPage> {
     )
         .then((response) {
       setState(() {
-        staffMembers = response; // Update the list of staff members
+        staffMembers = response;
+        // Sort staffMembers by the 'priority' field in ascending order
+        staffMembers.sort((a, b) {
+          if (a.priority == "" && b.priority == "") {
+            return 0;
+          } else if (a.priority == "") {
+            return 1;
+          } else if (b.priority == "") {
+            return -1;
+          } else {
+            return a.priority.compareTo(b.priority);
+          }
+        });
         isLoading = false;
       });
       print(response);
@@ -172,7 +184,8 @@ class _PriorityState extends State<PriorityPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigth = MediaQuery.of(context).size.height;
-
+    _loadUserName();
+    _loadUserId();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(screenHeigth * 0.153),
@@ -410,13 +423,14 @@ class _PriorityState extends State<PriorityPage> {
                                   ),
                                 )
                               else
-
                                 Column(
                                   children: staffMembers.map((staff) {
                                     // Mask fields if the name doesn't match _userName
                                     String fullName =
                                         '${staff.firstName} ${staff.lastName}';
-                                    if (fullName != _userName ||
+
+                                    if (fullName.toLowerCase() !=
+                                            _userName.toLowerCase() ||
                                         staff.staffID != _userId) {
                                       // Mask sensitive fields
                                       staff = StaffMember(
@@ -424,15 +438,14 @@ class _PriorityState extends State<PriorityPage> {
                                         firstName:
                                             'xxxxxx', // Masked first name
                                         lastName: 'xxxxxx', // Masked last name
-                                        staffID: 'xxxxxxxx', // Masked staff ID
+                                        staffID: 'xxxxxx', // Masked staff ID
                                         priority: staff.priority,
                                         status: staff.status,
                                         pnr: staff.pnr,
                                         actionStatus: staff.actionStatus,
                                       );
                                     }
-                                    _loadUserName();
-                                    _loadUserId();
+
                                     return Column(
                                       children: [
                                         SizedBox(

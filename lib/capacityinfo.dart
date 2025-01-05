@@ -128,22 +128,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
           flightLoad = flightLoadDataList.first;
         }
         isLoading = false; // Hide loader after data is fetched
-
-        // Print each property of the fetched FlightLoadModel
-        print('Jcapacity: "${flightLoad?.jCapacity}",');
-        print('Ycapacity: "${flightLoad?.yCapacity}",');
-        print('Jbooked: "${flightLoad?.jBooked}",');
-        print('Ybooked: "${flightLoad?.yBooked}",');
-        print('Jcheckedin: "${flightLoad?.jCheckedIn}",');
-        print('Ycheckedin: "${flightLoad?.yCheckedIn}",');
-        print('JCommercialStandby: "${flightLoad?.jCommercialStandby}",');
-        print('YCommercialStandby: "${flightLoad?.yCommercialStandby}",');
-        print('JStaffListed: "${flightLoad?.jStaffListed}",');
-        print('YStaffListed: "${flightLoad?.yStaffListed}",');
-        print('JstaffOnStandby: "${flightLoad?.jStaffOnStandby}",');
-        print('YstaffOnStandby: "${flightLoad?.yStaffOnStandby}",');
-        print('JstaffAccepted: "${flightLoad?.jStaffAccepted}",');
-        print('YstaffAccepted: "${flightLoad?.yStaffAccepted}",');
       });
     } catch (error) {
       print('Error fetching flight load information: $error');
@@ -221,10 +205,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
       // Update formattedDate and formattedLongDate with the new date values
       formattedDate = APIService().formatDate(selectedDate);
       formattedLongDate = APIService().formatLongDate(selectedDate);
-
-      print('Selected Date: $selectedDate'); // Debug print statement
-      print('Formatted Date: $formattedDate'); // Debug print statement
-      print('Formatted Long Date: $formattedLongDate'); // Debug print statement
 
       // Fetch flight load information for the updated date
       _fetchFlightLoadInfo();
@@ -320,7 +300,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     bool areButtonsEnabled = false; // Initialize as false
     _loadUserName();
     _loadUserId();
-    print(_userId);
 
     // Check if any staff member matches the condition
     for (var staff in staffMembers) {
@@ -337,7 +316,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
       areButtonsEnabled = true; // Enable buttons for this staff ID
       // Exit the loop early if condition is met
     }
-    print('areButtonsEnabled: $areButtonsEnabled');
 
     return Scaffold(
       appBar: PreferredSize(
@@ -982,23 +960,40 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                   }
                                                 : null,
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromRGBO(
-                                                      235, 97, 39, 1),
+                                              backgroundColor: areButtonsEnabled
+                                                  ? const Color.fromRGBO(
+                                                      235,
+                                                      97,
+                                                      39,
+                                                      1) // Normal color when enabled
+                                                  : Colors
+                                                      .grey, // Color when disabled
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(9.0),
                                               ),
+                                              disabledForegroundColor:
+                                                  Colors.grey.withOpacity(0.38),
+                                              disabledBackgroundColor:
+                                                  const Color.fromARGB(
+                                                      169, 235, 98, 39),
                                               padding: EdgeInsets.symmetric(
-                                                  horizontal:
-                                                      screenWidth * 0.09),
+                                                  horizontal: screenWidth *
+                                                      0.09), // Ensures background color is grey when disabled
                                             ),
                                             child: Text(
                                               'My Priority',
                                               style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: screenWidth * 0.04),
+                                                color: areButtonsEnabled
+                                                    ? Colors.white
+                                                    : const Color.fromARGB(
+                                                        189,
+                                                        255,
+                                                        255,
+                                                        255), // Text color for enabled/disabled
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: screenWidth * 0.04,
+                                              ),
                                             ),
                                           ),
                                           ElevatedButton(
@@ -1009,23 +1004,45 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                   }
                                                 : null,
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.white,
+                                              backgroundColor: areButtonsEnabled
+                                                  ? Colors
+                                                      .white // Normal color when enabled
+                                                  : Colors
+                                                      .grey, // Color when disabled
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(9.0),
                                               ),
+                                              disabledForegroundColor:
+                                                  const Color.fromARGB(
+                                                          255, 255, 255, 255)
+                                                      .withOpacity(0.38),
+                                              disabledBackgroundColor:
+                                                  const Color.fromARGB(
+                                                          255, 242, 236, 236)
+                                                      .withOpacity(0.12),
+
                                               padding: EdgeInsets.symmetric(
-                                                  horizontal:
-                                                      screenWidth * 0.03),
+                                                  horizontal: screenWidth *
+                                                      0.03), // Ensures background color is grey when disabled
                                             ),
                                             child: Text(
                                               'Check-in Summary',
                                               style: TextStyle(
-                                                  color: const Color.fromRGBO(
-                                                      235, 97, 39, 1),
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.037),
+                                                color: areButtonsEnabled
+                                                    ? const Color.fromRGBO(
+                                                        235,
+                                                        97,
+                                                        39,
+                                                        1) // Normal color for text when enabled
+                                                    : const Color.fromARGB(
+                                                        194,
+                                                        235,
+                                                        98,
+                                                        39), // Color when disabled
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: screenWidth * 0.037,
+                                              ),
                                             ),
                                           ),
                                         ],

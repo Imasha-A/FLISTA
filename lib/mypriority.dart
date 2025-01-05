@@ -1,3 +1,4 @@
+import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
@@ -30,12 +31,14 @@ class MyPriorityPage extends StatefulWidget {
 class _MyPriorityState extends State<MyPriorityPage> {
   final APIService _apiService = APIService();
   late String selectedDate;
-  late String selectedUL; // Initialize selectedUL
+  late String selectedUL;
   late List<String> ulList;
-  late String _userId; // Add this line
+  late String _userId;
   List<StaffMember> staffMembers = [];
   bool isLoading = true;
   int _selectedIndex = 0;
+  late String _userName = 'User Name';
+  List<TicketInformation> allTicketInfo = [];
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _MyPriorityState extends State<MyPriorityPage> {
     selectedUL =
         widget.selectedUL; // Initialize selectedUL with the passed value
     ulList = widget.ulList;
+    _loadUserName();
     _loadUserIdFromPreferences().then((_) {
       fetchData();
     });
@@ -67,6 +71,14 @@ class _MyPriorityState extends State<MyPriorityPage> {
     });
   }
 
+  Future<void> _loadUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? displayName = prefs.getString('displayName');
+    setState(() {
+      _userName = displayName ?? 'User Name';
+    });
+  }
+
   void fetchData() {
     _apiService
         .viewStaffMembers(
@@ -74,28 +86,73 @@ class _MyPriorityState extends State<MyPriorityPage> {
       widget.originCountryCode,
       selectedUL,
     )
-        .then((response) {
+        .then((response) async {
       setState(() {
-        if (_userId == 'IN1913') {
-          staffMembers = response;
-        } else if (_userId == 'IN1927') {
-          staffMembers = response;
-        } else if (_userId == '23799') {
-          staffMembers = response;
-        } else if (_userId == '23933') {
-          staffMembers = response;
-        } else if (_userId == '16763') {
-          staffMembers = response;
-        } else if (_userId == '12988') {
+        // Filter staff members based on userId or userName
+        if (_userId == 'IN1913' ||
+            _userId == 'IN1927' ||
+            _userId == '23799' ||
+            _userId == '23933' ||
+            _userId == '16763' ||
+            _userId == '12988') {
           staffMembers = response;
         } else {
           staffMembers = response.where((staff) {
-            return staff.staffID == _userId;
+            String fullName = '${staff.firstName} ${staff.lastName}';
+            // Display staff if their ID matches _userId or name matches _userName
+            return staff.staffID == _userId ||
+                fullName.toLowerCase() == _userName.toLowerCase();
           }).toList();
         }
+
+        // Sort staffMembers by priority, with missing priority at the bottom
+        staffMembers.sort((a, b) {
+          if (a.priority == "" && b.priority == "") {
+            return 0;
+          } else if (a.priority == "") {
+            return 1;
+          } else if (b.priority == "") {
+            return -1;
+          } else {
+            return a.priority.compareTo(b.priority);
+          }
+        });
+
         isLoading = false;
       });
-      print(response);
+      print("imasha");
+
+      for (var staff in staffMembers) {
+        try {
+          if (staff.pnr.isNotEmpty) {
+            // Fetch ticket information for the given PNR
+            final ticketInfoList =
+                await _apiService.viewTicketInformation(staff.pnr);
+
+            // Add the fetched ticket information to the list
+            allTicketInfo.addAll(ticketInfoList);
+
+            // Optional: Print details for debugging
+            print('PNR: ${staff.pnr}');
+            for (var ticketInfo in ticketInfoList) {
+              print('--- Ticket Information ---');
+              print(
+                  'Passenger Name: ${ticketInfo.firstName} ${ticketInfo.lastName}');
+              print('Ticket Number: ${ticketInfo.TicketNumber}');
+              print('Flight Numbers: ${ticketInfo.FlightNumbers}');
+              print('Passport Number: ${ticketInfo.PassportNumber}');
+              print('Seat Mapped: ${ticketInfo.SeatMapped}');
+              print('--------------------------');
+            }
+          } else {
+            print(
+                'No PNR available for staff: ${staff.firstName} ${staff.lastName}');
+          }
+        } catch (error) {
+          print(
+              'Error fetching ticket information for PNR ${staff.pnr}: $error');
+        }
+      }
     }).catchError((error) {
       print('Error fetching data: $error');
       setState(() {
@@ -174,6 +231,107 @@ class _MyPriorityState extends State<MyPriorityPage> {
       }
     });
   }
+
+//TICKET INFORMATION DISPLAY
+
+  void showTicketDetailsPopup(
+      BuildContext context, StaffMember staffMember, TicketInformation ticket) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Ticket Details",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Flight Information
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          "CMB",
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Text("Colombo"),
+                        Text("23 Jan 2025\n10:00 (Local)",
+                            textAlign: TextAlign.center),
+                      ],
+                    ),
+                    Icon(Icons.flight, size: 36),
+                    Column(
+                      children: [
+                        Text(
+                          "BKK",
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        Text("Bangkok"),
+                        Text("23 Jan 2025\n15:00 (Local)",
+                            textAlign: TextAlign.center),
+                      ],
+                    ),
+                  ],
+                ),
+                const Divider(thickness: 1),
+                // Passenger Info
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Passenger",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      "${staffMember.firstName} ${staffMember.lastName} (${ticket.PassportNumber})",
+                    ),
+                    const SizedBox(height: 8),
+                    Text("Ticket No: ${ticket.TicketNumber}"),
+                    Text("Flight: ${ticket.FlightNumbers}"),
+                    Text("PNR: ${staffMember.pnr}"),
+                    Text("Seat: ${ticket.SeatMapped}"),
+                    Text("Status: ${staffMember.status}"),
+                    Text("Duration: 3h 10m"),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Close"),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+// END OF TICKET INFORMATION DISPLAY
 
   @override
   Widget build(BuildContext context) {
@@ -425,8 +583,21 @@ class _MyPriorityState extends State<MyPriorityPage> {
                                           width: screenWidth * 2,
                                           height: screenHeigth * 0.175,
                                           child: ElevatedButton(
-                                            onPressed: () {
-                                              // Handle button press
+                                            onPressed: () async {
+                                              // Assuming you have ticket data associated with the staff member
+                                              TicketInformation ticket =
+                                                  await _apiService
+                                                      .viewTicketInformation(
+                                                          staff.pnr)
+                                                      .then((ticketList) {
+                                                // You can get the ticket you need based on your logic
+                                                return ticketList
+                                                    .first; // Modify this according to your requirement
+                                              });
+
+                                              // Show the popup with staff and ticket details
+                                              showTicketDetailsPopup(
+                                                  context, staff, ticket);
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
