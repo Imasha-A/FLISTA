@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flista_new/models/flightmodel.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:http/http.dart' as http;
 import '../models/flightloadmodel.dart';
@@ -242,40 +243,80 @@ class APIService {
       throw Exception('Failed to load staff members');
     }
   }
-Future<List<TicketInformation>> viewTicketInformation(String pnr) async {
-  final url = Uri.parse(
-      'https://ulmobservices.srilankan.com/AmadeusLiveServices/api/AmadeusServices/GetPNRDetailsFlista');
 
-  final headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  };
-  final body = 'PNRNo=$pnr';
+  Future<List<TicketInformation>> viewTicketInformation(String pnr) async {
+    final url = Uri.parse(
+        'https://ulmobservices.srilankan.com/AmadeusLiveServices/api/AmadeusServices/GetPNRDetailsFlista');
 
-  final response = await http.post(
-    url,
-    headers: headers,
-    body: body,
-  );
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    final body = 'PNRNo=$pnr';
 
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
+    final response = await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
 
-    // Check if PassengerInformation exists and is a list
-    if (data['PassengerInformation'] != null &&
-        data['PassengerInformation'] is List) {
-      // Map each passenger's info to a TicketInformation object
-      List<dynamic> passengerInfo = data['PassengerInformation'];
-      return passengerInfo
-          .map((info) => TicketInformation.fromJson(info))
-          .toList();
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      // Check if PassengerInformation exists and is a list
+      if (data['PassengerInformation'] != null &&
+          data['PassengerInformation'] is List) {
+        // Map each passenger's info to a TicketInformation object
+        List<dynamic> passengerInfo = data['PassengerInformation'];
+        return passengerInfo
+            .map((info) => TicketInformation.fromJson(info))
+            .toList();
+      } else {
+        throw Exception('Invalid response format');
+      }
     } else {
-      throw Exception('Invalid response format');
+      throw Exception(
+          'Failed to load ticket information: ${response.reasonPhrase}');
     }
-  } else {
-    throw Exception(
-        'Failed to load ticket information: ${response.reasonPhrase}');
   }
-}
+
+  Future<List<FlightInformation>> viewFlightInformation(String pnr) async {
+    final url = Uri.parse(
+        'https://ulmobservices.srilankan.com/AmadeusLiveServices/api/AmadeusServices/GetPNRDetailsFlista');
+
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    final body = 'PNRNo=$pnr';
+
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        // Check if Flights exist and is a list
+        if (data['FlightInformation'] != null &&
+            data['FlightInformation'] is List) {
+          List<dynamic> flights = data['FlightInformation'];
+          return flights
+              .map((flight) => FlightInformation.fromJson(flight))
+              .toList();
+        } else {
+          throw Exception('Invalid response format: Missing Flights data');
+        }
+      } else {
+        throw Exception(
+            'Failed to load flight information: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      throw Exception(
+          'Error occurred while fetching flight information: $error');
+    }
+  }
 
   Future<Map<String, dynamic>> viewCheckInStatus(String flightDate,
       String boardPoint, String flightNo, String staffID) async {

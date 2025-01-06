@@ -1712,12 +1712,23 @@ class _HomePageState extends State<HomePage> {
                               case 0:
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HistoryPage()),
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        const HistoryPage(),
+                                    transitionDuration: Duration(seconds: 0),
+                                  ),
                                 );
                                 break;
                               case 1:
+                               Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    const HomePage(selectedDate: '',),
+                transitionDuration: Duration(seconds: 0), // No animation
+              ),
+            );
                                 break;
                               case 2:
                                 bool? confirmLogout = await showDialog(

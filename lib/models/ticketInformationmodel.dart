@@ -5,7 +5,7 @@ class TicketInformation {
   final String PassportNumber;
   final String SeatMapped;
   final String FlightNumbers;
-//add gate number
+ 
   TicketInformation({
     required this.firstName,
     required this.lastName,
@@ -13,7 +13,7 @@ class TicketInformation {
     required this.PassportNumber,
     required this.SeatMapped,
     required this.FlightNumbers,
-
+    
   });
 
   factory TicketInformation.fromJson(Map<String, dynamic> json) {
@@ -24,7 +24,7 @@ class TicketInformation {
       PassportNumber: json['PassportNumber'] ?? '',
       SeatMapped: json['SeatMapped'] ?? '',
       FlightNumbers: json['FlightNumbers'] ?? '',
-
+     
     );
   }
 }

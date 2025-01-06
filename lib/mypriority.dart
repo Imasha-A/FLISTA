@@ -1,4 +1,6 @@
+import 'package:flista_new/models/flightinfomodel.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
+import 'package:flista_new/models/flightmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
@@ -39,6 +41,7 @@ class _MyPriorityState extends State<MyPriorityPage> {
   int _selectedIndex = 0;
   late String _userName = 'User Name';
   List<TicketInformation> allTicketInfo = [];
+  List<FlightInformation> allFlightInfo = [];
 
   @override
   void initState() {
@@ -142,6 +145,7 @@ class _MyPriorityState extends State<MyPriorityPage> {
               print('Flight Numbers: ${ticketInfo.FlightNumbers}');
               print('Passport Number: ${ticketInfo.PassportNumber}');
               print('Seat Mapped: ${ticketInfo.SeatMapped}');
+
               print('--------------------------');
             }
           } else {
@@ -151,6 +155,34 @@ class _MyPriorityState extends State<MyPriorityPage> {
         } catch (error) {
           print(
               'Error fetching ticket information for PNR ${staff.pnr}: $error');
+        }
+      }
+      for (var staff in staffMembers) {
+        try {
+          if (staff.pnr.isNotEmpty) {
+            // Fetch flight information for the given PNR
+            final flightInfoList =
+                await _apiService.viewFlightInformation(staff.pnr);
+
+            // Add the fetched flight information to the list
+            allFlightInfo.addAll(flightInfoList);
+
+            // Optional: Print details for debugging
+            print('PNR: ${staff.pnr}');
+            for (var flightInfo in flightInfoList) {
+              print('--- Flight Information ---');
+              print('Dep Date: ${flightInfo.depDate}');
+              print('Dep Time: ${flightInfo.depTime}');
+              print('Arr Date: ${flightInfo.arrDate}');
+              print('Arr Time: ${flightInfo.arrTime}');
+              print('--------------------------');
+            }
+          } else {
+            print('PNR is empty for staff member: ${staff.firstName}');
+          }
+        } catch (error) {
+          print(
+              'Error fetching flight information for PNR ${staff.pnr}: $error');
         }
       }
     }).catchError((error) {
@@ -233,98 +265,235 @@ class _MyPriorityState extends State<MyPriorityPage> {
   }
 
 //TICKET INFORMATION DISPLAY
-
   void showTicketDetailsPopup(
-      BuildContext context, StaffMember staffMember, TicketInformation ticket) {
+    BuildContext context,
+    StaffMember staffMember,
+    TicketInformation ticket,
+    FlightInformation flight,
+    String flightNumber,
+    String originCountryCode,
+    String destinationCountryCode,
+    String selectedUL,
+  ) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
+          backgroundColor: Color.fromRGBO(49, 121, 167, 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header Section with Background and Title
+              Stack(
+                children: [
+                  Container(
+                    width: screenWidth * 0.9,
+                    height: screenHeight * 0.08,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage("assets/airplanebg.png"),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(12)),
+                    ),
+                  ),
+                  Positioned(
+                    top: screenHeight * 0.02,
+                    left: screenWidth * 0.05,
+                    child: Text(
                       "Ticket Details",
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue),
+                        fontSize: screenHeight * 0.025,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close),
+                  ),
+                  Positioned(
+                    top: screenHeight * 0.01,
+                    right: screenWidth * 0.05,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: Colors.white),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              // Main Ticket Information
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(12)),
                 ),
-                const SizedBox(height: 16),
-                // Flight Information
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Column(
+                    // Flight Information Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "CMB",
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              flight.Boardpoint,
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.05,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "${flight.depDate}",
+                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            ),
+                            Text(
+                              "${flight.depTime} (Local)",
+                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            ),
+                          ],
                         ),
-                        Text("Colombo"),
-                        Text("23 Jan 2025\n10:00 (Local)",
-                            textAlign: TextAlign.center),
+                        Image.asset(
+                          "assets/airplaneProgress.png",
+                          width: screenWidth * 0.25,
+                          height: screenHeight * 0.1,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              flight.Offpoint,
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.05,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "${flight.arrDate}",
+                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            ),
+                            Text(
+                              "${flight.arrTime} (Local)",
+                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                    Icon(Icons.flight, size: 36),
+                    // Dashed Divider
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Row(
+                        children: List.generate(
+                          40,
+                          (index) => Expanded(
+                            child: Container(
+                              height: 1,
+                              color: index % 2 == 0
+                                  ? Colors.transparent
+                                  : Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Passenger Information
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "BKK",
+                          "Passenger",
                           style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                        Text("Bangkok"),
-                        Text("23 Jan 2025\n15:00 (Local)",
-                            textAlign: TextAlign.center),
+                        SizedBox(height: 4),
+                        Text(
+                          "${staffMember.firstName} ${staffMember.lastName} (${ticket.PassportNumber})",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Ticket No",
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text(ticket.TicketNumber),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Flight",
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text(flightNumber),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("PNR",
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text(staffMember.pnr),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Seat",
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text(ticket.SeatMapped),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Status",
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text(staffMember.status),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Duration",
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text("3h 10m"),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
-                const Divider(thickness: 1),
-                // Passenger Info
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Passenger",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(
-                      "${staffMember.firstName} ${staffMember.lastName} (${ticket.PassportNumber})",
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Close",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text("Ticket No: ${ticket.TicketNumber}"),
-                    Text("Flight: ${ticket.FlightNumbers}"),
-                    Text("PNR: ${staffMember.pnr}"),
-                    Text("Seat: ${ticket.SeatMapped}"),
-                    Text("Status: ${staffMember.status}"),
-                    Text("Duration: 3h 10m"),
                   ],
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text("Close"),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
@@ -595,9 +764,26 @@ class _MyPriorityState extends State<MyPriorityPage> {
                                                     .first; // Modify this according to your requirement
                                               });
 
+                                              FlightInformation flight =
+                                                  await _apiService
+                                                      .viewFlightInformation(
+                                                          staff.pnr)
+                                                      .then((flightList) {
+                                                // You can get the ticket you need based on your logic
+                                                return flightList
+                                                    .first; // Modify this according to your requirement
+                                              });
+
                                               // Show the popup with staff and ticket details
                                               showTicketDetailsPopup(
-                                                  context, staff, ticket);
+                                                  context,
+                                                  staff,
+                                                  ticket,
+                                                  flight,
+                                                  widget.originCountryCode,
+                                                  widget.destinationCountryCode,
+                                                  widget.scheduledTime,
+                                                  selectedUL);
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:

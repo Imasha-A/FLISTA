@@ -89,7 +89,6 @@ class _HistoryPageState extends State<HistoryPage> {
     });
   }
 
-
   void _navigateToCapacityInfoPage(String flightKey) {
     // Extract necessary flight details from flightKey
     List<String> keyParts = flightKey.split('_');
@@ -491,7 +490,7 @@ class _HistoryPageState extends State<HistoryPage> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                      Color.fromRGBO(2, 77, 117, 1),
+                    Color.fromRGBO(2, 77, 117, 1),
                     Color.fromRGBO(2, 77, 117, 1),
                   ],
                   begin: Alignment.topCenter,
@@ -499,8 +498,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
               ),
               child: BottomNavigationBar(
-                backgroundColor:   const Color.fromRGBO(3, 47, 70, 1),
-                    
+                backgroundColor: const Color.fromRGBO(3, 47, 70, 1),
                 elevation: 0,
                 currentIndex: 1,
                 selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
@@ -512,10 +510,15 @@ class _HistoryPageState extends State<HistoryPage> {
                     case 1:
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage(
-                                  selectedDate: '',
-                                )),
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const HomePage(
+                            selectedDate: '',
+                          ),
+                          transitionDuration:
+                              Duration(seconds: 0), // No animation
+                        ),
                       );
                     case 2:
                       bool? confirmLogout = await showDialog(
