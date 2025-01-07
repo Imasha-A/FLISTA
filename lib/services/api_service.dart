@@ -326,4 +326,22 @@ class APIService {
     );
     return json.decode(response.body);
   }
+
+  static Future<List<Map<String, dynamic>>> getOriginsAndDestinations() async {
+    const String url = 'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/CargoMobileAppCorp/GetOriginsAndDestinations';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        // Decode the JSON response
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => item as Map<String, dynamic>).toList();
+      } else {
+        throw Exception('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching data: $e');
+    }
+  }
+
 }

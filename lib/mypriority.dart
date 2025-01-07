@@ -1,7 +1,7 @@
-import 'package:flista_new/models/flightinfomodel.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:flista_new/models/flightmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
 import '../models/staffmodel.dart';
@@ -42,6 +42,7 @@ class _MyPriorityState extends State<MyPriorityPage> {
   late String _userName = 'User Name';
   List<TicketInformation> allTicketInfo = [];
   List<FlightInformation> allFlightInfo = [];
+  late Future<List<Map<String, dynamic>>> airportDataFuture;
 
   @override
   void initState() {
@@ -50,10 +51,19 @@ class _MyPriorityState extends State<MyPriorityPage> {
     selectedUL =
         widget.selectedUL; // Initialize selectedUL with the passed value
     ulList = widget.ulList;
+
+    airportDataFuture = APIService.getOriginsAndDestinations();
     _loadUserName();
     _loadUserIdFromPreferences().then((_) {
       fetchData();
     });
+  }
+
+  String? getCountryFromCode(
+      String code, List<Map<String, dynamic>> airportData) {
+    final match = airportData.firstWhere((entry) => entry['code'] == code,
+        orElse: () => {});
+    return match['name'];
   }
 
   // Add this function to handle logout
@@ -80,6 +90,23 @@ class _MyPriorityState extends State<MyPriorityPage> {
     setState(() {
       _userName = displayName ?? 'User Name';
     });
+  }
+
+  String formatDate(String date) {
+    final year =
+        "20" + date.substring(4, 6); // Assuming the year is in 'YY' format
+    final month = date.substring(2, 4);
+    final day = date.substring(0, 2);
+
+    final dateTime = DateTime.parse("$year-$month-$day");
+    return DateFormat('dd MMM yyyy').format(dateTime);
+  }
+
+  String formatTime(String time) {
+    final hours = time.substring(0, 2);
+    final minutes = time.substring(2, 4);
+
+    return "$hours:$minutes (Local)";
   }
 
   void fetchData() {
@@ -264,6 +291,34 @@ class _MyPriorityState extends State<MyPriorityPage> {
     });
   }
 
+  String calculateDuration(
+      String depDate, String depTime, String arrDate, String arrTime) {
+    // Parse the date and time strings
+    final departure = DateTime(
+      2000 + int.parse(depDate.substring(4)), // Year
+      int.parse(depDate.substring(2, 4)), // Month
+      int.parse(depDate.substring(0, 2)), // Day
+      int.parse(depTime.substring(0, 2)), // Hour
+      int.parse(depTime.substring(2, 4)), // Minute
+    );
+
+    final arrival = DateTime(
+      2000 + int.parse(arrDate.substring(4)), // Year
+      int.parse(arrDate.substring(2, 4)), // Month
+      int.parse(arrDate.substring(0, 2)), // Day
+      int.parse(arrTime.substring(0, 2)), // Hour
+      int.parse(arrTime.substring(2, 4)), // Minute
+    );
+
+    // Calculate the duration
+    final duration = arrival.difference(departure);
+
+    // Format the duration as "Xh Ym"
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return "${hours}h ${minutes}m";
+  }
+
 //TICKET INFORMATION DISPLAY
   void showTicketDetailsPopup(
     BuildContext context,
@@ -329,170 +384,344 @@ class _MyPriorityState extends State<MyPriorityPage> {
               // Main Ticket Information
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  image: DecorationImage(
+                    image: AssetImage("assets/ticketCard.png"),
+                    fit: BoxFit.fill,
+                  ),
                   borderRadius:
                       BorderRadius.vertical(bottom: Radius.circular(12)),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding: EdgeInsets.symmetric(
+                    horizontal: screenHeight * 0.03,
+                    vertical: screenWidth * 0.015),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Flight Information Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        SizedBox(height: screenHeight * 0.01),
+                        // Flight Information Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              flight.Boardpoint,
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.05,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  flight.Boardpoint,
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.07,
+                                    fontWeight: FontWeight.w900,
+                                    color:
+                                        const Color.fromRGBO(49, 121, 167, 1),
+                                  ),
+                                ),
+                                SizedBox(height: screenHeight * 0.01),
+                                FutureBuilder<List<Map<String, dynamic>>>(
+                                  future:
+                                      APIService.getOriginsAndDestinations(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Text(
+                                        "Loading country...",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.03),
+                                      );
+                                    } else if (snapshot.hasError ||
+                                        !snapshot.hasData) {
+                                      return Text(
+                                        "Error fetching country",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.03),
+                                      );
+                                    }
+                                    final country = getCountryFromCode(
+                                        flight.Boardpoint, snapshot.data!);
+                                    return Text(
+                                      country ?? "Unknown country",
+                                      style: TextStyle(
+                                          fontSize: screenWidth * 0.03),
+                                    );
+                                  },
+                                ),
+                                Text(
+                                  formatDate(flight.depDate),
+                                  style: TextStyle(
+                                      fontSize: screenWidth * 0.03,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  formatTime(flight.depTime),
+                                  style: TextStyle(
+                                      fontSize: screenWidth * 0.03,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              "${flight.depDate}",
-                              style: TextStyle(fontSize: screenWidth * 0.04),
-                            ),
-                            Text(
-                              "${flight.depTime} (Local)",
-                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  flight.Offpoint,
+                                  style: TextStyle(
+                                    fontSize: screenWidth * 0.07,
+                                    fontWeight: FontWeight.w900,
+                                    color:
+                                        const Color.fromRGBO(49, 121, 167, 1),
+                                  ),
+                                ),
+                                SizedBox(height: screenHeight * 0.01),
+                                FutureBuilder<List<Map<String, dynamic>>>(
+                                  future:
+                                      APIService.getOriginsAndDestinations(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Text(
+                                        "Loading country...",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.03),
+                                      );
+                                    } else if (snapshot.hasError ||
+                                        !snapshot.hasData) {
+                                      return Text(
+                                        "Error fetching country",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.03),
+                                      );
+                                    }
+                                    final country = getCountryFromCode(
+                                        flight.Offpoint, snapshot.data!);
+                                    return Text(
+                                      country ?? "Unknown country",
+                                      style: TextStyle(
+                                          fontSize: screenWidth * 0.03),
+                                    );
+                                  },
+                                ),
+                                Text(
+                                  formatDate(flight.arrDate),
+                                  style: TextStyle(
+                                      fontSize: screenWidth * 0.03,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  formatTime(flight.arrTime),
+                                  style: TextStyle(
+                                      fontSize: screenWidth * 0.03,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                         Image.asset(
                           "assets/airplaneProgress.png",
-                          width: screenWidth * 0.25,
+                          width: screenWidth * 0.2,
                           height: screenHeight * 0.1,
                         ),
+                        SizedBox(height: screenHeight * 0.02),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Passenger Information - Single line
                             Text(
-                              flight.Offpoint,
+                              "Passenger",
                               style: TextStyle(
-                                fontSize: screenWidth * 0.05,
+                                fontSize: screenWidth * 0.038,
+                              ),
+                            ),
+                            SizedBox(height: screenHeight * 0.008),
+                            Text(
+                              "${staffMember.firstName} ${staffMember.lastName} (${ticket.PassportNumber})",
+                              style: TextStyle(
+                                fontSize: screenWidth * 0.036,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              "${flight.arrDate}",
-                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            SizedBox(height: screenHeight * 0.01),
+
+                            // Row with Ticket No and Flight
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Ticket No",
+                                          style: TextStyle(
+                                              fontSize: screenWidth * 0.038)),
+                                      Text(
+                                        ticket.TicketNumber,
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.038,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Flight",
+                                          style: TextStyle(
+                                              fontSize: screenWidth * 0.038)),
+                                      Text(
+                                        flightNumber,
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.038,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              "${flight.arrTime} (Local)",
-                              style: TextStyle(fontSize: screenWidth * 0.04),
+                            SizedBox(height: screenHeight * 0.01),
+
+                            // Row with PNR and Seat
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("PNR",
+                                          style: TextStyle(
+                                              fontSize: screenWidth * 0.038)),
+                                      Text(
+                                        staffMember.pnr,
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.038,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Seat",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.038),
+                                      ),
+                                      Text(
+                                        ticket.SeatMapped.isEmpty
+                                            ? '  -  '
+                                            : ticket
+                                                .SeatMapped, // Check if SeatMapped is empty
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.038,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign
+                                            .center, // Center align the text
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: screenHeight * 0.01),
+
+                            // Row with Status and Duration
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Status",
+                                          style: TextStyle(
+                                              fontSize: screenWidth * 0.038)),
+                                      Text(
+                                        staffMember.status,
+                                        style: TextStyle(
+                                            fontSize: screenWidth * 0.038,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Duration",
+                                          style: TextStyle(
+                                              fontSize: screenWidth * 0.038)),
+                                      Text(
+                                        calculateDuration(
+                                            flight.depDate,
+                                            flight.depTime,
+                                            flight.arrDate,
+                                            flight.arrTime),
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.038,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                    // Dashed Divider
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Row(
-                        children: List.generate(
-                          40,
-                          (index) => Expanded(
-                            child: Container(
-                              height: 1,
-                              color: index % 2 == 0
-                                  ? Colors.transparent
-                                  : Colors.grey,
+
+                        // Button at the end
+                        SizedBox(height: screenHeight * 0.025),
+                        Center(
+                          child: SizedBox(
+                            width: screenWidth * 0.4,
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(255, 205, 85, 33),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: screenHeight * 0.015,
+                                  horizontal: screenWidth * 0.09,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      screenHeight * 0.01),
+                                ),
+                              ),
+                              child: Text(
+                                "Close",
+                                style: TextStyle(
+                                  fontSize: screenWidth * 0.038,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    // Passenger Information
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Passenger",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "${staffMember.firstName} ${staffMember.lastName} (${ticket.PassportNumber})",
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Ticket No",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            Text(ticket.TicketNumber),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Flight",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            Text(flightNumber),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("PNR",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            Text(staffMember.pnr),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Seat",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            Text(ticket.SeatMapped),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Status",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            Text(staffMember.status),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text("Duration",
-                                style: TextStyle(fontWeight: FontWeight.w600)),
-                            Text("3h 10m"),
-                          ],
-                        ),
+                        SizedBox(height: screenHeight * 0.01),
                       ],
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        "Close",
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
                     ),
                   ],
                 ),
               ),
+              SizedBox(height: screenHeight * 0.01),
             ],
           ),
         );
