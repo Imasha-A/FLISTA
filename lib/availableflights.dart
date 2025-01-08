@@ -226,17 +226,20 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: screenHeight * 0.007,
+                       SizedBox(
+                        height: screenHeight * 0.06,
                       ),
                       SizedBox(
                         height:
-                            screenHeight * 0.13,
-                        width: screenWidth * 0.78,
+                            screenHeight * 0.06, // Adjust the height as needed
+                        width: screenWidth * 0.75,
                         child: const Image(
                           image: AssetImage('assets/airplane-route.png'),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                         ),
+                      ),
+                      SizedBox(
+                        height: screenHeight * 0.03,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -199,6 +199,8 @@ class APIService {
       Uri.parse(
           '$baseUrl/FLIGHTINFO/ALL?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate'),
     );
+    print(
+        '$baseUrl/FLIGHTINFO/ALL?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate');
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
@@ -328,7 +330,8 @@ class APIService {
   }
 
   static Future<List<Map<String, dynamic>>> getOriginsAndDestinations() async {
-    const String url = 'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/CargoMobileAppCorp/GetOriginsAndDestinations';
+    const String url =
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/CargoMobileAppCorp/GetOriginsAndDestinations';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -343,5 +346,4 @@ class APIService {
       throw Exception('Error fetching data: $e');
     }
   }
-
 }

@@ -124,11 +124,11 @@ class _SelectDatePageState extends State<SelectDatePage> {
             child: IconButton(
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomePage(selectedDate: selectedDate)),
-                  );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          HomePage(selectedDate: selectedDate)),
+                );
               },
               icon: const Icon(
                 Icons.arrow_back,
@@ -174,16 +174,19 @@ class _SelectDatePageState extends State<SelectDatePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        height: screenHeight * 0.007,
+                        height: screenHeight * 0.06,
                       ),
                       SizedBox(
                         height:
-                            screenHeight * 0.13, // Adjust the height as needed
-                        width: screenWidth * 0.78,
+                            screenHeight * 0.06, // Adjust the height as needed
+                        width: screenWidth * 0.75,
                         child: const Image(
                           image: AssetImage('assets/airplane-route.png'),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                         ),
+                      ),
+                      SizedBox(
+                        height: screenHeight * 0.03,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -236,258 +239,272 @@ class _SelectDatePageState extends State<SelectDatePage> {
             children: [
               SizedBox(height: screenHeight * 0.02),
               Transform.translate(
-                offset: Offset(screenWidth* -0.001, 0.0),
+                offset: Offset(screenWidth * -0.001, 0.0),
                 child: Container(
-  padding: const EdgeInsets.all(16.0),
-  margin: const EdgeInsets.all(16.0),
-  height: screenHeight * 0.48,
-  width: screenWidth * 1,
-  decoration: BoxDecoration(
-    gradient: const LinearGradient(
-      colors: [
-        Color.fromRGBO(51, 123, 169, 1),
-        Color.fromRGBO(2, 77, 117, 1),
-      ],
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-    ),
-    borderRadius: BorderRadius.circular(16.0),
-  ),
-  child: SingleChildScrollView( // Add scrolling
-    child: Column(
-      children: [
-        Transform.translate(
-          offset: const Offset(0.0, -3.0),
-          child: Text(
-            'Select a Date',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: screenWidth * 0.055,
-            ),
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.01),
-        Center(
-          child: SizedBox(
-            width: screenWidth * 0.8, // Customize the width here
-            child: ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  selectedDate = formattedToday;
-                });
-                _navigateToAvailableFlightsPage(context); // Handle checking availability
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromRGBO(235, 97, 39, 1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9.0),
+                  padding: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.all(16.0),
+                  height: screenHeight * 0.48,
+                  width: screenWidth * 1,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color.fromRGBO(51, 123, 169, 1),
+                        Color.fromRGBO(2, 77, 117, 1),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  child: SingleChildScrollView(
+                    // Add scrolling
+                    child: Column(
+                      children: [
+                        Transform.translate(
+                          offset: const Offset(0.0, -3.0),
+                          child: Text(
+                            'Select a Date',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: screenWidth * 0.055,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.01),
+                        Center(
+                          child: SizedBox(
+                            width:
+                                screenWidth * 0.8, // Customize the width here
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedDate = formattedToday;
+                                });
+                                _navigateToAvailableFlightsPage(
+                                    context); // Handle checking availability
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromRGBO(235, 97, 39, 1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(9.0),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: screenHeight * 0.015),
+                                elevation: screenWidth * 0.015,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      'Today',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: screenWidth * 0.055,
+                                      ),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      formattedToday,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: screenWidth * 0.044,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      _getDayOfWeek(now.weekday),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: screenWidth * 0.04,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.02),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedDate = formattedTomorrow;
+                                });
+                                _navigateToAvailableFlightsPage(
+                                    context); // Handle checking availability
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor:
+                                    const Color.fromARGB(255, 33, 144, 213),
+                                side: const BorderSide(
+                                    width: 1.5, color: Colors.white),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(9.0),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth * 0.05,
+                                    vertical: screenHeight * 0.017),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Tomorrow',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.045,
+                                    ),
+                                  ),
+                                  Text(
+                                    formattedTomorrow,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.034,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    _getDayOfWeek(tomorrow.weekday),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.036,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: screenWidth * 0.02),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  selectedDate = formattedDayAfterTomorrow;
+                                });
+                                _navigateToAvailableFlightsPage(
+                                    context); // Handle checking availability
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor:
+                                    const Color.fromARGB(255, 33, 144, 213),
+                                side: const BorderSide(
+                                    width: 1.5, color: Colors.white),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(9.0),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth * 0.05,
+                                    vertical: screenHeight * 0.017),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Day After',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.045,
+                                    ),
+                                  ),
+                                  Text(
+                                    formattedDayAfterTomorrow,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.034,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    _getDayOfWeek(dayAfterTomorrow.weekday),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.036,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: screenHeight * 0.02),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              selectedDate = formattedDayAfterDayAfterTomorrow;
+                            });
+                            _navigateToAvailableFlightsPage(
+                                context); // Handle checking availability
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor:
+                                const Color.fromARGB(255, 33, 144, 213),
+                            side: const BorderSide(
+                                width: 1.5, color: Colors.white),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(9.0),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.25,
+                                vertical: screenHeight * 0.014),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'The Next Day',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: screenWidth * 0.05,
+                                ),
+                              ),
+                              Text(
+                                formattedDayAfterDayAfterTomorrow,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: screenWidth * 0.036,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                _getDayOfWeek(dayAfterDayAfterTomorrow.weekday),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: screenWidth * 0.038,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
-                elevation: screenWidth * 0.015,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Text(
-                      'Today',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: screenWidth * 0.055,
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      formattedToday,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.044,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      _getDayOfWeek(now.weekday),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenWidth * 0.04,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.02),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  selectedDate = formattedTomorrow;
-                });
-                _navigateToAvailableFlightsPage(context); // Handle checking availability
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: const Color.fromARGB(255, 33, 144, 213),
-                side: const BorderSide(width: 1.5, color: Colors.white),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9.0),
-                ),
-                padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.05,
-                    vertical: screenHeight * 0.017),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Tomorrow',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.045,
-                    ),
-                  ),
-                  Text(
-                    formattedTomorrow,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.034,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    _getDayOfWeek(tomorrow.weekday),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.036,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: screenWidth * 0.02),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  selectedDate = formattedDayAfterTomorrow;
-                });
-                _navigateToAvailableFlightsPage(context); // Handle checking availability
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: const Color.fromARGB(255, 33, 144, 213),
-                side: const BorderSide(width: 1.5, color: Colors.white),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9.0),
-                ),
-                padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.05,
-                    vertical: screenHeight * 0.017),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'Day After',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.045,
-                    ),
-                  ),
-                  Text(
-                    formattedDayAfterTomorrow,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.034,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    _getDayOfWeek(dayAfterTomorrow.weekday),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.036,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: screenHeight * 0.02),
-        ElevatedButton(
-          onPressed: () {
-            setState(() {
-              selectedDate = formattedDayAfterDayAfterTomorrow;
-            });
-            _navigateToAvailableFlightsPage(context); // Handle checking availability
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            shadowColor: const Color.fromARGB(255, 33, 144, 213),
-            side: const BorderSide(width: 1.5, color: Colors.white),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(9.0),
-            ),
-            padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.25, vertical: screenHeight * 0.014),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'The Next Day',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.05,
-                ),
-              ),
-              Text(
-                formattedDayAfterDayAfterTomorrow,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: screenWidth * 0.036,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                _getDayOfWeek(dayAfterDayAfterTomorrow.weekday),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w300,
-                  fontSize: screenWidth * 0.038,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
               ),
               // Form card
 

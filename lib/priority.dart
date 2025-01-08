@@ -242,16 +242,20 @@ class _PriorityState extends State<PriorityPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: screenHeigth * 0.007),
-                      // Image above the form card
+                      SizedBox(
+                        height: screenHeigth * 0.06,
+                      ),
                       SizedBox(
                         height:
-                            screenHeigth * 0.13, // Adjust the height as needed
-                        width: screenWidth * 0.78,
+                            screenHeigth * 0.06, // Adjust the height as needed
+                        width: screenWidth * 0.75,
                         child: const Image(
                           image: AssetImage('assets/airplane-route.png'),
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fill,
                         ),
+                      ),
+                      SizedBox(
+                        height: screenHeigth * 0.03,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
