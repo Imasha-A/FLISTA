@@ -43,6 +43,8 @@ dependencies:
   flutter_launcher_icons : any
   marquee: ^2.0.0
   device_info_plus: ^11.1.1
+  dropdown_search: ^5.0.6
+
 
 flutter_icons:
   android: true
@@ -96,6 +98,8 @@ flutter:
      - assets/airplaneProgress.png
      - assets/airplanebg.png
      - assets/ticketCard.png
+     - assets/from.png
+     - assets/to.png
    
 
 
