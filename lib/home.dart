@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   late String destinationCountryCode;
   late String _userName = 'User Name';
   late String _userId = '123456';
+  String? _errorMessage;
 
   bool _isLoading = true;
   List<Map<String, String>> _filteredOriginCountries = [];
@@ -469,8 +470,6 @@ class _HomePageState extends State<HomePage> {
             return Text('Error: ${snapshot.error}');
           } else {
             int majorVersion = snapshot.data ?? 0;
-
-            String? _errorMessage;
 
             final screenHeight = MediaQuery.of(context).size.height;
             final screenWidth = MediaQuery.of(context).size.width;
@@ -1306,6 +1305,7 @@ class _HomePageState extends State<HomePage> {
                                                         // Container for origin selection
                                                         GestureDetector(
                                                           onTap: () {
+                                                            _searchQuery = '';
                                                             // Show the modal bottom sheet when the container is clicked
                                                             showModalBottomSheet(
                                                               context: context,
@@ -1386,13 +1386,17 @@ class _HomePageState extends State<HomePage> {
                                                                           height:
                                                                               12.0),
                                                                       // Filtered Country List
+                                                                      // Filtered Country List
                                                                       Expanded(
                                                                         child:
                                                                             ListView(
                                                                           shrinkWrap:
                                                                               true,
                                                                           children: _filteredOriginCountries
-                                                                              .where((country) => country['code'] != _flightSearchModel.selectedOriginCountryCode && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
+                                                                              .where((country) =>
+                                                                                  country['code'] != _flightSearchModel.selectedOriginCountryCode &&
+                                                                                  country['code'] != _destinationController.text && // Exclude destination country
+                                                                                  (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
                                                                               .map((country) {
                                                                             return ListTile(
                                                                               onTap: () {
@@ -1400,6 +1404,7 @@ class _HomePageState extends State<HomePage> {
                                                                                   _originController.text = country['code']!;
                                                                                   _flightSearchModel.selectedOriginCountry = country['name'];
                                                                                   _flightSearchModel.selectedOriginCountryCode = country['code'];
+                                                                                  _searchQuery = '';
                                                                                 });
                                                                                 Navigator.pop(context); // Close the bottom sheet after selection
                                                                               },
@@ -1471,23 +1476,25 @@ class _HomePageState extends State<HomePage> {
                                                                         crossAxisAlignment:
                                                                             CrossAxisAlignment.start,
                                                                         children: [
-                                                                          Text(
-                                                                            _originController.text,
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontWeight: FontWeight.w700,
-                                                                              fontSize: screenWidth * 0.065,
-                                                                              color: const Color.fromARGB(255, 255, 255, 255),
+                                                                          Center(
+                                                                            child:
+                                                                                Text(
+                                                                              _originController.text,
+                                                                              style: TextStyle(
+                                                                                fontWeight: FontWeight.w700,
+                                                                                fontSize: screenWidth * 0.065,
+                                                                                color: const Color.fromARGB(255, 255, 255, 255),
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                          Text(
-                                                                            _filteredOriginCountries.firstWhere((country) =>
-                                                                                country['code'] ==
-                                                                                _originController.text)['name']!,
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: const Color.fromARGB(255, 255, 255, 255),
-                                                                              fontSize: screenWidth * 0.04,
+                                                                          Center(
+                                                                            child:
+                                                                                Text(
+                                                                              _filteredOriginCountries.firstWhere((country) => country['code'] == _originController.text)['name']!,
+                                                                              style: TextStyle(
+                                                                                color: const Color.fromARGB(255, 255, 255, 255),
+                                                                                fontSize: screenWidth * 0.04,
+                                                                              ),
                                                                             ),
                                                                           ),
                                                                         ],
@@ -1580,6 +1587,7 @@ class _HomePageState extends State<HomePage> {
                                                         // Container for destination selection
                                                         GestureDetector(
                                                           onTap: () {
+                                                            _searchQuery = '';
                                                             // Show the modal bottom sheet when the container is clicked
                                                             showModalBottomSheet(
                                                               context: context,
@@ -1666,7 +1674,10 @@ class _HomePageState extends State<HomePage> {
                                                                           shrinkWrap:
                                                                               true,
                                                                           children: _filteredDestinationCountries
-                                                                              .where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
+                                                                              .where((country) =>
+                                                                                  country['code'] != _flightSearchModel.selectedDestinationCountryCode &&
+                                                                                  country['code'] != _originController.text && // Exclude origin country
+                                                                                  (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
                                                                               .map((country) {
                                                                             return ListTile(
                                                                               onTap: () {
@@ -1674,6 +1685,7 @@ class _HomePageState extends State<HomePage> {
                                                                                   _destinationController.text = country['code']!;
                                                                                   _flightSearchModel.selectedDestinationCountry = country['name'];
                                                                                   _flightSearchModel.selectedDestinationCountryCode = country['code'];
+                                                                                  _searchQuery = '';
                                                                                 });
                                                                                 Navigator.pop(context); // Close the bottom sheet after selection
                                                                               },
@@ -1745,23 +1757,25 @@ class _HomePageState extends State<HomePage> {
                                                                         crossAxisAlignment:
                                                                             CrossAxisAlignment.start,
                                                                         children: [
-                                                                          Text(
-                                                                            _destinationController.text,
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontWeight: FontWeight.w700,
-                                                                              fontSize: screenWidth * 0.065,
-                                                                              color: const Color.fromARGB(255, 255, 255, 255),
+                                                                          Center(
+                                                                            child:
+                                                                                Text(
+                                                                              _destinationController.text,
+                                                                              style: TextStyle(
+                                                                                fontWeight: FontWeight.w700,
+                                                                                fontSize: screenWidth * 0.065,
+                                                                                color: const Color.fromARGB(255, 255, 255, 255),
+                                                                              ),
                                                                             ),
                                                                           ),
-                                                                          Text(
-                                                                            _filteredDestinationCountries.firstWhere((country) =>
-                                                                                country['code'] ==
-                                                                                _destinationController.text)['name']!,
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: const Color.fromARGB(255, 255, 255, 255),
-                                                                              fontSize: screenWidth * 0.04,
+                                                                          Center(
+                                                                            child:
+                                                                                Text(
+                                                                              _filteredDestinationCountries.firstWhere((country) => country['code'] == _destinationController.text)['name']!,
+                                                                              style: TextStyle(
+                                                                                color: const Color.fromARGB(255, 255, 255, 255),
+                                                                                fontSize: screenWidth * 0.04,
+                                                                              ),
                                                                             ),
                                                                           ),
                                                                         ],
