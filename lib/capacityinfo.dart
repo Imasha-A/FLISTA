@@ -1,4 +1,5 @@
 import 'package:flista_new/models/staffmodel.dart';
+import 'package:flista_new/mytickets.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
@@ -47,7 +48,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   final APIService _apiService = APIService();
   late String _userName = 'User Name';
   late String _userId = '123456';
-
+  bool areButtonsEnabled = false;
   @override
   void initState() {
     super.initState();
@@ -60,6 +61,32 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     formattedLongDate = APIService()
         .formatLongDate(selectedDate); // Assign formattedLongDate value
     _fetchFlightLoadInfo();
+
+    _initializeState();
+  }
+
+  Future<void> _initializeState() async {
+    await _loadUserName();
+    await _loadUserId();
+    await fetchData();
+
+    // Check if any staff member matches the condition
+    for (var staff in staffMembers) {
+      String fullName = '${staff.firstName} ${staff.lastName}';
+
+      if (fullName == _userName || staff.staffID == _userId) {
+        setState(() {
+          areButtonsEnabled = true; // Enable buttons for matching staff
+        });
+
+        print(fullName);
+        print(_userName);
+        print(staff.staffID);
+        print(_userName);
+
+        break; // Exit the loop early if condition is met
+      }
+    }
   }
 
   Future<void> _loadUserName() async {
@@ -78,27 +105,49 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     });
   }
 
-  void fetchData() {
-    _apiService
-        .viewStaffMembers(
-      selectedDate,
-      widget.originCountryCode,
-      selectedUL,
-    )
-        .then((response) {
-      setState(() {
-        staffMembers = response; // Update the list of staff members
-        isLoading = false;
-      });
-      print(response);
-    }).catchError((error) {
+  Future<void> fetchData() async {
+    try {
+      var response = await _apiService.viewStaffMembers(
+        selectedDate,
+        widget.originCountryCode,
+        selectedUL,
+      );
+
+      // Only update state if the widget is still mounted
+      if (mounted) {
+        setState(() {
+          staffMembers = response; // Update the list of staff members
+          isLoading = false;
+        });
+
+        // Check if any staff member matches the condition
+        for (var staff in staffMembers) {
+          String fullName = '${staff.firstName} ${staff.lastName}';
+
+          if (fullName == _userName || staff.staffID == _userId) {
+            setState(() {
+              areButtonsEnabled = true; // Enable buttons for matching staff
+            });
+
+            print(fullName);
+            print(_userName);
+            print(staff.staffID);
+            print(_userId);
+
+            break; // Exit the loop early if condition is met
+          }
+        }
+      }
+    } catch (error) {
+      // Only update state if the widget is still mounted
+      if (mounted) {
+        setState(() {
+          staffMembers = [];
+          isLoading = false;
+        });
+      }
       print('Error fetching data: $error');
-      setState(() {
-        // Clear the staff members list and set isLoading to false
-        staffMembers = [];
-        isLoading = false;
-      });
-    }, test: (error) => error is Exception);
+    }
   }
 
   // Add this function to handle logout
@@ -208,6 +257,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
 
       // Fetch flight load information for the updated date
       _fetchFlightLoadInfo();
+      _initializeState();
     });
   }
 
@@ -297,35 +347,40 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigth = MediaQuery.of(context).size.height;
-    bool areButtonsEnabled = false; // Initialize as false
-    _loadUserName();
-    _loadUserId();
+    // bool areButtonsEnabled = false; // Initialize as false
+    // _loadUserName();
+    // _loadUserId();
 
-    // Check if any staff member matches the condition
-    for (var staff in staffMembers) {
-      // Exclude staff with ID '23799' from the condition
+    // // Check if any staff member matches the condition
+    // for (var staff in staffMembers) {
+    //   // Exclude staff with ID '23799' from the condition
 
-      // Apply the regular condition for other staff members
-      String fullName = '${staff.firstName} ${staff.lastName}';
-      if (fullName == _userName && staff.staffID == _userId) {
-        areButtonsEnabled = true; // Enable buttons for matching staff
-        break; // Exit the loop early if condition is met
-      }
-    }
-    if (_userId == '23799') {
-      areButtonsEnabled = true; // Enable buttons for this staff ID
-      // Exit the loop early if condition is met
-    }
+    //   // Apply the regular condition for other staff members
+    //   String fullName = '${staff.firstName} ${staff.lastName}';
+
+    //   if (fullName == _userName || staff.staffID == _userId) {
+    //     areButtonsEnabled = true; // Enable buttons for matching staff
+    //     break; // Exit the loop early if condition is met
+    //   }
+    //   print(fullName);
+    //   print(_userName);
+    //   print(staff.staffID);
+    //   print(_userName);
+    // }
+    // // if (_userId == '23799') {
+    // //   areButtonsEnabled = true; // Enable buttons for this staff ID
+    // //   // Exit the loop early if condition is met
+    // // }
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeigth * 0.153),
+        preferredSize: Size.fromHeight(screenHeigth * 0.173),
         child: AppBar(
           backgroundColor: Colors.transparent,
-          titleTextStyle:
-              const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+          titleTextStyle: TextStyle(
+              fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
           leading: Transform.translate(
-            offset: const Offset(8.0, 12.0),
+            offset: const Offset(0, 0),
             child: IconButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -374,12 +429,12 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        height: screenHeigth * 0.06,
+                        height: screenHeigth * 0.08,
                       ),
                       SizedBox(
                         height:
-                            screenHeigth * 0.06, // Adjust the height as needed
-                        width: screenWidth * 0.75,
+                            screenHeigth * 0.054, // Adjust the height as needed
+                        width: screenWidth * 0.72,
                         child: const Image(
                           image: AssetImage('assets/airplane-route.png'),
                           fit: BoxFit.fill,
@@ -1078,30 +1133,46 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
             ),
           ),
           child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.transparent,
             elevation: 1,
-            currentIndex: 0,
+            currentIndex: 1,
             selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
             unselectedItemColor: Colors.white,
             onTap: (index) async {
               switch (index) {
-                case 0:
+                case 0: // History
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const HistoryPage()),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const HistoryPage(),
+                      transitionDuration: Duration(seconds: 0), // No animation
+                    ),
                   );
                   break;
-                case 1:
-                  // Navigate to Home Page
+                case 1: // Home
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomePage(selectedDate: selectedDate)),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          HomePage(selectedDate: selectedDate),
+                      transitionDuration: Duration(seconds: 0), // No animation
+                    ),
                   );
                   break;
-                case 2:
+
+                case 2: // My Tickets
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const MyTickets(),
+                      transitionDuration: Duration(seconds: 0), // No animation
+                    ),
+                  );
+                  break;
+                case 3: // Logout
                   bool? confirmLogout = await showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -1155,7 +1226,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                     },
                   );
 
-                  // If the user confirms, perform the logout
                   if (confirmLogout == true) {
                     _logout(); // Call the logout function
                   }
@@ -1165,7 +1235,10 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
             items: [
               _buildCustomBottomNavigationBarItem(
                   Icons.history, 'History', false),
-              _buildCustomBottomNavigationBarItem(Icons.home, 'Home', true),
+              _buildCustomBottomNavigationBarItem(
+                  Icons.home_outlined, 'Home', false),
+              _buildCustomBottomNavigationBarItem(
+                  Icons.airplane_ticket_outlined, 'My Tickets', false),
               _buildCustomBottomNavigationBarItem(
                   Icons.logout, 'Logout', false),
             ],

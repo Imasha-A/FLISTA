@@ -1,3 +1,4 @@
+import 'package:flista_new/mytickets.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
@@ -188,13 +189,13 @@ class _PriorityState extends State<PriorityPage> {
     _loadUserId();
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeigth * 0.153),
+        preferredSize: Size.fromHeight(screenHeigth * 0.173),
         child: AppBar(
           backgroundColor: Colors.transparent,
-          titleTextStyle:
-              const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+          titleTextStyle: TextStyle(
+              fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
           leading: Transform.translate(
-            offset: const Offset(8.0, 12.0),
+            offset: const Offset(0, 0),
             child: IconButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -243,12 +244,12 @@ class _PriorityState extends State<PriorityPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        height: screenHeigth * 0.06,
+                        height: screenHeigth * 0.08,
                       ),
                       SizedBox(
                         height:
-                            screenHeigth * 0.06, // Adjust the height as needed
-                        width: screenWidth * 0.75,
+                            screenHeigth * 0.054, // Adjust the height as needed
+                        width: screenWidth * 0.72,
                         child: const Image(
                           image: AssetImage('assets/airplane-route.png'),
                           fit: BoxFit.fill,
@@ -434,7 +435,7 @@ class _PriorityState extends State<PriorityPage> {
                                         '${staff.firstName} ${staff.lastName}';
 
                                     if (fullName.toLowerCase() !=
-                                            _userName.toLowerCase() ||
+                                            _userName.toLowerCase() &&
                                         staff.staffID != _userId) {
                                       // Mask sensitive fields
                                       staff = StaffMember(
@@ -559,30 +560,46 @@ class _PriorityState extends State<PriorityPage> {
             ),
           ),
           child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.transparent,
             elevation: 1,
-            currentIndex: 0,
+            currentIndex: 1,
             selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
             unselectedItemColor: Colors.white,
             onTap: (index) async {
               switch (index) {
-                case 0:
+                case 0: // History
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const HistoryPage()),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          HistoryPage(),
+                      transitionDuration: Duration(seconds: 0), // No animation
+                    ),
                   );
                   break;
-                case 1:
-                  // Navigate to Home Page
+                case 1: // Home
+
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            HomePage(selectedDate: selectedDate)),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          HomePage(selectedDate: selectedDate),
+                      transitionDuration: Duration(seconds: 0), // No animation
+                    ),
                   );
                   break;
-                case 2:
+                case 2: // My Tickets
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const MyTickets(),
+                      transitionDuration: Duration(seconds: 0), // No animation
+                    ),
+                  );
+                  break;
+                case 3: // Logout
                   bool? confirmLogout = await showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -636,7 +653,6 @@ class _PriorityState extends State<PriorityPage> {
                     },
                   );
 
-                  // If the user confirms, perform the logout
                   if (confirmLogout == true) {
                     _logout(); // Call the logout function
                   }
@@ -646,7 +662,10 @@ class _PriorityState extends State<PriorityPage> {
             items: [
               _buildCustomBottomNavigationBarItem(
                   Icons.history, 'History', false),
-              _buildCustomBottomNavigationBarItem(Icons.home, 'Home', true),
+              _buildCustomBottomNavigationBarItem(
+                  Icons.home_outlined, 'Home', false),
+              _buildCustomBottomNavigationBarItem(
+                  Icons.airplane_ticket_outlined, 'My Tickets', false),
               _buildCustomBottomNavigationBarItem(
                   Icons.logout, 'Logout', false),
             ],

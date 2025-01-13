@@ -1,4 +1,5 @@
 import 'package:flista_new/home.dart';
+import 'package:flista_new/mytickets.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'databasehelper.dart';
@@ -498,9 +499,10 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
               ),
               child: BottomNavigationBar(
-                backgroundColor: const Color.fromRGBO(3, 47, 70, 1),
+                type: BottomNavigationBarType.fixed,
+                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                currentIndex: 1,
+                currentIndex: 0,
                 selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
                 unselectedItemColor: Colors.white,
                 onTap: (index) async {
@@ -520,7 +522,19 @@ class _HistoryPageState extends State<HistoryPage> {
                               Duration(seconds: 0), // No animation
                         ),
                       );
-                    case 2:
+                    case 2: // My Tickets
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  const MyTickets(),
+                          transitionDuration:
+                              Duration(seconds: 0), // No animation
+                        ),
+                      );
+                      break;
+                    case 3: // Logout
                       bool? confirmLogout = await showDialog(
                         context: context,
                         builder: (BuildContext context) {
@@ -586,6 +600,8 @@ class _HistoryPageState extends State<HistoryPage> {
                       Icons.history, 'History', true),
                   _buildCustomBottomNavigationBarItem(
                       Icons.home, 'Home', false),
+                  _buildCustomBottomNavigationBarItem(
+                      Icons.airplane_ticket_outlined, 'My Tickets', false),
                   _buildCustomBottomNavigationBarItem(
                       Icons.logout, 'Logout', false),
                 ],

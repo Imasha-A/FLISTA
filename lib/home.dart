@@ -1,5 +1,6 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flista_new/mytickets.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'selectdate.dart';
@@ -1065,7 +1066,7 @@ class _HomePageState extends State<HomePage> {
                   },
                   child: Scaffold(
                     appBar: PreferredSize(
-                      preferredSize: Size.fromHeight(screenHeight * 0.153),
+                      preferredSize: Size.fromHeight(screenHeight * 0.173),
                       child: AppBar(
                         automaticallyImplyLeading: false,
                         backgroundColor: Colors.transparent,
@@ -1910,9 +1911,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: BottomNavigationBar(
+                          type: BottomNavigationBarType.fixed,
                           backgroundColor: Colors.transparent,
                           elevation: 1,
-                          currentIndex: 0,
+                          currentIndex: 1,
                           selectedItemColor:
                               const Color.fromARGB(255, 234, 248, 249),
                           unselectedItemColor: Colors.white,
@@ -1943,7 +1945,19 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 );
                                 break;
-                              case 2:
+                              case 2: // My Tickets
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        const MyTickets(),
+                                    transitionDuration:
+                                        Duration(seconds: 0), // No animation
+                                  ),
+                                );
+                                break;
+                              case 3: // Logout
                                 bool? confirmLogout = await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -2013,6 +2027,10 @@ class _HomePageState extends State<HomePage> {
                                 Icons.history, 'History', false),
                             _buildCustomBottomNavigationBarItem(
                                 Icons.home, 'Home', true),
+                            _buildCustomBottomNavigationBarItem(
+                                Icons.airplane_ticket_outlined,
+                                'My Tickets',
+                                false),
                             _buildCustomBottomNavigationBarItem(
                                 Icons.logout, 'Logout', false),
                           ],
