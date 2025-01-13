@@ -101,6 +101,10 @@ flutter:
      - assets/from.png
      - assets/to.png
      - assets/noticket.png
+     - assets/airplaneticket.png
+     - assets/barcode.png
+
+   
      
 
    
