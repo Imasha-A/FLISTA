@@ -23,8 +23,7 @@ class _MyTicketsState extends State<MyTickets> {
 
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize:
-            Size.fromHeight(screenHeight * 0.115), // Adjust height as needed
+        preferredSize: Size.fromHeight(screenHeight * 0.1),
         child: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
@@ -64,22 +63,13 @@ class _MyTicketsState extends State<MyTickets> {
                   child: Container(
                     padding: EdgeInsets.only(
                       left: MediaQuery.of(context).size.width * 0.05,
-                      top: MediaQuery.of(context).size.height * 0.035,
+                      top: MediaQuery.of(context).size.height * 0.06,
                     ),
                     alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context); // Navigate back
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                        ),
                         Center(
                           child: Text(
                             'My Ticket Details',
@@ -154,7 +144,7 @@ class _MyTicketsState extends State<MyTickets> {
                                         style: TextStyle(
                                             fontSize: screenWidth * 0.038)),
                                     Text(
-                                      "Chamila Kancha (A123456789107)",
+                                      "Chamila Kancha (N9553378)",
                                       style: TextStyle(
                                           fontSize: screenWidth * 0.04,
                                           fontWeight: FontWeight.bold),
@@ -172,7 +162,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                       fontSize:
                                                           screenWidth * 0.038)),
                                               Text(
-                                                "UL12345",
+                                                "603 1276598760",
                                                 style: TextStyle(
                                                     fontSize:
                                                         screenWidth * 0.04,
@@ -597,18 +587,15 @@ class _MyTicketsState extends State<MyTickets> {
                                           255), // Button background color
                                       padding: EdgeInsets.symmetric(
                                           horizontal: screenWidth * 0.25,
-                                          vertical: screenHeight *
-                                              0.005), // Button padding
+                                          vertical: screenHeight * 0.005),
                                       textStyle: TextStyle(
-                                          fontSize:
-                                              screenWidth * 0.037), // Text size
+                                          fontSize: screenWidth * 0.037),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            5), // Rounded corners
+                                        borderRadius: BorderRadius.circular(5),
                                         side: BorderSide(
-                                          color: Color.fromARGB(255, 144, 140,
-                                              159), // Border color
-                                          width: 1, // Border width
+                                          color: Color.fromARGB(
+                                              255, 144, 140, 159),
+                                          width: 1,
                                         ),
                                       ),
                                     ),
@@ -620,8 +607,8 @@ class _MyTicketsState extends State<MyTickets> {
                             Image.asset(
                               'assets/barcode.png',
                               width: screenWidth * 0.01,
-                              height: screenHeight * 0.091,
-                              fit: BoxFit.cover,
+                              height: screenHeight * 0.088,
+                              fit: BoxFit.contain,
                             ),
                           ],
                         ),

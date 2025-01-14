@@ -64,21 +64,16 @@ class _HistoryPageState extends State<HistoryPage> {
         await DBHelper().getFlights();
     print('Fetched Flights: $fetchedFlights');
 
-    Set<String> flightsSet = {}; // Using a temporary set to ensure uniqueness
+    Set<String> flightsSet = {};
     for (var flight in fetchedFlights) {
-      // Construct a unique key for each flight
       String flightKey =
           '${flight['ul_number']}_${flight['origin_country_code']}_${flight['destination_country_code']}_${flight['selected_date']}_${flight['scheduled_time']}';
 
-      // Add unique flight to the set
       flightsSet.add(flightKey);
     }
 
     setState(() {
-      uniqueFlights = flightsSet
-          .toList()
-          .reversed
-          .toList(); // Convert set to list and reverse it
+      uniqueFlights = flightsSet.toList().reversed.toList();
       isLoading = false;
     });
   }
@@ -86,12 +81,11 @@ class _HistoryPageState extends State<HistoryPage> {
   Future<void> _clearFlightHistory() async {
     await DBHelper().clearFlights();
     setState(() {
-      uniqueFlights.clear(); // Clear the list
+      uniqueFlights.clear();
     });
   }
 
   void _navigateToCapacityInfoPage(String flightKey) {
-    // Extract necessary flight details from flightKey
     List<String> keyParts = flightKey.split('_');
     String selectedDate = keyParts[3];
     String selectedUL = keyParts[0];
@@ -108,8 +102,8 @@ class _HistoryPageState extends State<HistoryPage> {
               keyParts[1].trim(), // Format the origin country code
           destinationCountryCode:
               keyParts[2].trim(), // Format the destination country code
-          ulList: const [], // Pass any necessary data
-          onULSelected: (ul) {}, // Pass any necessary data
+          ulList: const [],
+          onULSelected: (ul) {},
         ),
       ),
     );
@@ -118,92 +112,146 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
+    double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.white),
-              onPressed: () async {
-                // Show confirmation dialog
-                bool? confirmDelete = await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(
-                        "Confirm Deletion",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: const Color.fromRGBO(2, 77, 117, 1),
-                          fontSize: screenWidth * 0.06,
-                        ),
-                      ),
-                      content: Text(
-                        "Are you sure you want to clear the flight history?",
-                        style: TextStyle(
-                          color: const Color.fromRGBO(2, 77, 117, 1),
-                          fontSize: screenWidth * 0.045,
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(false); // User chose "No"
-                          },
-                          child: Text(
-                            "No",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: const Color.fromRGBO(2, 77, 117, 1),
-                              fontSize: screenWidth * 0.042,
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(true); // User chose "Yes"
-                          },
-                          child: Text(
-                            "Yes",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: const Color.fromRGBO(2, 77, 117, 1),
-                              fontSize: screenWidth * 0.042,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenHeight * 0.1),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            leading: Container(),
+            actions: [
+              Padding(
+                padding: EdgeInsets.only(
+                    top: screenHeight * 0.03,
+                    right: screenWidth * 0.03), // Adjust spacing
+                child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  // Disable the button if uniqueFlights is empty
+                  onPressed: uniqueFlights.isEmpty
+                      ? null
+                      : () async {
+                          // Show confirmation dialog
+                          bool? confirmDelete = await showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text(
+                                  "Confirm Deletion",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color.fromRGBO(2, 77, 117, 1),
+                                    fontSize: screenWidth * 0.06,
+                                  ),
+                                ),
+                                content: Text(
+                                  "Are you sure you want to delete all flight history?",
+                                  style: TextStyle(
+                                    color: const Color.fromRGBO(2, 77, 117, 1),
+                                    fontSize: screenWidth * 0.045,
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                    child: Text(
+                                      "No",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color:
+                                            const Color.fromRGBO(2, 77, 117, 1),
+                                        fontSize: screenWidth * 0.042,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                    child: Text(
+                                      "Yes",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color:
+                                            const Color.fromRGBO(2, 77, 117, 1),
+                                        fontSize: screenWidth * 0.042,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
 
-                // If the user confirms, clear the flight history
-                if (confirmDelete == true) {
-                  await _clearFlightHistory();
-                }
-              },
-            ),
-          ],
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(0, 43, 71, 1),
-                  Color.fromRGBO(52, 164, 224, 1),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                          // If the user confirms, clear the flight history
+                          if (confirmDelete == true) {
+                            await _clearFlightHistory();
+                          }
+                        },
+                ),
               ),
-              image: DecorationImage(
-                image: AssetImage('assets/istockphoto-155362201-612x612 1.png'),
-                fit: BoxFit.cover,
+            ],
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromRGBO(0, 43, 71, 1),
+                    Color.fromRGBO(52, 164, 224, 1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(22.0),
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(22.0),
+                      ),
+                      child: const Image(
+                        image: AssetImage(
+                            'assets/istockphoto-155362201-612x612 1.png'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: EdgeInsets.only(
+                        left: screenWidth * 0.02,
+                        top: screenHeight * 0.06,
+                      ),
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Center(
+                            child: Text(
+                              'Flight History',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.055,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.01),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -214,14 +262,6 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: screenWidth * 0.03),
-                    Text(
-                      'Flight Search History',
-                      style: TextStyle(
-                          color: const Color.fromRGBO(2, 77, 117, 1),
-                          fontWeight: FontWeight.bold,
-                          fontSize: screenWidth * 0.06),
-                    ),
                     SizedBox(height: screenWidth * 0.006),
                     Container(
                       padding: const EdgeInsets.all(16.0),
@@ -255,6 +295,8 @@ class _HistoryPageState extends State<HistoryPage> {
                                   direction: DismissDirection.endToStart,
                                   background: Container(
                                     decoration: const BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5)),
                                       gradient: LinearGradient(
                                         begin: Alignment.centerRight,
                                         end: Alignment.centerLeft,
@@ -264,7 +306,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                         ], // Change the color transition based on the swipe position
                                         colors: [
                                           Colors.red,
-                                          Color.fromRGBO(16, 38, 53, 0.761),
+                                          Color.fromRGBO(22, 77, 114, 1),
                                         ],
                                       ),
                                     ),
@@ -291,7 +333,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                               ),
                                             ),
                                             content: Text(
-                                              "Are you sure you want to delete this flight?",
+                                              "Are you sure you want to delete this flight history?",
                                               style: TextStyle(
                                                 color: const Color.fromRGBO(
                                                     2, 77, 117, 1),
@@ -500,7 +542,7 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               child: BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
-                 backgroundColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
                 elevation: 0,
                 currentIndex: 0,
                 selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
