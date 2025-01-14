@@ -193,7 +193,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                           Expanded(
                             child: Transform.translate(
                               offset: Offset(
-                                  -screenWidth * 0.035, -screenHeight * 0.035),
+                                  -screenWidth * 0.086, -screenHeight * 0.035),
                               child: Text(
                                 widget.originCountryCode
                                     .trim(), // Trim to remove leading/trailing spaces

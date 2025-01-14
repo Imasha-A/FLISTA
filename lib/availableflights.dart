@@ -248,7 +248,7 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                           Expanded(
                             child: Transform.translate(
                               offset: Offset(
-                                  -screenWidth * 0.035, -screenHeight * 0.035),
+                                  -screenWidth * 0.086, -screenHeight * 0.035),
                               child: Text(
                                 widget.originCountryCode
                                     .trim(), // Trim to remove leading/trailing spaces
@@ -435,9 +435,7 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                     context,
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
-                          const HistoryPage(
-                     
-                      ),
+                          const HistoryPage(),
                       transitionDuration: Duration(seconds: 0), // No animation
                     ),
                   );

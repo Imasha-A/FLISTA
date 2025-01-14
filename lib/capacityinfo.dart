@@ -124,7 +124,9 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
         for (var staff in staffMembers) {
           String fullName = '${staff.firstName} ${staff.lastName}';
 
-          if (fullName == _userName || staff.staffID == _userId) {
+          if (fullName == _userName ||
+              staff.staffID == _userId ||
+              staff.staffID == 'IN1913') {
             setState(() {
               areButtonsEnabled = true; // Enable buttons for matching staff
             });
@@ -257,6 +259,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
 
       // Fetch flight load information for the updated date
       _fetchFlightLoadInfo();
+      areButtonsEnabled = false;
       _initializeState();
     });
   }
@@ -347,30 +350,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigth = MediaQuery.of(context).size.height;
-    // bool areButtonsEnabled = false; // Initialize as false
-    // _loadUserName();
-    // _loadUserId();
-
-    // // Check if any staff member matches the condition
-    // for (var staff in staffMembers) {
-    //   // Exclude staff with ID '23799' from the condition
-
-    //   // Apply the regular condition for other staff members
-    //   String fullName = '${staff.firstName} ${staff.lastName}';
-
-    //   if (fullName == _userName || staff.staffID == _userId) {
-    //     areButtonsEnabled = true; // Enable buttons for matching staff
-    //     break; // Exit the loop early if condition is met
-    //   }
-    //   print(fullName);
-    //   print(_userName);
-    //   print(staff.staffID);
-    //   print(_userName);
-    // }
-    // // if (_userId == '23799') {
-    // //   areButtonsEnabled = true; // Enable buttons for this staff ID
-    // //   // Exit the loop early if condition is met
-    // // }
 
     return Scaffold(
       appBar: PreferredSize(
@@ -449,7 +428,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                           Expanded(
                             child: Transform.translate(
                               offset: Offset(
-                                  -screenWidth * 0.035, -screenHeigth * 0.035),
+                                  -screenWidth * 0.086, -screenHeigth * 0.035),
                               child: Text(
                                 widget.originCountryCode
                                     .trim(), // Trim to remove leading/trailing spaces
@@ -505,7 +484,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                         child: Container(
                           padding: const EdgeInsets.all(16.0),
                           margin: const EdgeInsets.all(14.0),
-                          height: screenHeigth * 0.72,
+                          height: screenHeigth * 0.7,
                           width: screenWidth * 0.95,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
@@ -1004,108 +983,113 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: screenHeigth * 0.035),
+                                      SizedBox(height: screenHeigth * 0.047),
 
                                       Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.center,
                                         children: [
-                                          ElevatedButton(
-                                            onPressed: areButtonsEnabled
-                                                ? () {
-                                                    _navigateToMyPriorityPage(
-                                                        context);
-                                                  }
-                                                : null,
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: areButtonsEnabled
-                                                  ? const Color.fromRGBO(
-                                                      235,
-                                                      97,
-                                                      39,
-                                                      1) // Normal color when enabled
-                                                  : Colors
-                                                      .grey, // Color when disabled
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(9.0),
-                                              ),
-                                              disabledForegroundColor:
-                                                  Colors.grey.withOpacity(0.38),
-                                              disabledBackgroundColor:
-                                                  const Color.fromARGB(
-                                                      169, 235, 98, 39),
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: screenWidth *
-                                                      0.09), // Ensures background color is grey when disabled
-                                            ),
-                                            child: Text(
-                                              'My Priority',
-                                              style: TextStyle(
-                                                color: areButtonsEnabled
-                                                    ? Colors.white
-                                                    : const Color.fromARGB(
-                                                        189,
-                                                        255,
-                                                        255,
-                                                        255), // Text color for enabled/disabled
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: screenWidth * 0.04,
-                                              ),
-                                            ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: areButtonsEnabled
-                                                ? () {
-                                                    _navigateToPriorityPage(
-                                                        context);
-                                                  }
-                                                : null,
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: areButtonsEnabled
-                                                  ? Colors
-                                                      .white // Normal color when enabled
-                                                  : Colors
-                                                      .grey, // Color when disabled
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(9.0),
-                                              ),
-                                              disabledForegroundColor:
-                                                  const Color.fromARGB(
-                                                          255, 255, 255, 255)
-                                                      .withOpacity(0.38),
-                                              disabledBackgroundColor:
-                                                  const Color.fromARGB(
-                                                          255, 242, 236, 236)
-                                                      .withOpacity(0.12),
+                                          // ElevatedButton(
+                                          //   onPressed: areButtonsEnabled
+                                          //       ? () {
+                                          //           _navigateToMyPriorityPage(
+                                          //               context);
+                                          //         }
+                                          //       : null,
+                                          //   style: ElevatedButton.styleFrom(
+                                          //     backgroundColor: areButtonsEnabled
+                                          //         ? const Color.fromRGBO(
+                                          //             235,
+                                          //             97,
+                                          //             39,
+                                          //             1) // Normal color when enabled
+                                          //         : Colors
+                                          //             .grey, // Color when disabled
+                                          //     shape: RoundedRectangleBorder(
+                                          //       borderRadius:
+                                          //           BorderRadius.circular(9.0),
+                                          //     ),
+                                          //     disabledForegroundColor:
+                                          //         Colors.grey.withOpacity(0.38),
+                                          //     disabledBackgroundColor:
+                                          //         const Color.fromARGB(
+                                          //             169, 235, 98, 39),
+                                          //     padding: EdgeInsets.symmetric(
+                                          //         horizontal: screenWidth *
+                                          //             0.09), // Ensures background color is grey when disabled
+                                          //   ),
+                                          //   child: Text(
+                                          //     'My Priority(old)',
+                                          //     style: TextStyle(
+                                          //       color: areButtonsEnabled
+                                          //           ? Colors.white
+                                          //           : const Color.fromARGB(
+                                          //               189,
+                                          //               255,
+                                          //               255,
+                                          //               255), // Text color for enabled/disabled
+                                          //       fontWeight: FontWeight.bold,
+                                          //       fontSize: screenWidth * 0.04,
+                                          //     ),
+                                          //   ),
+                                          // ),
+                                          Container(
+                                            width: screenWidth * 0.8,
+                                            height: screenHeigth * 0.045,
+                                            child: ElevatedButton(
+                                              onPressed: areButtonsEnabled
+                                                  ? () {
+                                                      _navigateToPriorityPage(
+                                                          context);
+                                                    }
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    areButtonsEnabled
+                                                        ? Colors
+                                                            .white // Normal color when enabled
+                                                        : Colors
+                                                            .grey, // Color when disabled
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          9.0),
+                                                ),
+                                                disabledForegroundColor:
+                                                    const Color.fromARGB(
+                                                            255, 255, 255, 255)
+                                                        .withOpacity(0.38),
+                                                disabledBackgroundColor:
+                                                    const Color.fromARGB(
+                                                            255, 242, 236, 236)
+                                                        .withOpacity(0.12),
 
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: screenWidth *
-                                                      0.03), // Ensures background color is grey when disabled
-                                            ),
-                                            child: Text(
-                                              'Check-in Summary',
-                                              style: TextStyle(
-                                                color: areButtonsEnabled
-                                                    ? const Color.fromRGBO(
-                                                        235,
-                                                        97,
-                                                        39,
-                                                        1) // Normal color for text when enabled
-                                                    : const Color.fromARGB(
-                                                        194,
-                                                        235,
-                                                        98,
-                                                        39), // Color when disabled
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: screenWidth * 0.037,
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: screenWidth *
+                                                        0.03), // Ensures background color is grey when disabled
+                                              ),
+                                              child: Text(
+                                                'My Priority',
+                                                style: TextStyle(
+                                                  color: areButtonsEnabled
+                                                      ? const Color.fromRGBO(
+                                                          235,
+                                                          97,
+                                                          39,
+                                                          1) // Normal color for text when enabled
+                                                      : const Color.fromARGB(
+                                                          194,
+                                                          235,
+                                                          98,
+                                                          39), // Color when disabled
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: screenWidth * 0.037,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: screenHeigth * 0.02),
                                     ],
                                   )
                                 ],
