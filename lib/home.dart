@@ -223,18 +223,32 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       if (_flightSearchModel.selectedOriginCountry != null &&
           _flightSearchModel.selectedDestinationCountry != null) {
-        final String temp = _flightSearchModel.selectedOriginCountry!;
-        final String tempCode = _flightSearchModel.selectedOriginCountryCode!;
+        // Swap origin and destination countries
+        final String temp = _flightSearchModel.selectedOriginCountry!.trim();
+        final String tempCode =
+            _flightSearchModel.selectedOriginCountryCode!.trim();
         _flightSearchModel.selectedOriginCountry =
-            _flightSearchModel.selectedDestinationCountry!;
+            _flightSearchModel.selectedDestinationCountry!.trim();
         _flightSearchModel.selectedOriginCountryCode =
-            _flightSearchModel.selectedDestinationCountryCode!;
+            _flightSearchModel.selectedDestinationCountryCode!.trim();
         _flightSearchModel.selectedDestinationCountry = temp;
         _flightSearchModel.selectedDestinationCountryCode = tempCode;
+
+        // Update controllers
         _originController.text = _flightSearchModel.selectedOriginCountry!;
         _destinationController.text =
             _flightSearchModel.selectedDestinationCountry!;
+      } else {
+        // Show error if one of the countries is null
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Please select both origin and destination countries.'),
+          ),
+        );
       }
+
+      // Save and refresh countries
       _saveSelectedCountries();
       _getSelectedCountries();
     });
@@ -944,7 +958,18 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
-                      )
+                      ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: EdgeInsets.all(screenWidth * 0.05),
+                          child: FloatingActionButton(
+                            onPressed: _showRatingPopup,
+                            backgroundColor: Color.fromARGB(255, 204, 76, 21),
+                            child: Icon(Icons.info, color: Colors.white),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1191,7 +1216,7 @@ class _HomePageState extends State<HomePage> {
                                 Container(
                                   padding: const EdgeInsets.all(2.0),
                                   margin: const EdgeInsets.all(15.0),
-                                  height: screenHeight * 0.45,
+                                  height: screenHeight * 0.49,
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
@@ -1274,12 +1299,12 @@ class _HomePageState extends State<HomePage> {
                                                                 size:
                                                                     screenWidth *
                                                                         0.07,
-                                                                color: Color
+                                                                color: const Color
                                                                     .fromARGB(
-                                                                        255,
-                                                                        177,
-                                                                        174,
-                                                                        174),
+                                                                    255,
+                                                                    177,
+                                                                    174,
+                                                                    174),
                                                               ),
                                                               onPressed: () {
                                                                 setState(() {
@@ -1319,13 +1344,13 @@ class _HomePageState extends State<HomePage> {
                                                                       context) {
                                                                 return Container(
                                                                   padding:
-                                                                      EdgeInsets
+                                                                      const EdgeInsets
                                                                           .all(
-                                                                              16.0),
+                                                                          16.0),
                                                                   height: screenHeight *
                                                                       0.55, // Adjust this value to make the modal smaller
                                                                   decoration:
-                                                                      BoxDecoration(
+                                                                      const BoxDecoration(
                                                                     color: Colors
                                                                         .white,
                                                                     borderRadius:
@@ -1352,6 +1377,7 @@ class _HomePageState extends State<HomePage> {
                                                                               () {
                                                                             _searchQuery =
                                                                                 value.toLowerCase();
+                                                                                
                                                                           });
                                                                         },
                                                                         decoration:
@@ -1375,14 +1401,14 @@ class _HomePageState extends State<HomePage> {
                                                                             borderRadius:
                                                                                 BorderRadius.circular(8.0),
                                                                             borderSide:
-                                                                                BorderSide(
+                                                                                const BorderSide(
                                                                               color: Colors.grey,
                                                                               width: 1.0,
                                                                             ),
                                                                           ),
                                                                         ),
                                                                       ),
-                                                                      SizedBox(
+                                                                      const SizedBox(
                                                                           height:
                                                                               12.0),
                                                                       // Filtered Country List
@@ -1410,8 +1436,8 @@ class _HomePageState extends State<HomePage> {
                                                                               },
                                                                               title: Text(
                                                                                 "${country['name']} (${country['code']})",
-                                                                                style: TextStyle(
-                                                                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                                                                style: const TextStyle(
+                                                                                  color: Color.fromARGB(255, 0, 0, 0),
                                                                                   fontWeight: FontWeight.bold,
                                                                                 ),
                                                                               ),
@@ -1428,6 +1454,9 @@ class _HomePageState extends State<HomePage> {
                                                           child: Container(
                                                             width:
                                                                 double.infinity,
+                                                            height:
+                                                                screenHeight *
+                                                                    0.21,
                                                             decoration:
                                                                 BoxDecoration(
                                                               borderRadius:
@@ -1450,8 +1479,8 @@ class _HomePageState extends State<HomePage> {
                                                               ),
                                                             ),
                                                             padding:
-                                                                EdgeInsets.all(
-                                                                    12.0),
+                                                                const EdgeInsets
+                                                                    .all(12.0),
                                                             child:
                                                                 _originController
                                                                         .text
@@ -1467,10 +1496,12 @@ class _HomePageState extends State<HomePage> {
                                                                               174,
                                                                               174),
                                                                           fontSize:
-                                                                              screenWidth * 0.04,
+                                                                              screenWidth * 0.045,
                                                                           fontWeight:
                                                                               FontWeight.w500,
                                                                         ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
                                                                       )
                                                                     : Column(
                                                                         crossAxisAlignment:
@@ -1495,6 +1526,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 color: const Color.fromARGB(255, 255, 255, 255),
                                                                                 fontSize: screenWidth * 0.04,
                                                                               ),
+                                                                              textAlign: TextAlign.center,
                                                                             ),
                                                                           ),
                                                                         ],
@@ -1557,12 +1589,12 @@ class _HomePageState extends State<HomePage> {
                                                                 size:
                                                                     screenWidth *
                                                                         0.07,
-                                                                color: Color
+                                                                color: const Color
                                                                     .fromARGB(
-                                                                        255,
-                                                                        177,
-                                                                        174,
-                                                                        174),
+                                                                    255,
+                                                                    177,
+                                                                    174,
+                                                                    174),
                                                               ),
                                                               onPressed: () {
                                                                 setState(() {
@@ -1601,13 +1633,13 @@ class _HomePageState extends State<HomePage> {
                                                                       context) {
                                                                 return Container(
                                                                   padding:
-                                                                      EdgeInsets
+                                                                      const EdgeInsets
                                                                           .all(
-                                                                              16.0),
+                                                                          16.0),
                                                                   height: screenHeight *
                                                                       0.55, // Adjust this value to make the modal smaller
                                                                   decoration:
-                                                                      BoxDecoration(
+                                                                      const BoxDecoration(
                                                                     color: Colors
                                                                         .white,
                                                                     borderRadius:
@@ -1657,14 +1689,14 @@ class _HomePageState extends State<HomePage> {
                                                                             borderRadius:
                                                                                 BorderRadius.circular(8.0),
                                                                             borderSide:
-                                                                                BorderSide(
+                                                                                const BorderSide(
                                                                               color: Colors.grey,
                                                                               width: 1.0,
                                                                             ),
                                                                           ),
                                                                         ),
                                                                       ),
-                                                                      SizedBox(
+                                                                      const SizedBox(
                                                                           height:
                                                                               12.0),
                                                                       // Filtered Country List
@@ -1691,8 +1723,8 @@ class _HomePageState extends State<HomePage> {
                                                                               },
                                                                               title: Text(
                                                                                 "${country['name']} (${country['code']})",
-                                                                                style: TextStyle(
-                                                                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                                                                style: const TextStyle(
+                                                                                  color: Color.fromARGB(255, 0, 0, 0),
                                                                                   fontWeight: FontWeight.bold,
                                                                                 ),
                                                                               ),
@@ -1709,6 +1741,9 @@ class _HomePageState extends State<HomePage> {
                                                           child: Container(
                                                             width:
                                                                 double.infinity,
+                                                            height:
+                                                                screenHeight *
+                                                                    0.21,
                                                             decoration:
                                                                 BoxDecoration(
                                                               borderRadius:
@@ -1731,8 +1766,8 @@ class _HomePageState extends State<HomePage> {
                                                               ),
                                                             ),
                                                             padding:
-                                                                EdgeInsets.all(
-                                                                    12.0),
+                                                                const EdgeInsets
+                                                                    .all(12.0),
                                                             child:
                                                                 _destinationController
                                                                         .text
@@ -1748,10 +1783,12 @@ class _HomePageState extends State<HomePage> {
                                                                               174,
                                                                               174),
                                                                           fontSize:
-                                                                              screenWidth * 0.04,
+                                                                              screenWidth * 0.045,
                                                                           fontWeight:
                                                                               FontWeight.w500,
                                                                         ),
+                                                                        textAlign:
+                                                                            TextAlign.center,
                                                                       )
                                                                     : Column(
                                                                         crossAxisAlignment:
@@ -1776,6 +1813,7 @@ class _HomePageState extends State<HomePage> {
                                                                                 color: const Color.fromARGB(255, 255, 255, 255),
                                                                                 fontSize: screenWidth * 0.04,
                                                                               ),
+                                                                              textAlign: TextAlign.center,
                                                                             ),
                                                                           ),
                                                                         ],
@@ -1790,8 +1828,8 @@ class _HomePageState extends State<HomePage> {
                                             ],
                                           ),
                                           Transform.translate(
-                                            offset:
-                                                Offset(screenWidth * 0.37, 24),
+                                            offset: Offset(screenWidth * 0.37,
+                                                screenHeight * 0.115),
                                             child: Container(
                                               width: screenWidth * 0.18,
                                               height: screenHeight * 0.05,
@@ -1820,16 +1858,16 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: screenHeight * 0.0006),
                                       if (_errorMessage != null)
                                         Padding(
                                           padding:
                                               const EdgeInsets.only(top: 8.0),
                                           child: Text(
                                             _errorMessage!,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                                 color: Colors.red,
-                                                fontSize: 14.0),
+                                                fontSize: screenWidth * 0.04,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                       SizedBox(height: screenHeight * -0),
@@ -1865,7 +1903,7 @@ class _HomePageState extends State<HomePage> {
                                             gradient: const LinearGradient(
                                               colors: [
                                                 Color.fromARGB(
-                                                    255, 192, 73, 22),
+                                                    255, 209, 77, 20),
                                                 Color.fromARGB(
                                                     255, 192, 73, 22),
                                               ],
@@ -1890,6 +1928,20 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                     ],
+                                  ),
+                                ),
+                                SizedBox(height: screenHeight * 0.035),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(screenWidth * 0.05),
+                                    child: FloatingActionButton(
+                                      onPressed: _showRatingPopup,
+                                      backgroundColor:
+                                          Color.fromARGB(255, 204, 76, 21),
+                                      child:
+                                          Icon(Icons.info, color: Colors.white),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1926,7 +1978,8 @@ class _HomePageState extends State<HomePage> {
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
                                         const HistoryPage(),
-                                    transitionDuration: Duration(seconds: 0),
+                                    transitionDuration:
+                                        const Duration(seconds: 0),
                                   ),
                                 );
                                 break;
@@ -1939,8 +1992,8 @@ class _HomePageState extends State<HomePage> {
                                         const HomePage(
                                       selectedDate: '',
                                     ),
-                                    transitionDuration:
-                                        Duration(seconds: 0), // No animation
+                                    transitionDuration: const Duration(
+                                        seconds: 0), // No animation
                                   ),
                                 );
                                 break;
@@ -1951,8 +2004,8 @@ class _HomePageState extends State<HomePage> {
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
                                         const MyTickets(),
-                                    transitionDuration:
-                                        Duration(seconds: 0), // No animation
+                                    transitionDuration: const Duration(
+                                        seconds: 0), // No animation
                                   ),
                                 );
                                 break;
@@ -2042,5 +2095,131 @@ class _HomePageState extends State<HomePage> {
             }
           }
         });
+  }
+
+  void _showRatingPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final screenHeight = MediaQuery.of(context).size.height;
+        final screenWidth = MediaQuery.of(context).size.width;
+        int selectedRating = 0;
+
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(screenWidth * 0.025),
+              ),
+              contentPadding: EdgeInsets.fromLTRB(screenWidth * 0.06,
+                  screenHeight * 0.02, screenWidth * 0.06, screenHeight * 0.02),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/itsystems.png',
+                    width: screenWidth * 0.56,
+                    height: screenHeight * 0.12,
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Text(
+                    "App Version - 1.2.3",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.02,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Text(
+                    "IT Service Desk - Ext: 3000",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.02,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Text(
+                    "24×7 Support Provided",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.02,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+                  Text(
+                    "Please rate this app:",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.022,
+                      fontWeight: FontWeight.w600,
+                      color: Color.fromARGB(255, 198, 73, 20),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Stars Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(5, (index) {
+                          return IconButton(
+                            icon: Icon(
+                              index < selectedRating
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: index < selectedRating
+                                  ? Colors.orange
+                                  : Colors.grey,
+                              size: screenWidth * 0.08,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                selectedRating = index + 1; // Update rating
+                              });
+                            },
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: screenHeight * 0.015),
+                  // OK Button
+                  SizedBox(
+                    height: screenHeight * 0.05,
+                    width: screenWidth * 0.7,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 209, 77, 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(screenWidth * 0.02),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // Handle the submission of the selected rating
+                        print("Selected Rating: $selectedRating");
+                      },
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(
+                          fontSize: screenHeight * 0.015,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.015),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

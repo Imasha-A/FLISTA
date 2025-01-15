@@ -264,7 +264,7 @@ class _PriorityState extends State<PriorityPage> {
                           Expanded(
                             child: Transform.translate(
                               offset: Offset(
-                                  -screenWidth * 0.035, -screenHeigth * 0.035),
+                                  -screenWidth * 0.086, -screenHeigth * 0.035),
                               child: Text(
                                 widget.originCountryCode
                                     .trim(), // Trim to remove leading/trailing spaces
