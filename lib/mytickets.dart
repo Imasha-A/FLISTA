@@ -98,7 +98,10 @@ class _MyTicketsState extends State<MyTickets> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               //REPLACE WITH IF INFO IS THERE IN API, PASS THE ID TO API AND SEE IF DETAILS RETURN
-              if (_userId == "23799") //temporary
+              if (_userId == "23799" ||
+                  _userId == "IN1927" ||
+                  _userId == "IN1913" ||
+                  _userId == "23933") //temporary
 
                 Container(
                     width: screenWidth * 0.99,

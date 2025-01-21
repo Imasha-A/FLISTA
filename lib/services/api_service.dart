@@ -93,28 +93,23 @@ class APIService {
     return json.decode(response.body);
   }
 
-  // Function to format the selected date to the required format
   String _formatDate(String selectedDate) {
-    // Split the date by spaces and get the day, month, and year
+  
     List<String> parts = selectedDate.split(' ');
     String day = parts[0];
     String month = parts[1];
     String year =
-        parts[2].substring(2); // Extract last two characters of the year
+        parts[2].substring(2); 
 
-    // Convert the month to its numerical representation
     String formattedMonth = _getMonthNumber(month);
 
-    // Pad the day with leading zeros if necessary
     if (day.length == 1) {
       day = '0$day';
     }
 
-    // Combine the day, month, and year in the required format
     return '$day$formattedMonth$year';
   }
 
-  // Helper function to get the numerical representation of the month
   String _getMonthNumber(String month) {
     switch (month) {
       case 'January':
@@ -228,7 +223,9 @@ class APIService {
     final response = await http.get(
       Uri.parse(
           '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'),
+          
     );
+       print('\n\nResponse body: ${response.body}');
 
     // Check if the response status code indicates success
     if (response.statusCode == 200) {
