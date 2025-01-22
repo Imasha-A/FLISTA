@@ -104,6 +104,8 @@ flutter:
      - assets/airplaneticket.png
      - assets/barcode.png
      - assets/itsystems.png
+     - assets/world.png
+     - assets/arrows.png
 
    
      
