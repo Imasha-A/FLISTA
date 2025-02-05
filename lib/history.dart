@@ -271,7 +271,7 @@ class _HistoryPageState extends State<HistoryPage> {
                         gradient: const LinearGradient(
                           colors: [
                             Color.fromRGBO(51, 123, 169, 1),
-                            Color.fromRGBO(2, 77, 117, 1),
+                            Color.fromRGBO(49, 121, 167, 1),
                           ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -403,14 +403,14 @@ class _HistoryPageState extends State<HistoryPage> {
                                         _navigateToCapacityInfoPage(flightKey);
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
+                                        backgroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(9.0),
                                         ),
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 20.0,
-                                          vertical: 15.0,
+                                          vertical: 11.0,
                                         ),
                                       ),
                                       child: Column(
@@ -424,15 +424,17 @@ class _HistoryPageState extends State<HistoryPage> {
                                               Text(
                                                 'UL${flightKey.split('_')[0]}',
                                                 style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromRGBO(
+                                                      49, 121, 167, 1),
+                                                  fontWeight: FontWeight.w900,
                                                   fontSize: screenWidth * 0.058,
                                                 ),
                                               ),
                                               Text(
                                                 '${flightKey.split('_')[1].trim()} - ${flightKey.split('_')[2].trim()}',
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  color: Color.fromRGBO(
+                                                      49, 121, 167, 1),
                                                   fontSize: screenWidth * 0.052,
                                                 ),
                                               ),
@@ -445,25 +447,27 @@ class _HistoryPageState extends State<HistoryPage> {
                                                 TextSpan(
                                                   text: 'Flight Date: ',
                                                   style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: const Color.fromARGB(
+                                                        215, 33, 30, 30),
                                                     fontSize:
                                                         screenWidth * 0.04,
-                                                    fontWeight: FontWeight.w500,
+                                                    fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                                 TextSpan(
                                                   text: flightKey.split('_')[3],
                                                   style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: const Color.fromARGB(
+                                                        215, 33, 30, 30),
                                                     fontSize:
                                                         screenWidth * 0.04,
-                                                    fontWeight: FontWeight.w300,
+                                                    fontWeight: FontWeight.w400,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                          SizedBox(height: screenWidth * 0.02),
+                                          SizedBox(height: screenWidth * 0.005),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -474,22 +478,26 @@ class _HistoryPageState extends State<HistoryPage> {
                                                     TextSpan(
                                                       text: 'Scheduled Time: ',
                                                       style: TextStyle(
-                                                        color: Colors.white,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            215, 33, 30, 30),
                                                         fontSize:
                                                             screenWidth * 0.04,
                                                         fontWeight:
-                                                            FontWeight.w500,
+                                                            FontWeight.w600,
                                                       ),
                                                     ),
                                                     TextSpan(
                                                       text:
                                                           '${flightKey.split('_')[4].substring(0, 2)}:${flightKey.split('_')[4].substring(2)}',
                                                       style: TextStyle(
-                                                        color: Colors.white,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            215, 33, 30, 30),
                                                         fontSize:
                                                             screenWidth * 0.04,
                                                         fontWeight:
-                                                            FontWeight.w300,
+                                                            FontWeight.w400,
                                                       ),
                                                     ),
                                                   ],
@@ -497,7 +505,8 @@ class _HistoryPageState extends State<HistoryPage> {
                                               ),
                                               const Icon(
                                                 Icons.arrow_forward,
-                                                color: Colors.white,
+                                                color: Color.fromARGB(
+                                                    213, 94, 86, 86),
                                               ),
                                             ],
                                           ),

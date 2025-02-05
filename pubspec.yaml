@@ -44,6 +44,7 @@ dependencies:
   marquee: ^2.0.0
   device_info_plus: ^11.1.1
   dropdown_search: ^5.0.6
+  modal_bottom_sheet: ^3.0.0
 
 
 flutter_icons:

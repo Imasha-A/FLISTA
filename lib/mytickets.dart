@@ -212,7 +212,7 @@ class _MyTicketsState extends State<MyTickets> {
                                     Text(
                                       "CMB",
                                       style: TextStyle(
-                                        fontSize: screenWidth * 0.08,
+                                        fontSize: screenWidth * 0.07,
                                         fontWeight: FontWeight.w900,
                                         color: const Color.fromRGBO(
                                             49, 121, 167, 1),
@@ -417,7 +417,7 @@ class _MyTicketsState extends State<MyTickets> {
                                     Text(
                                       "DXB",
                                       style: TextStyle(
-                                        fontSize: screenWidth * 0.08,
+                                        fontSize: screenWidth * 0.07,
                                         fontWeight: FontWeight.w900,
                                         color: const Color.fromRGBO(
                                             49, 121, 167, 1),

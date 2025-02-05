@@ -346,16 +346,18 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     context); // Handle checking availability
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
+                                backgroundColor:
+                                    const Color.fromARGB(198, 255, 255, 255),
                                 shadowColor:
                                     const Color.fromARGB(255, 33, 144, 213),
                                 side: const BorderSide(
-                                    width: 1.5, color: Colors.white),
+                                    width: 1.5,
+                                    color: Color.fromARGB(0, 255, 255, 255)),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(9.0),
                                 ),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.05,
+                                    horizontal: screenWidth * 0.06,
                                     vertical: screenHeight * 0.017),
                               ),
                               child: Column(
@@ -365,7 +367,8 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                   Text(
                                     'Tomorrow',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          const Color.fromARGB(255, 4, 88, 141),
                                       fontWeight: FontWeight.bold,
                                       fontSize: screenWidth * 0.045,
                                     ),
@@ -374,7 +377,8 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     formattedTomorrow,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          const Color.fromARGB(255, 4, 88, 141),
                                       fontSize: screenWidth * 0.034,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -382,9 +386,10 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                   Text(
                                     _getDayOfWeek(tomorrow.weekday),
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          const Color.fromARGB(255, 4, 88, 141),
                                       fontSize: screenWidth * 0.036,
-                                      fontWeight: FontWeight.w300,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                 ],
@@ -400,16 +405,18 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     context); // Handle checking availability
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
+                                backgroundColor:
+                                    const Color.fromARGB(198, 255, 255, 255),
                                 shadowColor:
                                     const Color.fromARGB(255, 33, 144, 213),
                                 side: const BorderSide(
-                                    width: 1.5, color: Colors.white),
+                                    width: 1.5,
+                                    color: Color.fromARGB(0, 255, 255, 255)),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(9.0),
                                 ),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.05,
+                                    horizontal: screenWidth * 0.06,
                                     vertical: screenHeight * 0.017),
                               ),
                               child: Column(
@@ -419,7 +426,8 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                   Text(
                                     'Day After',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          const Color.fromARGB(255, 4, 88, 141),
                                       fontWeight: FontWeight.bold,
                                       fontSize: screenWidth * 0.045,
                                     ),
@@ -428,7 +436,8 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     formattedDayAfterTomorrow,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          const Color.fromARGB(255, 4, 88, 141),
                                       fontSize: screenWidth * 0.034,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -436,9 +445,10 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                   Text(
                                     _getDayOfWeek(dayAfterTomorrow.weekday),
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color:
+                                          const Color.fromARGB(255, 4, 88, 141),
                                       fontSize: screenWidth * 0.036,
-                                      fontWeight: FontWeight.w300,
+                                      fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                 ],
@@ -456,11 +466,13 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                 context); // Handle checking availability
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
+                            backgroundColor:
+                                const Color.fromARGB(198, 255, 255, 255),
                             shadowColor:
                                 const Color.fromARGB(255, 33, 144, 213),
                             side: const BorderSide(
-                                width: 1.5, color: Colors.white),
+                                width: 1.5,
+                                color: Color.fromARGB(0, 255, 255, 255)),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(9.0),
                             ),
@@ -475,7 +487,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                               Text(
                                 'The Next Day',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: const Color.fromARGB(255, 4, 88, 141),
                                   fontWeight: FontWeight.bold,
                                   fontSize: screenWidth * 0.05,
                                 ),
@@ -484,7 +496,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                 formattedDayAfterDayAfterTomorrow,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: const Color.fromARGB(255, 4, 88, 141),
                                   fontSize: screenWidth * 0.036,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -492,8 +504,8 @@ class _SelectDatePageState extends State<SelectDatePage> {
                               Text(
                                 _getDayOfWeek(dayAfterDayAfterTomorrow.weekday),
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w300,
+                                  color: const Color.fromARGB(255, 4, 88, 141),
+                                  fontWeight: FontWeight.w400,
                                   fontSize: screenWidth * 0.038,
                                 ),
                               ),

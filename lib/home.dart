@@ -7,6 +7,7 @@ import '../models/flightsearchmodel.dart';
 import './history.dart';
 import './services/api_service.dart';
 import 'main.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class HomePage extends StatefulWidget {
   final String selectedDate;
@@ -148,12 +149,13 @@ class _HomePageState extends State<HomePage> {
       _flightSearchModel.originCountries = airportList.map((airport) {
         return {'name': airport['name']!, 'code': airport['code']!};
       }).toList();
-
+      
       _flightSearchModel.destinationCountries = airportList.map((airport) {
         return {'name': airport['name']!, 'code': airport['code']!};
       }).toList();
 
       _filteredOriginCountries = _flightSearchModel.originCountries;
+      print(_filteredOriginCountries);
       _filteredDestinationCountries = _flightSearchModel.destinationCountries;
       _isLoading = false;
     });
@@ -718,7 +720,7 @@ class _HomePageState extends State<HomePage> {
                                       top: screenHeight *
                                           0.01), // Add gap from top
                                   child: Text(
-                                    'Search Your Flight',
+                                    'Search your Flight',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -1009,6 +1011,16 @@ class _HomePageState extends State<HomePage> {
                                         end: Alignment.centerRight,
                                       ),
                                       borderRadius: BorderRadius.circular(9.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(
+                                              0.35), // Adjust shadow color and opacity
+                                          blurRadius:
+                                              4.0, // Adjust blur radius for the shadow size
+                                          offset: Offset(2,
+                                              2), // Adjust shadow direction and distance
+                                        ),
+                                      ],
                                     ),
                                     padding: EdgeInsets.symmetric(
                                         vertical: screenHeight * 0.02),
@@ -1036,7 +1048,7 @@ class _HomePageState extends State<HomePage> {
                           padding: EdgeInsets.all(screenWidth * 0.05),
                           child: FloatingActionButton(
                             onPressed: _showRatingPopup,
-                            backgroundColor: Color.fromARGB(255, 204, 76, 21),
+                            backgroundColor: Color.fromARGB(255, 209, 77, 20),
                             child: Icon(Icons.info, color: Colors.white),
                           ),
                         ),
@@ -1286,7 +1298,7 @@ class _HomePageState extends State<HomePage> {
                                 Container(
                                   padding: const EdgeInsets.all(2.0),
                                   margin: const EdgeInsets.all(15.0),
-                                  height: screenHeight * 0.39,
+                                  height: screenHeight * 0.42,
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
@@ -1298,7 +1310,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     image: const DecorationImage(
                                       image: AssetImage('assets/world.png'),
-                                      fit: BoxFit.contain,
+                                      fit: BoxFit.scaleDown,
                                       scale:
                                           2, // Ensures the image covers the entire container
                                       opacity:
@@ -1312,7 +1324,7 @@ class _HomePageState extends State<HomePage> {
                                       Transform.translate(
                                         offset: const Offset(0.0, -32.0),
                                         child: Text(
-                                          'Search Your Flight',
+                                          'Search your Flight',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -1345,14 +1357,23 @@ class _HomePageState extends State<HomePage> {
                                                               MainAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Image.asset(
-                                                              'assets/from.png',
+                                                            SizedBox(
+                                                              height:
+                                                                  screenHeight *
+                                                                      0.05,
                                                               width:
                                                                   screenWidth *
-                                                                      0.1,
-                                                              height:
-                                                                  screenWidth *
-                                                                      0.1,
+                                                                      0.08,
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/from.png',
+                                                                width:
+                                                                    screenWidth *
+                                                                        0.1,
+                                                                height:
+                                                                    screenHeight *
+                                                                        0.01,
+                                                              ),
                                                             ),
                                                             SizedBox(
                                                                 width:
@@ -1386,109 +1407,160 @@ class _HomePageState extends State<HomePage> {
                                                             onTap: () {
                                                               _searchQuery = '';
                                                               // Show the modal bottom sheet when the container is clicked
-                                                              showModalBottomSheet(
+                                                              showCupertinoModalBottomSheet(
                                                                 context:
                                                                     context,
-                                                                isScrollControlled:
-                                                                    true,
                                                                 backgroundColor:
                                                                     Colors
                                                                         .transparent,
                                                                 builder:
                                                                     (BuildContext
                                                                         context) {
-                                                                  return Container(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .all(
-                                                                            16.0),
-                                                                    height:
-                                                                        screenHeight *
-                                                                            0.55,
-                                                                    decoration:
-                                                                        const BoxDecoration(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      borderRadius:
-                                                                          BorderRadius
-                                                                              .only(
-                                                                        topLeft:
-                                                                            Radius.circular(16.0),
-                                                                        topRight:
-                                                                            Radius.circular(16.0),
-                                                                      ),
-                                                                    ),
+                                                                  return Material(
+                                                                    color: Colors
+                                                                        .transparent,
                                                                     child:
-                                                                        Column(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        // Search Box
-                                                                        TextField(
-                                                                          onChanged:
-                                                                              (value) {
-                                                                            setState(() {
-                                                                              _searchQuery = value.toLowerCase();
-                                                                            });
-                                                                          },
-                                                                          decoration:
-                                                                              InputDecoration(
-                                                                            labelText:
-                                                                                "Search Origin Country",
-                                                                            labelStyle:
-                                                                                TextStyle(
-                                                                              color: const Color.fromARGB(255, 169, 165, 165),
-                                                                              fontWeight: FontWeight.bold,
-                                                                              fontSize: screenWidth * 0.035,
+                                                                        Container(
+                                                                      padding: const EdgeInsets
+                                                                          .fromLTRB(
+                                                                          10,
+                                                                          0,
+                                                                          10,
+                                                                          0),
+                                                                      height:
+                                                                          screenHeight *
+                                                                              0.8,
+                                                                      decoration:
+                                                                          const BoxDecoration(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        borderRadius:
+                                                                            BorderRadius.only(
+                                                                          topLeft:
+                                                                              Radius.circular(16.0),
+                                                                          topRight:
+                                                                              Radius.circular(16.0),
+                                                                        ),
+                                                                      ),
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          Container(
+                                                                            height:
+                                                                                screenHeight * 0.005,
+                                                                            width:
+                                                                                screenWidth * 0.35,
+                                                                            margin:
+                                                                                const EdgeInsets.symmetric(vertical: 4),
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              color: const Color.fromARGB(255, 195, 191, 191), // Light grey color for the line
+                                                                              borderRadius: BorderRadius.circular(10), // Rounded corners (adjust the radius as needed)
                                                                             ),
-                                                                            border:
-                                                                                OutlineInputBorder(
-                                                                              borderRadius: BorderRadius.circular(8.0),
-                                                                              borderSide: const BorderSide(
-                                                                                color: Colors.grey,
-                                                                                width: 1.0,
+                                                                          ),
+                                                                          SizedBox(
+                                                                              height: screenHeight * 0.03),
+                                                                          TextField(
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              setState(() {
+                                                                                _searchQuery = value.toLowerCase();
+                                                                              });
+                                                                            },
+                                                                            decoration:
+                                                                                InputDecoration(
+                                                                              labelText: "Search origin",
+                                                                              labelStyle: TextStyle(
+                                                                                color: const Color.fromARGB(255, 169, 165, 165),
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: screenWidth * 0.035,
+                                                                              ),
+                                                                              border: OutlineInputBorder(
+                                                                                borderRadius: BorderRadius.circular(8.0),
+                                                                                borderSide: const BorderSide(
+                                                                                  color: Colors.grey,
+                                                                                  width: 1.0,
+                                                                                ),
                                                                               ),
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                        SizedBox(
-                                                                            height:
-                                                                                screenHeight * 0.01),
-                                                                        // Filtered Country List
-                                                                        Expanded(
-                                                                          child:
-                                                                              ListView(
-                                                                            shrinkWrap:
-                                                                                true,
-                                                                            children: _filteredOriginCountries
-                                                                                .where((country) =>
-                                                                                    country['code'] != _flightSearchModel.selectedOriginCountryCode &&
-                                                                                    country['code'] != _destinationController.text && // Exclude destination country
-                                                                                    (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
-                                                                                .map((country) {
-                                                                              return ListTile(
-                                                                                onTap: () {
-                                                                                  setState(() {
-                                                                                    _originController.text = country['code']!;
-                                                                                    _flightSearchModel.selectedOriginCountry = country['name'];
-                                                                                    _flightSearchModel.selectedOriginCountryCode = country['code'];
-                                                                                    _searchQuery = '';
-                                                                                  });
-                                                                                  Navigator.pop(context); // Close the bottom sheet after selection
-                                                                                },
-                                                                                title: Text(
-                                                                                  "${country['name']} (${country['code']})",
-                                                                                  style: const TextStyle(
-                                                                                    color: Color.fromARGB(255, 0, 0, 0),
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                  ),
+                                                                          SizedBox(
+                                                                              height: screenHeight * 0.03),
+                                                                          Row(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.start,
+                                                                            children: [
+                                                                              SizedBox(width: screenWidth * 0.041),
+                                                                              Text(
+                                                                                "All Airports",
+                                                                                style: TextStyle(
+                                                                                  fontSize: screenWidth * 0.04,
+                                                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                                                  fontWeight: FontWeight.bold,
                                                                                 ),
-                                                                              );
-                                                                            }).toList(),
+                                                                              ),
+                                                                            ],
                                                                           ),
-                                                                        ),
-                                                                      ],
+
+                                                                          SizedBox(
+                                                                              height: screenHeight * 0.01),
+                                                                          // Filtered Country List
+                                                                          Expanded(
+                                                                            child:
+                                                                                ListView(
+                                                                              shrinkWrap: true,
+                                                                              children: _filteredOriginCountries
+                                                                                  .where((country) =>
+                                                                                      country['code'] != _flightSearchModel.selectedOriginCountryCode &&
+                                                                                      country['code'] != _destinationController.text && // Exclude destination country
+                                                                                      (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
+                                                                                  .map((country) {
+                                                                                return Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    ListTile(
+                                                                                      onTap: () {
+                                                                                        setState(() {
+                                                                                          _originController.text = country['code']!;
+                                                                                          _flightSearchModel.selectedOriginCountry = country['name'];
+                                                                                          _flightSearchModel.selectedOriginCountryCode = country['code'];
+                                                                                          _searchQuery = '';
+                                                                                        });
+                                                                                        Navigator.pop(context); // Close the bottom sheet after selection
+                                                                                      },
+                                                                                      title: Column(
+                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            country['name']!,
+                                                                                            style: const TextStyle(
+                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                              fontWeight: FontWeight.w400,
+                                                                                              fontSize: 16, // You can adjust the font size here for the country name
+                                                                                            ),
+                                                                                          ),
+                                                                                          SizedBox(height: 4), // Small gap between the country name and country code
+                                                                                          Text(
+                                                                                            country['code']!,
+                                                                                            style: TextStyle(
+                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                              fontWeight: FontWeight.w700,
+                                                                                              fontSize: screenWidth * .035, // Adjust the font size for the country code
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                    Divider(), // This will add a line between each item
+                                                                                  ],
+                                                                                );
+                                                                              }).toList(),
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
                                                                     ),
                                                                   );
                                                                 },
@@ -1511,10 +1583,10 @@ class _HomePageState extends State<HomePage> {
                                                                         .isEmpty
                                                                     ? const Color
                                                                         .fromARGB(
-                                                                        104,
-                                                                        190,
-                                                                        190,
-                                                                        190) // When no country is selected
+                                                                        92,
+                                                                        255,
+                                                                        255,
+                                                                        255) // When no country is selected
                                                                     : const Color
                                                                         .fromARGB(
                                                                         230,
@@ -1533,11 +1605,11 @@ class _HomePageState extends State<HomePage> {
                                                                           190,
                                                                           190) // When no country is selected
                                                                       : const Color
-                                                                          .fromARGB(
-                                                                          198,
+                                                                          .fromRGBO(
                                                                           255,
                                                                           255,
-                                                                          255), // When a country is selected
+                                                                          255,
+                                                                          0.776), // When a country is selected
                                                                   width: 1.2,
                                                                 ),
                                                                 boxShadow: [
@@ -1545,7 +1617,7 @@ class _HomePageState extends State<HomePage> {
                                                                     color: Colors
                                                                         .black
                                                                         .withOpacity(
-                                                                            0.1), // Light shadow
+                                                                            0.35), // Light shadow
                                                                     offset: const Offset(
                                                                         0,
                                                                         2), // Slight downward shadow
@@ -1641,14 +1713,23 @@ class _HomePageState extends State<HomePage> {
                                                               MainAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Image.asset(
-                                                              'assets/to.png',
+                                                            SizedBox(
+                                                              height:
+                                                                  screenHeight *
+                                                                      0.05,
                                                               width:
                                                                   screenWidth *
-                                                                      0.1,
-                                                              height:
-                                                                  screenWidth *
-                                                                      0.1,
+                                                                      0.08,
+                                                              child:
+                                                                  Image.asset(
+                                                                'assets/to.png',
+                                                                width:
+                                                                    screenWidth *
+                                                                        0.1,
+                                                                height:
+                                                                    screenHeight *
+                                                                        0.01,
+                                                              ),
                                                             ),
                                                             SizedBox(
                                                                 width:
@@ -1680,109 +1761,156 @@ class _HomePageState extends State<HomePage> {
                                                             onTap: () {
                                                               _searchQuery = '';
                                                               // Show the modal bottom sheet when the container is clicked
-                                                              showModalBottomSheet(
+                                                              showCupertinoModalBottomSheet(
                                                                 context:
                                                                     context,
-                                                                isScrollControlled:
-                                                                    true,
+                                                                //  isScrollControlled: true,
                                                                 backgroundColor:
                                                                     Colors
                                                                         .transparent,
                                                                 builder:
                                                                     (BuildContext
                                                                         context) {
-                                                                  return Container(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .all(
-                                                                            16.0),
-                                                                    height:
-                                                                        screenHeight *
-                                                                            0.55,
-                                                                    decoration:
-                                                                        const BoxDecoration(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      borderRadius:
-                                                                          BorderRadius
-                                                                              .only(
-                                                                        topLeft:
-                                                                            Radius.circular(16.0),
-                                                                        topRight:
-                                                                            Radius.circular(16.0),
-                                                                      ),
-                                                                    ),
+                                                                  return Material(
+                                                                    color: Colors
+                                                                        .transparent,
                                                                     child:
-                                                                        Column(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        // Search Box
-                                                                        TextField(
-                                                                          onChanged:
-                                                                              (value) {
-                                                                            setState(() {
-                                                                              _searchQuery = value.toLowerCase();
-                                                                            });
-                                                                          },
-                                                                          decoration:
-                                                                              InputDecoration(
-                                                                            labelText:
-                                                                                "Search Destination Country",
-                                                                            labelStyle:
-                                                                                TextStyle(
-                                                                              color: const Color.fromARGB(255, 169, 165, 165),
-                                                                              fontWeight: FontWeight.bold,
-                                                                              fontSize: screenWidth * 0.035,
+                                                                        Container(
+                                                                      padding: const EdgeInsets
+                                                                          .fromLTRB(
+                                                                          10,
+                                                                          0,
+                                                                          10,
+                                                                          0),
+                                                                      height:
+                                                                          screenHeight *
+                                                                              0.8,
+                                                                      decoration:
+                                                                          const BoxDecoration(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        borderRadius:
+                                                                            BorderRadius.only(
+                                                                          topLeft:
+                                                                              Radius.circular(16.0),
+                                                                          topRight:
+                                                                              Radius.circular(16.0),
+                                                                        ),
+                                                                      ),
+                                                                      child:
+                                                                          Column(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          Container(
+                                                                            height:
+                                                                                screenHeight * 0.005,
+                                                                            width:
+                                                                                screenWidth * 0.35,
+                                                                            margin:
+                                                                                const EdgeInsets.symmetric(vertical: 4),
+                                                                            decoration:
+                                                                                BoxDecoration(
+                                                                              color: const Color.fromARGB(255, 195, 191, 191), // Light grey color for the line
+                                                                              borderRadius: BorderRadius.circular(10), // Rounded corners (adjust the radius as needed)
                                                                             ),
-                                                                            border:
-                                                                                OutlineInputBorder(
-                                                                              borderRadius: BorderRadius.circular(8.0),
-                                                                              borderSide: const BorderSide(
-                                                                                color: Colors.grey,
-                                                                                width: 1.0,
+                                                                          ),
+                                                                          SizedBox(
+                                                                              height: screenHeight * 0.03),
+                                                                          // Search Box
+                                                                          TextField(
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              setState(() {
+                                                                                _searchQuery = value.toLowerCase();
+                                                                              });
+                                                                            },
+                                                                            decoration:
+                                                                                InputDecoration(
+                                                                              labelText: "Search Destination",
+                                                                              labelStyle: TextStyle(
+                                                                                color: const Color.fromARGB(255, 169, 165, 165),
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: screenWidth * 0.035,
+                                                                              ),
+                                                                              border: OutlineInputBorder(
+                                                                                borderRadius: BorderRadius.circular(8.0),
+                                                                                borderSide: const BorderSide(
+                                                                                  color: Colors.grey,
+                                                                                  width: 1.0,
+                                                                                ),
                                                                               ),
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                        SizedBox(
-                                                                            height:
-                                                                                screenHeight * 0.01),
-                                                                        // Filtered Country List
-                                                                        Expanded(
-                                                                          child:
-                                                                              ListView(
-                                                                            shrinkWrap:
-                                                                                true,
-                                                                            children: _filteredDestinationCountries
-                                                                                .where((country) =>
-                                                                                    country['code'] != _flightSearchModel.selectedDestinationCountryCode &&
-                                                                                    country['code'] != _originController.text && // Exclude origin country
-                                                                                    (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
-                                                                                .map((country) {
-                                                                              return ListTile(
-                                                                                onTap: () {
-                                                                                  setState(() {
-                                                                                    _destinationController.text = country['code']!;
-                                                                                    _flightSearchModel.selectedDestinationCountry = country['name'];
-                                                                                    _flightSearchModel.selectedDestinationCountryCode = country['code'];
-                                                                                    _searchQuery = '';
-                                                                                  });
-                                                                                  Navigator.pop(context); // Close the bottom sheet after selection
-                                                                                },
-                                                                                title: Text(
-                                                                                  "${country['name']} (${country['code']})",
-                                                                                  style: const TextStyle(
-                                                                                    color: Color.fromARGB(255, 0, 0, 0),
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                  ),
+                                                                          SizedBox(
+                                                                              height: screenHeight * 0.03),
+                                                                          Row(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.start,
+                                                                            children: [
+                                                                              SizedBox(width: screenWidth * 0.041),
+                                                                              Text(
+                                                                                "All Airports",
+                                                                                style: TextStyle(
+                                                                                  fontSize: screenWidth * 0.04,
+                                                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                                                  fontWeight: FontWeight.bold,
                                                                                 ),
-                                                                              );
-                                                                            }).toList(),
+                                                                              ),
+                                                                            ],
                                                                           ),
-                                                                        ),
-                                                                      ],
+
+                                                                          SizedBox(
+                                                                              height: screenHeight * 0.01),
+                                                                          Expanded(
+                                                                            child:
+                                                                                ListView(
+                                                                              shrinkWrap: true,
+                                                                              children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                return Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    ListTile(
+                                                                                      onTap: () {
+                                                                                        setState(() {
+                                                                                          _destinationController.text = country['code']!;
+                                                                                          _flightSearchModel.selectedDestinationCountry = country['name'];
+                                                                                          _flightSearchModel.selectedDestinationCountryCode = country['code'];
+                                                                                          _searchQuery = '';
+                                                                                        });
+                                                                                        Navigator.pop(context); // Close the bottom sheet after selection
+                                                                                      },
+                                                                                      title: Column(
+                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                        children: [
+                                                                                          Text(
+                                                                                            country['name']!,
+                                                                                            style: const TextStyle(
+                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                              fontWeight: FontWeight.w400,
+                                                                                              fontSize: 16, // You can adjust the font size here for the country name
+                                                                                            ),
+                                                                                          ),
+                                                                                          SizedBox(height: 4), // Small gap between the country name and country code
+                                                                                          Text(
+                                                                                            country['code']!,
+                                                                                            style: TextStyle(
+                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                              fontWeight: FontWeight.w700,
+                                                                                              fontSize: screenWidth * .035, // Adjust the font size for the country code
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                    Divider(), // This will add a line between each item
+                                                                                  ],
+                                                                                );
+                                                                              }).toList(),
+                                                                            ),
+                                                                          )
+                                                                        ],
+                                                                      ),
                                                                     ),
                                                                   );
                                                                 },
@@ -1805,10 +1933,10 @@ class _HomePageState extends State<HomePage> {
                                                                         .isEmpty
                                                                     ? const Color
                                                                         .fromARGB(
-                                                                        104,
-                                                                        190,
-                                                                        190,
-                                                                        190) // When no country is selected
+                                                                        92,
+                                                                        255,
+                                                                        255,
+                                                                        255) // When no country is selected
                                                                     : const Color
                                                                         .fromARGB(
                                                                         230,
@@ -1839,7 +1967,7 @@ class _HomePageState extends State<HomePage> {
                                                                     color: Colors
                                                                         .black
                                                                         .withOpacity(
-                                                                            0.1), // Light shadow
+                                                                            0.35), // Light shadow
                                                                     offset: const Offset(
                                                                         0,
                                                                         2), // Slight downward shadow
@@ -1957,7 +2085,6 @@ class _HomePageState extends State<HomePage> {
                                                 fontWeight: FontWeight.bold),
                                           ),
                                         ),
-                                      SizedBox(height: screenHeight * -0),
                                       ElevatedButton(
                                         onPressed: () {
                                           if (_originController.text.isEmpty ||
@@ -1999,6 +2126,16 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                             borderRadius:
                                                 BorderRadius.circular(9.0),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(
+                                                    0.35), // Adjust shadow color and opacity
+                                                blurRadius:
+                                                    4.0, // Adjust blur radius for the shadow size
+                                                offset: Offset(2,
+                                                    2), // Adjust shadow direction and distance
+                                              ),
+                                            ],
                                           ),
                                           padding: EdgeInsets.symmetric(
                                               vertical: screenHeight * 0.015),
@@ -2025,7 +2162,7 @@ class _HomePageState extends State<HomePage> {
                                     child: FloatingActionButton(
                                       onPressed: _showRatingPopup,
                                       backgroundColor:
-                                          Color.fromARGB(255, 204, 76, 21),
+                                          Color.fromARGB(255, 209, 77, 20),
                                       child:
                                           Icon(Icons.info, color: Colors.white),
                                     ),
