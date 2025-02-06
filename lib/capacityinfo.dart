@@ -126,8 +126,12 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
 
           if (fullName == _userName ||
               staff.staffID == _userId ||
-              _userName == 'IN1913' ||
-              _userName == 'IN1927') {
+              _userId == 'IN1913' ||
+              _userId == 'IN1927' ||
+              _userId == '23799' ||
+              _userId == '23933' ||
+              _userId == '16763' ||
+              _userId == '12988') {
             setState(() {
               areButtonsEnabled = true; // Enable buttons for matching staff
             });

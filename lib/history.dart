@@ -306,7 +306,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                         ], // Change the color transition based on the swipe position
                                         colors: [
                                           Colors.red,
-                                          Color.fromRGBO(22, 77, 114, 1),
+                                          Colors.red,
                                         ],
                                       ),
                                     ),

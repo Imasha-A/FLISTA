@@ -105,7 +105,7 @@ class _MyTicketsState extends State<MyTickets> {
 
                 Container(
                     width: screenWidth * 0.99,
-                    height: screenHeight * 0.96,
+                    height: screenHeight * 0.98,
                     decoration: BoxDecoration(
                       color: Color.fromRGBO(49, 121, 167, 1),
                       borderRadius: BorderRadius.circular(12),
@@ -147,7 +147,7 @@ class _MyTicketsState extends State<MyTickets> {
                                         style: TextStyle(
                                             fontSize: screenWidth * 0.038)),
                                     Text(
-                                      "Chamila Kancha (N9553378)",
+                                      "Chamila Kanchana (N9553378)",
                                       style: TextStyle(
                                           fontSize: screenWidth * 0.04,
                                           fontWeight: FontWeight.bold),
@@ -197,10 +197,18 @@ class _MyTicketsState extends State<MyTickets> {
                                         ),
                                       ],
                                     ),
+                                    SizedBox(height: screenHeight * 0.01),
+                                    Image.asset(
+                                      'assets/barcode.png',
+                                      width: screenWidth * 0.8,
+                                      height: screenHeight * 0.14,
+                                      fit: BoxFit.contain,
+                                    ),
                                   ],
                                 ),
                               ],
                             ),
+
                             SizedBox(height: screenHeight * 0.04),
                             // Main Ticket Information - depart
                             Row(
@@ -604,14 +612,7 @@ class _MyTicketsState extends State<MyTickets> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: screenHeight * 0.04),
                               ],
-                            ),
-                            Image.asset(
-                              'assets/barcode.png',
-                              width: screenWidth * 0.01,
-                              height: screenHeight * 0.088,
-                              fit: BoxFit.contain,
                             ),
                           ],
                         ),
