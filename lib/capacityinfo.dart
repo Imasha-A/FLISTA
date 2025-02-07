@@ -127,11 +127,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
           if (fullName == _userName ||
               staff.staffID == _userId ||
               _userId == 'IN1913' ||
-              _userId == 'IN1927' ||
-              _userId == '23799' ||
-              _userId == '23933' ||
-              _userId == '16763' ||
-              _userId == '12988') {
+              _userId == 'IN1927') {
             setState(() {
               areButtonsEnabled = true; // Enable buttons for matching staff
             });
@@ -545,17 +541,32 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                 BorderRadius.circular(9.0),
                                           ),
                                           padding: EdgeInsets.symmetric(
-                                              horizontal: screenWidth * 0.1,
+                                              horizontal: screenWidth * 0.08,
                                               vertical: screenHeigth * 0.001),
                                         ),
                                         child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
+                                            // UL Number Row (Without Arrows)
+                                            Text(
+                                              ' UL $selectedUL',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: screenWidth * 0.06,
+                                              ),
+                                            ),
+
+                                            SizedBox(
+                                                height: screenHeigth * 0.002),
+
+                                            // New Row with Date and Arrows
                                             Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.spaceEvenly,
                                               children: [
+                                                // Left Arrow (Move to Previous Date)
                                                 Transform.translate(
                                                   offset: Offset(
                                                       screenWidth * -0.03, 0.0),
@@ -571,17 +582,17 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                     ),
                                                   ),
                                                 ),
+
+                                                // Selected Date in the Middle
                                                 Text(
-                                                  '       UL $selectedUL',
+                                                  ' on $selectedDate', // Use selectedDate variable here
                                                   style: TextStyle(
                                                     color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize:
-                                                        screenWidth * 0.06,
+                                                    fontSize: screenWidth * .04,
                                                   ),
                                                 ),
-                                                SizedBox(
-                                                    width: screenWidth * .03),
+
+                                                // Right Arrow (Move to Next Date)
                                                 Transform.translate(
                                                   offset: Offset(
                                                       screenWidth * 0.04, 0.0),
@@ -597,27 +608,21 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                     ),
                                                   ),
                                                 ),
-                                                // Added SizedBox for spacing
                                               ],
                                             ),
+
                                             SizedBox(
                                                 height: screenHeigth * 0.002),
+
+                                            // Scheduled Time (Remains Below Date)
                                             Text(
-                                              '  on $selectedDate', // Use selectedDate variable here
+                                              '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: screenWidth * .04,
                                               ),
                                             ),
-                                            SizedBox(
-                                                height: screenHeigth * 0.002),
-                                            Text(
-                                              ' ${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: screenWidth * .04,
-                                              ),
-                                            ),
+
                                             SizedBox(
                                                 height: screenHeigth * 0.001),
                                           ],
@@ -641,7 +646,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                             ),
                                           ),
                                           SizedBox(
-                                            width: screenWidth * 0.09,
+                                            width: screenWidth * 0.095,
                                           ),
                                           Text(
                                             'EY', // Economy Class
@@ -652,7 +657,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                             ),
                                           ),
                                           SizedBox(
-                                            width: screenWidth * 0.04,
+                                            width: screenWidth * 0.029,
                                           ),
                                         ],
                                       ),

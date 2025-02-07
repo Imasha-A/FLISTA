@@ -8,6 +8,7 @@ import './history.dart';
 import './services/api_service.dart';
 import 'main.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class HomePage extends StatefulWidget {
   final String selectedDate;
@@ -49,6 +50,7 @@ class _HomePageState extends State<HomePage> {
   );
 
   String _searchQuery = "";
+  String appVersion = "Loading...";
 
   @override
   void initState() {
@@ -64,6 +66,7 @@ class _HomePageState extends State<HomePage> {
     _filteredDestinationCountries = _flightSearchModel.destinationCountries;
     _getSelectedCountries();
     _loadUserName();
+    _getAppVersion();
     _saveUserNameToPreferences();
     _loadUserId().then((_) {
       _saveUserIdToPreferences(); // Save userId to SharedPreferences after loading it
@@ -89,6 +92,25 @@ class _HomePageState extends State<HomePage> {
         _hideDestinationSuggestions();
       }
     });
+  }
+
+  void _getAppVersion() async {
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      print("App Name: ${packageInfo.appName}");
+      print("Package Name: ${packageInfo.packageName}");
+      print("Version: ${packageInfo.version}");
+      print("Build Number: ${packageInfo.buildNumber}");
+
+      setState(() {
+        appVersion = packageInfo.version;
+      });
+    } catch (e) {
+      print("Error fetching app version: $e");
+      setState(() {
+        appVersion = "Unknown";
+      });
+    }
   }
 
   // Add this function to handle logout
@@ -142,17 +164,34 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  String toTitleCase(String text) {
+    return text
+        .toLowerCase() // Convert everything to lowercase first
+        .split(' ') // Split into words
+        .map((word) => word.isNotEmpty
+            ? word[0].toUpperCase() +
+                word.substring(1) // Capitalize first letter
+            : '') // Handle empty words (e.g., extra spaces)
+        .join(' '); // Join words back into a sentence
+  }
+
   Future<void> _fetchAirportList() async {
     APIService apiService = APIService();
     List<Map<String, String>> airportList = await apiService.fetchAirportList();
 
     setState(() {
       _flightSearchModel.originCountries = airportList.map((airport) {
-        return {'name': airport['name']!, 'code': airport['code']!};
+        return {
+          'name': toTitleCase(airport['name']!),
+          'code': airport['code']!
+        };
       }).toList();
 
       _flightSearchModel.destinationCountries = airportList.map((airport) {
-        return {'name': airport['name']!, 'code': airport['code']!};
+        return {
+          'name': toTitleCase(airport['name']!),
+          'code': airport['code']!
+        };
       }).toList();
 
       _filteredOriginCountries = _flightSearchModel.originCountries;
@@ -1379,7 +1418,7 @@ class _HomePageState extends State<HomePage> {
                                                             SizedBox(
                                                                 width:
                                                                     screenWidth *
-                                                                        0.05),
+                                                                        0.06),
                                                             Text(
                                                               'From',
                                                               style: TextStyle(
@@ -1417,65 +1456,68 @@ class _HomePageState extends State<HomePage> {
                                                                 builder:
                                                                     (BuildContext
                                                                         context) {
-                                                                  return Material(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                    child:
-                                                                        Container(
-                                                                      padding: const EdgeInsets
-                                                                          .fromLTRB(
-                                                                          10,
-                                                                          0,
-                                                                          10,
-                                                                          0),
-                                                                      height:
-                                                                          screenHeight *
-                                                                              0.88,
-                                                                      decoration:
-                                                                          const BoxDecoration(
+                                                                  return StatefulBuilder(
+                                                                    // Ensures the modal updates dynamically
+                                                                    builder:
+                                                                        (context,
+                                                                            setModalState) {
+                                                                      // Ensure focus is requested when the modal opens
+                                                                      Future.delayed(
+                                                                          Duration
+                                                                              .zero,
+                                                                          () {
+                                                                        _searchFocusNode
+                                                                            .requestFocus();
+                                                                      });
+
+                                                                      return Material(
                                                                         color: Colors
-                                                                            .white,
-                                                                        borderRadius:
-                                                                            BorderRadius.only(
-                                                                          topLeft:
-                                                                              Radius.circular(16.0),
-                                                                          topRight:
-                                                                              Radius.circular(16.0),
-                                                                        ),
-                                                                      ),
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          Container(
-                                                                            height:
-                                                                                screenHeight * 0.005,
-                                                                            width:
-                                                                                screenWidth * 0.35,
-                                                                            margin:
-                                                                                const EdgeInsets.symmetric(vertical: 4),
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              color: const Color.fromARGB(255, 195, 191, 191), // Light grey color for the line
-                                                                              borderRadius: BorderRadius.circular(10), // Rounded corners (adjust the radius as needed)
+                                                                            .transparent,
+                                                                        child:
+                                                                            Container(
+                                                                          padding: const EdgeInsets
+                                                                              .fromLTRB(
+                                                                              10,
+                                                                              0,
+                                                                              10,
+                                                                              0),
+                                                                          height:
+                                                                              screenHeight * 0.88,
+                                                                          decoration:
+                                                                              const BoxDecoration(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            borderRadius:
+                                                                                BorderRadius.only(
+                                                                              topLeft: Radius.circular(16.0),
+                                                                              topRight: Radius.circular(16.0),
                                                                             ),
                                                                           ),
-                                                                          SizedBox(
-                                                                              height: screenHeight * 0.02),
-                                                                          FutureBuilder(
-                                                                            future:
-                                                                                Future.delayed(Duration.zero, () {
-                                                                              _searchFocusNode.requestFocus();
-                                                                            }),
-                                                                            builder:
-                                                                                (context, snapshot) {
-                                                                              return TextField(
-                                                                                focusNode: _searchFocusNode, // Assign the focus node here
-                                                                                cursorColor: Color.fromARGB(175, 60, 60, 60),
+                                                                          child:
+                                                                              Column(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.min,
+                                                                            children: [
+                                                                              Container(
+                                                                                height: screenHeight * 0.005,
+                                                                                width: screenWidth * 0.35,
+                                                                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                                                                decoration: BoxDecoration(
+                                                                                  color: const Color.fromARGB(255, 195, 191, 191),
+                                                                                  borderRadius: BorderRadius.circular(10),
+                                                                                ),
+                                                                              ),
+                                                                              SizedBox(height: screenHeight * 0.02),
+
+                                                                              // Search TextField
+                                                                              TextField(
+                                                                                focusNode: _searchFocusNode,
+                                                                                cursorColor: const Color.fromARGB(175, 60, 60, 60),
                                                                                 onChanged: (value) {
-                                                                                  setState(() {
+                                                                                  setModalState(() {
+                                                                                    // Updates modal UI dynamically
                                                                                     _searchQuery = value.toLowerCase();
+                                                                                    _filteredOriginCountries = _flightSearchModel.originCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
                                                                                   });
                                                                                 },
                                                                                 decoration: InputDecoration(
@@ -1488,89 +1530,78 @@ class _HomePageState extends State<HomePage> {
                                                                                   border: OutlineInputBorder(
                                                                                     borderRadius: BorderRadius.circular(8.0),
                                                                                     borderSide: const BorderSide(
-                                                                                      color: Colors.grey, // Default border color
+                                                                                      color: Colors.grey,
                                                                                       width: 1.0,
                                                                                     ),
                                                                                   ),
                                                                                   focusedBorder: OutlineInputBorder(
-                                                                                    // Ensures border stays gray when focused
                                                                                     borderRadius: BorderRadius.circular(8.0),
                                                                                     borderSide: const BorderSide(
-                                                                                      color: Color.fromARGB(175, 60, 60, 60), // Change focus color
+                                                                                      color: Color.fromARGB(175, 60, 60, 60),
                                                                                       width: 1.5,
                                                                                     ),
                                                                                   ),
                                                                                 ),
-                                                                              );
-                                                                            },
-                                                                          ),
-                                                                          SizedBox(
-                                                                              height: screenHeight * 0.02),
-                                                                          Container(
-                                                                            height:
-                                                                                2,
-                                                                            color:
-                                                                                Colors.grey[300], // Light grey background
-                                                                          ),
-                                                                          // Filtered Country List
-                                                                          Expanded(
-                                                                            child:
-                                                                                ListView(
-                                                                              shrinkWrap: true,
-                                                                              children: _filteredOriginCountries
-                                                                                  .where((country) =>
-                                                                                      country['code'] != _flightSearchModel.selectedOriginCountryCode &&
-                                                                                      country['code'] != _destinationController.text && // Exclude destination country
-                                                                                      (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)))
-                                                                                  .map((country) {
-                                                                                return Column(
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  children: [
-                                                                                    ListTile(
-                                                                                      onTap: () {
-                                                                                        setState(() {
-                                                                                          _originController.text = country['code']!;
-                                                                                          _flightSearchModel.selectedOriginCountry = country['name'];
-                                                                                          _flightSearchModel.selectedOriginCountryCode = country['code'];
-                                                                                          _searchQuery = '';
-                                                                                        });
-                                                                                        Navigator.pop(context); // Close the bottom sheet after selection
-                                                                                      },
-                                                                                      title: Column(
-                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                        children: [
-                                                                                          Text(
-                                                                                            country['name']!,
-                                                                                            style: const TextStyle(
-                                                                                              color: Color.fromARGB(255, 0, 0, 0),
-                                                                                              fontWeight: FontWeight.w400,
-                                                                                              fontSize: 16, // You can adjust the font size here for the country name
-                                                                                            ),
+                                                                              ),
+
+                                                                              SizedBox(height: screenHeight * 0.02),
+                                                                              Container(height: 2, color: Colors.grey[300]),
+
+                                                                              // Filtered Country List
+                                                                              Expanded(
+                                                                                child: ListView(
+                                                                                  shrinkWrap: true,
+                                                                                  children: _filteredOriginCountries.where((country) => country['code'] != _flightSearchModel.selectedOriginCountryCode && country['code'] != _destinationController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                    return Column(
+                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                      children: [
+                                                                                        ListTile(
+                                                                                          onTap: () {
+                                                                                            setState(() {
+                                                                                              _originController.text = country['code']!;
+                                                                                              _flightSearchModel.selectedOriginCountry = country['name'];
+                                                                                              _flightSearchModel.selectedOriginCountryCode = country['code'];
+                                                                                              _searchQuery = '';
+                                                                                            });
+                                                                                            Navigator.pop(context);
+                                                                                          },
+                                                                                          title: Column(
+                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                            children: [
+                                                                                              Text(
+                                                                                                country['name']!,
+                                                                                                style: const TextStyle(
+                                                                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                  fontWeight: FontWeight.w400,
+                                                                                                  fontSize: 16,
+                                                                                                ),
+                                                                                              ),
+                                                                                              Text(
+                                                                                                country['code']!,
+                                                                                                style: TextStyle(
+                                                                                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                                                                                  fontWeight: FontWeight.w700,
+                                                                                                  fontSize: screenWidth * .035,
+                                                                                                ),
+                                                                                              ),
+                                                                                            ],
                                                                                           ),
-                                                                                          Text(
-                                                                                            country['code']!,
-                                                                                            style: TextStyle(
-                                                                                              color: Color.fromARGB(255, 0, 0, 0),
-                                                                                              fontWeight: FontWeight.w700,
-                                                                                              fontSize: screenWidth * .035, // Adjust the font size for the country code
-                                                                                            ),
-                                                                                          ),
-                                                                                        ],
-                                                                                      ),
-                                                                                    ),
-                                                                                    Divider(
-                                                                                      thickness: 0.8, // Make the divider thinner
-                                                                                      height: 2, // Reduce space between items
-                                                                                      color: Colors.grey[300],
-                                                                                    ),
-                                                                                  ],
-                                                                                );
-                                                                              }).toList(),
-                                                                            ),
-                                                                          )
-                                                                        ],
-                                                                      ),
-                                                                    ),
+                                                                                        ),
+                                                                                        Divider(
+                                                                                          thickness: 0.8,
+                                                                                          height: 2,
+                                                                                          color: Colors.grey[300],
+                                                                                        ),
+                                                                                      ],
+                                                                                    );
+                                                                                  }).toList(),
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      );
+                                                                    },
                                                                   );
                                                                 },
                                                               );
@@ -1743,7 +1774,7 @@ class _HomePageState extends State<HomePage> {
                                                             SizedBox(
                                                                 width:
                                                                     screenWidth *
-                                                                        0.05),
+                                                                        0.09),
                                                             Text(
                                                               'To',
                                                               style: TextStyle(
@@ -1773,72 +1804,74 @@ class _HomePageState extends State<HomePage> {
                                                               showCupertinoModalBottomSheet(
                                                                 context:
                                                                     context,
-                                                                //  isScrollControlled: true,
                                                                 backgroundColor:
                                                                     Colors
                                                                         .transparent,
                                                                 builder:
                                                                     (BuildContext
                                                                         context) {
-                                                                  return Material(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                    child:
-                                                                        Container(
-                                                                      padding: const EdgeInsets
-                                                                          .fromLTRB(
-                                                                          10,
-                                                                          0,
-                                                                          10,
-                                                                          0),
-                                                                      height:
-                                                                          screenHeight *
-                                                                              0.88,
-                                                                      decoration:
-                                                                          const BoxDecoration(
+                                                                  return StatefulBuilder(
+                                                                    // Ensures real-time updates inside the modal
+                                                                    builder:
+                                                                        (context,
+                                                                            setModalState) {
+                                                                      // Ensure focus is requested when the modal opens
+                                                                      Future.delayed(
+                                                                          Duration
+                                                                              .zero,
+                                                                          () {
+                                                                        _searchFocusNode
+                                                                            .requestFocus();
+                                                                      });
+
+                                                                      return Material(
                                                                         color: Colors
-                                                                            .white,
-                                                                        borderRadius:
-                                                                            BorderRadius.only(
-                                                                          topLeft:
-                                                                              Radius.circular(16.0),
-                                                                          topRight:
-                                                                              Radius.circular(16.0),
-                                                                        ),
-                                                                      ),
-                                                                      child:
-                                                                          Column(
-                                                                        mainAxisSize:
-                                                                            MainAxisSize.min,
-                                                                        children: [
-                                                                          Container(
-                                                                            height:
-                                                                                screenHeight * 0.005,
-                                                                            width:
-                                                                                screenWidth * 0.35,
-                                                                            margin:
-                                                                                const EdgeInsets.symmetric(vertical: 4),
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              color: const Color.fromARGB(255, 195, 191, 191), // Light grey color for the line
-                                                                              borderRadius: BorderRadius.circular(10), // Rounded corners (adjust the radius as needed)
+                                                                            .transparent,
+                                                                        child:
+                                                                            Container(
+                                                                          padding: const EdgeInsets
+                                                                              .fromLTRB(
+                                                                              10,
+                                                                              0,
+                                                                              10,
+                                                                              0),
+                                                                          height:
+                                                                              screenHeight * 0.88,
+                                                                          decoration:
+                                                                              const BoxDecoration(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            borderRadius:
+                                                                                BorderRadius.only(
+                                                                              topLeft: Radius.circular(16.0),
+                                                                              topRight: Radius.circular(16.0),
                                                                             ),
                                                                           ),
-                                                                          SizedBox(
-                                                                              height: screenHeight * 0.02),
-                                                                          FutureBuilder(
-                                                                            future:
-                                                                                Future.delayed(Duration.zero, () {
-                                                                              _searchFocusNode.requestFocus();
-                                                                            }),
-                                                                            builder:
-                                                                                (context, snapshot) {
-                                                                              return TextField(
-                                                                                focusNode: _searchFocusNode, // Assign the focus node here
-                                                                                cursorColor: Color.fromARGB(175, 60, 60, 60),
+                                                                          child:
+                                                                              Column(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.min,
+                                                                            children: [
+                                                                              Container(
+                                                                                height: screenHeight * 0.005,
+                                                                                width: screenWidth * 0.35,
+                                                                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                                                                decoration: BoxDecoration(
+                                                                                  color: const Color.fromARGB(255, 195, 191, 191),
+                                                                                  borderRadius: BorderRadius.circular(10),
+                                                                                ),
+                                                                              ),
+                                                                              SizedBox(height: screenHeight * 0.02),
+
+                                                                              // Search TextField
+                                                                              TextField(
+                                                                                focusNode: _searchFocusNode,
+                                                                                cursorColor: const Color.fromARGB(175, 60, 60, 60),
                                                                                 onChanged: (value) {
-                                                                                  setState(() {
+                                                                                  setModalState(() {
+                                                                                    // Update modal UI dynamically
                                                                                     _searchQuery = value.toLowerCase();
+                                                                                    _filteredDestinationCountries = _flightSearchModel.destinationCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
                                                                                   });
                                                                                 },
                                                                                 decoration: InputDecoration(
@@ -1851,83 +1884,78 @@ class _HomePageState extends State<HomePage> {
                                                                                   border: OutlineInputBorder(
                                                                                     borderRadius: BorderRadius.circular(8.0),
                                                                                     borderSide: const BorderSide(
-                                                                                      color: Colors.grey, // Default border color
+                                                                                      color: Colors.grey,
                                                                                       width: 1.0,
                                                                                     ),
                                                                                   ),
                                                                                   focusedBorder: OutlineInputBorder(
-                                                                                    // Ensures border stays gray when focused
                                                                                     borderRadius: BorderRadius.circular(8.0),
                                                                                     borderSide: const BorderSide(
-                                                                                      color: Color.fromARGB(175, 60, 60, 60), // Change focus color
+                                                                                      color: Color.fromARGB(175, 60, 60, 60),
                                                                                       width: 1.5,
                                                                                     ),
                                                                                   ),
                                                                                 ),
-                                                                              );
-                                                                            },
-                                                                          ),
-                                                                          SizedBox(
-                                                                              height: screenHeight * 0.02),
-                                                                          Container(
-                                                                            height:
-                                                                                2,
-                                                                            color:
-                                                                                Colors.grey[300], // Light grey background
-                                                                          ),
-                                                                          Expanded(
-                                                                            child:
-                                                                                ListView(
-                                                                              shrinkWrap: true,
-                                                                              children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
-                                                                                return Column(
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  children: [
-                                                                                    ListTile(
-                                                                                      onTap: () {
-                                                                                        setState(() {
-                                                                                          _destinationController.text = country['code']!;
-                                                                                          _flightSearchModel.selectedDestinationCountry = country['name'];
-                                                                                          _flightSearchModel.selectedDestinationCountryCode = country['code'];
-                                                                                          _searchQuery = '';
-                                                                                        });
-                                                                                        Navigator.pop(context); // Close the bottom sheet after selection
-                                                                                      },
-                                                                                      title: Column(
-                                                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                        children: [
-                                                                                          Text(
-                                                                                            country['name']!,
-                                                                                            style: const TextStyle(
-                                                                                              color: Color.fromARGB(255, 0, 0, 0),
-                                                                                              fontWeight: FontWeight.w400,
-                                                                                              fontSize: 16, // You can adjust the font size here for the country name
-                                                                                            ),
+                                                                              ),
+
+                                                                              SizedBox(height: screenHeight * 0.02),
+                                                                              Container(height: 2, color: Colors.grey[300]),
+
+                                                                              // Filtered Destination List
+                                                                              Expanded(
+                                                                                child: ListView(
+                                                                                  shrinkWrap: true,
+                                                                                  children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                    return Column(
+                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                      children: [
+                                                                                        ListTile(
+                                                                                          onTap: () {
+                                                                                            setState(() {
+                                                                                              _destinationController.text = country['code']!;
+                                                                                              _flightSearchModel.selectedDestinationCountry = country['name'];
+                                                                                              _flightSearchModel.selectedDestinationCountryCode = country['code'];
+                                                                                              _searchQuery = '';
+                                                                                            });
+                                                                                            Navigator.pop(context);
+                                                                                          },
+                                                                                          title: Column(
+                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                            children: [
+                                                                                              Text(
+                                                                                                country['name']!,
+                                                                                                style: const TextStyle(
+                                                                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                  fontWeight: FontWeight.w400,
+                                                                                                  fontSize: 16,
+                                                                                                ),
+                                                                                              ),
+                                                                                              Text(
+                                                                                                country['code']!,
+                                                                                                style: TextStyle(
+                                                                                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                                                                                  fontWeight: FontWeight.w700,
+                                                                                                  fontSize: screenWidth * .035,
+                                                                                                ),
+                                                                                              ),
+                                                                                            ],
                                                                                           ),
-                                                                                          Text(
-                                                                                            country['code']!,
-                                                                                            style: TextStyle(
-                                                                                              color: Color.fromARGB(255, 0, 0, 0),
-                                                                                              fontWeight: FontWeight.w700,
-                                                                                              fontSize: screenWidth * .035, // Adjust the font size for the country code
-                                                                                            ),
-                                                                                          ),
-                                                                                        ],
-                                                                                      ),
-                                                                                    ),
-                                                                                    Divider(
-                                                                                      thickness: 0.8, // Make the divider thinner
-                                                                                      height: 5, // Reduce space between items
-                                                                                      color: Colors.grey[300],
-                                                                                    ), // This will add a line between each item
-                                                                                  ],
-                                                                                );
-                                                                              }).toList(),
-                                                                            ),
-                                                                          )
-                                                                        ],
-                                                                      ),
-                                                                    ),
+                                                                                        ),
+                                                                                        Divider(
+                                                                                          thickness: 0.8,
+                                                                                          height: 5,
+                                                                                          color: Colors.grey[300],
+                                                                                        ),
+                                                                                      ],
+                                                                                    );
+                                                                                  }).toList(),
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      );
+                                                                    },
                                                                   );
                                                                 },
                                                               );
@@ -2091,12 +2119,13 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       if (_errorMessage != null)
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
+                                          padding: const EdgeInsets.only(
+                                              top: 5.0, bottom: 8),
                                           child: Text(
                                             _errorMessage!,
                                             style: TextStyle(
-                                                color: Colors.red,
+                                                color: Color.fromARGB(
+                                                    255, 209, 77, 20),
                                                 fontSize: screenWidth * 0.04,
                                                 fontWeight: FontWeight.bold),
                                           ),
@@ -2337,168 +2366,209 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
+  int selectedRating = 0; // Move this outside the method to retain state
+
   void _showRatingPopup() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         final screenHeight = MediaQuery.of(context).size.height;
         final screenWidth = MediaQuery.of(context).size.width;
-        int selectedRating = 0;
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
+            return Dialog(
+              backgroundColor: Color(0xFF024D75),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(screenWidth * 0.025),
+                borderRadius: BorderRadius.circular(screenWidth * 0.05),
               ),
-              contentPadding: EdgeInsets.fromLTRB(screenWidth * 0.06,
-                  screenHeight * 0.02, screenWidth * 0.06, screenHeight * 0.02),
-              content: Column(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 40.0, // width of the circle
-                    height: 40.0, // height of the circle
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(
-                          255, 212, 212, 248), // background color of the circle
-                      shape: BoxShape.circle, // makes the container circular
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: Colors.white, // color of the "X"
-                        size: 24.0, // size of the "X"
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF337BA9),
+                          Color(0xFF337BA9),
+                          Color(0xFF024D75),
+                        ],
+                        stops: [0.0, 0.5, 1.0],
                       ),
-                      onPressed: () {
-                        Navigator.pop(context); // This closes the popup
-                      },
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(screenWidth * 0.05),
+                        topRight: Radius.circular(screenWidth * 0.05),
+                      ),
                     ),
-                  ),
-                  Image.asset(
-                    'assets/star.png',
-                    width: screenWidth * 0.56,
-                    height: screenHeight * 0.12,
-                  ),
-                  Text(
-                    "Rate Flista App",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: screenHeight * 0.025,
-                      fontWeight: FontWeight.w600,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.005,
+                      horizontal: screenWidth * 0.005,
                     ),
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  Text(
-                    "Support us by providing your feedback",
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: screenHeight * 0.02,
-                      fontWeight: FontWeight.w300,
-                      color: Color.fromARGB(255, 255, 255, 255),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  Text(
-                    "App Version - 1.2.3",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: screenHeight * 0.02,
-                      color: const Color.fromARGB(136, 128, 126, 126),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
+                    child: Stack(
                       children: [
-                        TextSpan(
-                          text: "Need help? ",
-                          style: TextStyle(
-                            fontSize: screenHeight * 0.02,
-                            color: const Color.fromARGB(136, 128, 126,
-                                126), // You can change this to the color you prefer
-                            fontWeight:
-                                FontWeight.w800, // Optional: make it bold
-                          ),
-                        ),
-                        TextSpan(
-                          text: "Contact IT Service Desk",
-                          style: TextStyle(
-                            fontSize: screenHeight * 0.02,
-                            color: const Color.fromARGB(136, 128, 126, 126),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "(Ext: ",
-                          style: TextStyle(
-                            fontSize: screenHeight * 0.02,
-                            color: const Color.fromARGB(136, 128, 126, 126),
-                          ),
-                        ),
-                        TextSpan(
-                          text: "3000",
-                          style: TextStyle(
-                            fontSize: screenHeight * 0.02,
-                            color: const Color.fromARGB(136, 128, 126,
-                                126), // You can change this to the color you prefer
-                            fontWeight:
-                                FontWeight.w800, // Optional: make it bold
-                          ),
-                        ),
-                        TextSpan(
-                          text: ") | 24×7 Support",
-                          style: TextStyle(
-                            fontSize: screenHeight * 0.02,
-                            color: const Color.fromARGB(136, 128, 126, 126),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Stars Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(5, (index) {
-                          return IconButton(
-                            icon: Icon(
-                              index < selectedRating
-                                  ? Icons.star_rounded
-                                  : Icons.star_border_rounded,
-                              color: index < selectedRating
-                                  ? Colors.orange
-                                  : Colors.grey,
-                              size: screenWidth * 0.08,
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: IconButton(
+                            icon: Container(
+                              padding: EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(148, 255, 255, 255),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                size: 20,
+                              ),
                             ),
                             onPressed: () {
-                              setState(() {
-                                selectedRating = index + 1; // Update rating
-                              });
+                              Navigator.pop(context);
                             },
-                          );
-                        }),
-                      ),
-                    ],
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: screenHeight * 0.02),
+                            Center(
+                              child: Image.asset(
+                                'assets/star.png',
+                                width: screenWidth * 0.3,
+                                height: screenHeight * 0.1,
+                              ),
+                            ),
+                            SizedBox(height: screenHeight * 0.01),
+                            Text(
+                              "Rate Flista App",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: screenHeight * 0.025,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              "Support us by giving some feedback",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: screenHeight * 0.02,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(5, (index) {
+                                return IconButton(
+                                  icon: Icon(
+                                    index < selectedRating
+                                        ? Icons.star_rounded
+                                        : Icons.star_border_rounded,
+                                    color: index < selectedRating
+                                        ? const Color.fromARGB(
+                                            255, 255, 178, 13)
+                                        : const Color.fromARGB(
+                                            255, 255, 255, 255),
+                                    size: screenWidth * 0.086,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      selectedRating = index + 1;
+                                    });
+                                  },
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: screenHeight * 0.03),
+                      ],
+                    ),
                   ),
-                  Image.asset(
-                    'assets/itsystems.png',
-                    width: screenWidth * 0.56,
-                    height: screenHeight * 0.12,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                      borderRadius: BorderRadius.circular(screenWidth * 0.04),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02,
+                      horizontal: screenWidth * 0.099,
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: screenHeight * 0.005),
+                        Text(
+                          "V $appVersion",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: screenHeight * 0.0173,
+                            color: Color.fromARGB(136, 128, 126, 126),
+                          ),
+                        ),
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Need help? ",
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.0173,
+                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "Contact IT Service Desk",
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.0173,
+                                  color: Color.fromARGB(136, 128, 126, 126),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.005),
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "(Ext: ",
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.0173,
+                                  color: Color.fromARGB(136, 128, 126, 126),
+                                ),
+                              ),
+                              TextSpan(
+                                text: "3000",
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.0173,
+                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ") | 24×7 Support",
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.0173,
+                                  color: Color.fromARGB(136, 128, 126, 126),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.017),
+                        Image.asset(
+                          'assets/itsystems.png',
+                          width: screenWidth * 0.55,
+                          height: screenHeight * 0.06,
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: screenHeight * 0.01),
                 ],
               ),
             );

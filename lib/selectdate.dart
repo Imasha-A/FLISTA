@@ -126,9 +126,11 @@ class _SelectDatePageState extends State<SelectDatePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          HomePage(selectedDate: selectedDate)),
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        HomePage(selectedDate: selectedDate),
+                    transitionDuration: Duration(seconds: 0), // No animation
+                  ),
                 );
               },
               icon: const Icon(
