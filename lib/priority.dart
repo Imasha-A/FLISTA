@@ -187,488 +187,508 @@ class _PriorityState extends State<PriorityPage> {
     double screenHeigth = MediaQuery.of(context).size.height;
     _loadUserName();
     _loadUserId();
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeigth * 0.173),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          titleTextStyle: TextStyle(
-              fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-          leading: Transform.translate(
-            offset: const Offset(0, 0),
-            child: IconButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/homebgnew.png"), // Change to your image
+          fit: BoxFit.contain,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenHeigth * 0.173),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            titleTextStyle: TextStyle(
+                fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+            leading: Transform.translate(
+              offset: const Offset(0, 0),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(0, 43, 71, 1),
-                  Color.fromRGBO(52, 164, 224, 1),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromRGBO(0, 43, 71, 1),
+                    Color.fromRGBO(52, 164, 224, 1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(22.0)),
               ),
-              borderRadius:
-                  BorderRadius.vertical(bottom: Radius.circular(22.0)),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(22.0)),
-                    child: Container(
-                      child: const Image(
-                        image: AssetImage(
-                            'assets/istockphoto-155362201-612x612 1.png'),
-                        fit: BoxFit.cover,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(22.0)),
+                      child: Container(
+                        child: const Image(
+                          image: AssetImage(
+                              'assets/istockphoto-155362201-612x612 1.png'),
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // New content added to the flexibleSpace
-                Positioned.fill(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: screenHeigth * 0.08,
-                      ),
-                      SizedBox(
-                        height:
-                            screenHeigth * 0.054, // Adjust the height as needed
-                        width: screenWidth * 0.72,
-                        child: const Image(
-                          image: AssetImage('assets/airplane-route.png'),
-                          fit: BoxFit.fill,
+                  // New content added to the flexibleSpace
+                  Positioned.fill(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: screenHeigth * 0.08,
                         ),
-                      ),
-                      SizedBox(
-                        height: screenHeigth * 0.03,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Transform.translate(
-                              offset: Offset(
-                                  -screenWidth * 0.086, -screenHeigth * 0.035),
-                              child: Text(
-                                widget.originCountryCode
-                                    .trim(), // Trim to remove leading/trailing spaces
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.06),
+                        SizedBox(
+                          height: screenHeigth *
+                              0.054, // Adjust the height as needed
+                          width: screenWidth * 0.72,
+                          child: const Image(
+                            image: AssetImage('assets/airplane-route.png'),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        SizedBox(
+                          height: screenHeigth * 0.03,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(-screenWidth * 0.086,
+                                    -screenHeigth * 0.035),
+                                child: Text(
+                                  widget.originCountryCode
+                                      .trim(), // Trim to remove leading/trailing spaces
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.06),
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Transform.translate(
-                              offset: Offset(
-                                  screenWidth * 0.08, -screenHeigth * 0.035),
-                              child: Text(
-                                widget.destinationCountryCode
-                                    .trim(), // Trim to remove leading/trailing spaces
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.06),
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(
+                                    screenWidth * 0.08, -screenHeigth * 0.035),
+                                child: Text(
+                                  widget.destinationCountryCode
+                                      .trim(), // Trim to remove leading/trailing spaces
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.06),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-            )
-          : Transform.translate(
-              offset: Offset(screenWidth * 0.01, 0),
-              child: SingleChildScrollView(
-                // Wrap the form with SingleChildScrollView
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: screenHeigth * 0.02),
-                    // Form card
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      margin: const EdgeInsets.all(14.0),
-                      width: screenWidth * 0.95,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color.fromRGBO(51, 123, 169, 1),
-                            Color.fromRGBO(2, 77, 117, 1),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                ),
+              )
+            : Transform.translate(
+                offset: Offset(screenWidth * 0.01, 0),
+                child: SingleChildScrollView(
+                  // Wrap the form with SingleChildScrollView
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: screenHeigth * 0.02),
+                      // Form card
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        margin: const EdgeInsets.all(14.0),
+                        width: screenWidth * 0.95,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color.fromRGBO(51, 123, 169, 1),
+                              Color.fromRGBO(2, 77, 117, 1),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(16.0),
                         ),
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(height: screenHeigth * 0.02),
-                          SizedBox(
-                            height: screenHeigth * 0.17,
-                            width: screenWidth * 0.8,
-                            child: Transform.translate(
-                              offset: const Offset(0.4, -15.0),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Handle checking availability
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromARGB(158, 38, 64, 112),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(9.0),
+                        child: Column(
+                          children: [
+                            SizedBox(height: screenHeigth * 0.02),
+                            SizedBox(
+                              height: screenHeigth * 0.17,
+                              width: screenWidth * 0.8,
+                              child: Transform.translate(
+                                offset: const Offset(0.4, -15.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Handle checking availability
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(158, 38, 64, 112),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(9.0),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: screenWidth * 0.1,
+                                        vertical: screenHeigth * 0.001),
+                                    // Adjusted padding
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.1,
-                                      vertical: screenHeigth * 0.001),
-                                  // Adjusted padding
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Text(
-                                          '         UL $selectedUL',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: screenWidth * 0.06,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Text(
+                                            '         UL $selectedUL',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: screenWidth * 0.06,
+                                            ),
                                           ),
+                                          SizedBox(width: screenWidth * .03),
+                                          // Added SizedBox for spacing
+                                        ],
+                                      ),
+                                      SizedBox(height: screenHeigth * 0.002),
+                                      Text(
+                                        ' on $selectedDate', // Use selectedDate variable here
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * .04,
                                         ),
-                                        SizedBox(width: screenWidth * .03),
-                                        // Added SizedBox for spacing
-                                      ],
-                                    ),
-                                    SizedBox(height: screenHeigth * 0.002),
-                                    Text(
-                                      ' on $selectedDate', // Use selectedDate variable here
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: screenWidth * .04,
                                       ),
-                                    ),
-                                    SizedBox(height: screenHeigth * 0.002),
-                                    Text(
-                                      ' ${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: screenWidth * .04,
+                                      SizedBox(height: screenHeigth * 0.002),
+                                      Text(
+                                        ' ${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * .04,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: screenHeigth * 0.002),
-                                  ],
+                                      SizedBox(height: screenHeigth * 0.002),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Transform.translate(
-                                    offset: Offset(screenWidth * 0.25, 0.0),
-                                    child: Text(
-                                      'Staff Information',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: screenWidth * 0.05),
+                            const SizedBox(height: 5.0),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Transform.translate(
+                                      offset: Offset(screenWidth * 0.25, 0.0),
+                                      child: Text(
+                                        'Staff Information',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: screenWidth * 0.05),
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: screenHeigth * 0.01,
-                              ),
-                              // Display a message if there are no staff members
-                              if (staffMembers.isEmpty)
-                                const Text(
-                                  'No staff information available',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
-                                )
-                              else
-                                Column(
-                                  children: staffMembers.map((staff) {
-                                    // Mask fields if the name doesn't match _userName
-                                    String fullName =
-                                        '${staff.firstName} ${staff.lastName}';
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: screenHeigth * 0.01,
+                                ),
+                                // Display a message if there are no staff members
+                                if (staffMembers.isEmpty)
+                                  const Text(
+                                    'No staff information available',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                    ),
+                                  )
+                                else
+                                  Column(
+                                    children: staffMembers.map((staff) {
+                                      // Mask fields if the name doesn't match _userName
+                                      String fullName =
+                                          '${staff.firstName} ${staff.lastName}';
 
-                                    if (fullName.toLowerCase() !=
-                                            _userName.toLowerCase() &&
-                                        staff.staffID != _userId) {
-                                      // Mask sensitive fields
-                                      staff = StaffMember(
-                                        title: 'xxx',
-                                        firstName:
-                                            'xxxxxx', // Masked first name
-                                        lastName: 'xxxxxx', // Masked last name
-                                        staffID: 'xxxxxx', // Masked staff ID
-                                        priority: staff.priority,
-                                        status: staff.status,
-                                        pnr: staff.pnr,
-                                        actionStatus: staff.actionStatus,
-                                      );
-                                    }
+                                      if (fullName.toLowerCase() !=
+                                              _userName.toLowerCase() &&
+                                          staff.staffID != _userId) {
+                                        // Mask sensitive fields
+                                        staff = StaffMember(
+                                          title: 'xxx',
+                                          firstName:
+                                              'xxxxxx', // Masked first name
+                                          lastName:
+                                              'xxxxxx', // Masked last name
+                                          staffID: 'xxxxxx', // Masked staff ID
+                                          priority: staff.priority,
+                                          status: staff.status,
+                                          pnr: staff.pnr,
+                                          actionStatus: staff.actionStatus,
+                                        );
+                                      }
 
-                                    return Column(
-                                      children: [
-                                        SizedBox(
-                                          width: screenWidth * 2,
-                                          height: screenHeigth * 0.175,
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              // Handle button press
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromARGB(
-                                                      48, 53, 106, 204),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(9.0),
+                                      return Column(
+                                        children: [
+                                          SizedBox(
+                                            width: screenWidth * 2,
+                                            height: screenHeigth * 0.175,
+                                            child: ElevatedButton(
+                                              onPressed: () {
+                                                // Handle button press
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        48, 53, 106, 204),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          9.0),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(17.0),
                                               ),
-                                              padding:
-                                                  const EdgeInsets.all(17.0),
-                                            ),
-                                            child: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceEvenly,
-                                                    children: [
-                                                      // Full name and ID
-                                                      Text(
-                                                        '${staff.title}. ${staff.firstName} ${staff.lastName} (${staff.staffID})',
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize:
-                                                                screenWidth *
-                                                                    0.04),
-                                                      ),
-                                                      // Priority and Status row
-                                                      Row(
-                                                        children: [
-                                                          Expanded(
-                                                            child: Text(
-                                                              'Priority - ${staff.priority}',
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: [
+                                                        // Full name and ID
+                                                        Text(
+                                                          '${staff.title}. ${staff.firstName} ${staff.lastName} (${staff.staffID})',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize:
+                                                                  screenWidth *
+                                                                      0.04),
+                                                        ),
+                                                        // Priority and Status row
+                                                        Row(
+                                                          children: [
+                                                            Expanded(
+                                                              child: Text(
+                                                                'Priority - ${staff.priority}',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: const Color
+                                                                      .fromARGB(
+                                                                      255,
+                                                                      255,
+                                                                      251,
+                                                                      21),
+                                                                  fontSize:
+                                                                      screenWidth *
+                                                                          0.04,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              'Status - ${staff.actionStatus}',
                                                               style: TextStyle(
                                                                 color: const Color
                                                                     .fromARGB(
                                                                     255,
                                                                     255,
-                                                                    251,
-                                                                    21),
+                                                                    110,
+                                                                    26),
                                                                 fontSize:
                                                                     screenWidth *
                                                                         0.04,
                                                               ),
                                                             ),
-                                                          ),
-                                                          Text(
-                                                            'Status - ${staff.actionStatus}',
-                                                            style: TextStyle(
-                                                              color: const Color
-                                                                  .fromARGB(255,
-                                                                  255, 110, 26),
-                                                              fontSize:
-                                                                  screenWidth *
-                                                                      0.04,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(height: screenHeigth * 0.015),
-                                      ],
-                                    );
-                                  }).toList(),
-                                ),
-                            ],
-                          ),
-                        ],
+                                          SizedBox(
+                                              height: screenHeigth * 0.015),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22.0)),
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(2, 77, 117, 1),
+                  Color.fromRGBO(2, 77, 117, 1),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(22.0)),
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(2, 77, 117, 1),
-                Color.fromRGBO(2, 77, 117, 1),
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              elevation: 1,
+              currentIndex: 1,
+              selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
+              unselectedItemColor: Colors.white,
+              onTap: (index) async {
+                switch (index) {
+                  case 0: // History
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            HistoryPage(),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                  case 1: // Home
+
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            HomePage(selectedDate: selectedDate),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                  case 2: // My Tickets
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const MyTickets(),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                  case 3: // Logout
+                    bool? confirmLogout = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(
+                            "Confirm Logout",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.06,
+                            ),
+                          ),
+                          content: Text(
+                            "Are you sure you want to log out?",
+                            style: TextStyle(
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.045,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(false); // User chose "No"
+                              },
+                              child: Text(
+                                "No",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(true); // User chose "Yes"
+                              },
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirmLogout == true) {
+                      _logout(); // Call the logout function
+                    }
+                    break;
+                }
+              },
+              items: [
+                _buildCustomBottomNavigationBarItem(
+                    Icons.history, 'History', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.home_outlined, 'Home', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.airplane_ticket_outlined, 'My Tickets', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.logout, 'Logout', false),
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
             ),
-          ),
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 1,
-            currentIndex: 1,
-            selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
-            unselectedItemColor: Colors.white,
-            onTap: (index) async {
-              switch (index) {
-                case 0: // History
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          HistoryPage(),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-                case 1: // Home
-
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          HomePage(selectedDate: selectedDate),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-                case 2: // My Tickets
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const MyTickets(),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-                case 3: // Logout
-                  bool? confirmLogout = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text(
-                          "Confirm Logout",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromRGBO(2, 77, 117, 1),
-                            fontSize: screenWidth * 0.06,
-                          ),
-                        ),
-                        content: Text(
-                          "Are you sure you want to log out?",
-                          style: TextStyle(
-                            color: const Color.fromRGBO(2, 77, 117, 1),
-                            fontSize: screenWidth * 0.045,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pop(false); // User chose "No"
-                            },
-                            child: Text(
-                              "No",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                fontSize: screenWidth * 0.042,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pop(true); // User chose "Yes"
-                            },
-                            child: Text(
-                              "Yes",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                fontSize: screenWidth * 0.042,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  if (confirmLogout == true) {
-                    _logout(); // Call the logout function
-                  }
-                  break;
-              }
-            },
-            items: [
-              _buildCustomBottomNavigationBarItem(
-                  Icons.history, 'History', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.home_outlined, 'Home', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.airplane_ticket_outlined, 'My Tickets', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.logout, 'Logout', false),
-            ],
           ),
         ),
       ),

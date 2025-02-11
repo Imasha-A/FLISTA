@@ -352,890 +352,926 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeigth = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeigth * 0.173),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          titleTextStyle: TextStyle(
-              fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-          leading: Transform.translate(
-            offset: const Offset(0, 0),
-            child: IconButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/homebgnew.png"), // Change to your image
+          fit: BoxFit.contain,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenHeigth * 0.173),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            titleTextStyle: TextStyle(
+                fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+            leading: Transform.translate(
+              offset: const Offset(0, 0),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromRGBO(0, 43, 71, 1),
+                    Color.fromRGBO(52, 164, 224, 1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(22.0)),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(22.0)),
+                      child: Container(
+                        child: const Image(
+                          image: AssetImage(
+                              'assets/istockphoto-155362201-612x612 1.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // New content added to the flexibleSpace
+                  Positioned.fill(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: screenHeigth * 0.08,
+                        ),
+                        SizedBox(
+                          height: screenHeigth *
+                              0.054, // Adjust the height as needed
+                          width: screenWidth * 0.72,
+                          child: const Image(
+                            image: AssetImage('assets/airplane-route.png'),
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        SizedBox(
+                          height: screenHeigth * 0.03,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(-screenWidth * 0.086,
+                                    -screenHeigth * 0.035),
+                                child: Text(
+                                  widget.originCountryCode
+                                      .trim(), // Trim to remove leading/trailing spaces
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.06),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(
+                                    screenWidth * 0.08, -screenHeigth * 0.035),
+                                child: Text(
+                                  widget.destinationCountryCode
+                                      .trim(), // Trim to remove leading/trailing spaces
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.06),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-          flexibleSpace: Container(
+        ),
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.blue), // Set the color to blue
+                ),
+              )
+            : Transform.translate(
+                offset: Offset(screenWidth * -0.001, screenHeigth * 0.001),
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: screenHeigth * 0.02),
+                        SingleChildScrollView(
+                          child: Container(
+                            padding: const EdgeInsets.all(16.0),
+                            margin: const EdgeInsets.all(14.0),
+                            height: screenHeigth * 0.7,
+                            width: screenWidth * 0.95,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color.fromRGBO(51, 123, 169, 1),
+                                  Color.fromRGBO(2, 77, 117, 1),
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  right: 0,
+                                  top: 45,
+                                  bottom: 0,
+                                  child: Transform.translate(
+                                    offset: Offset(screenWidth * 0.05,
+                                        screenHeigth * 0.002),
+                                    child: Container(
+                                      padding: EdgeInsets.only(
+                                          right: screenWidth * 0.005),
+                                      child: Image(
+                                        image: const AssetImage(
+                                            'assets/flight seatng 1.png'),
+                                        fit: BoxFit.contain,
+                                        width: screenWidth * 0.42,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Adjust the padding to move the image to the right
+
+                                Column(
+                                  children: [
+                                    SizedBox(height: screenHeigth * 0.02),
+                                    SizedBox(
+                                      height: screenHeigth * 0.17,
+                                      width: screenWidth * .8,
+                                      child: Transform.translate(
+                                        offset: const Offset(0.4, -15.0),
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            // Handle checking availability
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Color.fromARGB(75, 53, 87, 151),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(9.0),
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: screenWidth * 0.1,
+                                                vertical: screenHeigth * 0.001),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              // UL Number Row (Without Arrows)
+                                              Text(
+                                                'UL $selectedUL',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: screenWidth * 0.06,
+                                                ),
+                                              ),
+
+                                              SizedBox(
+                                                  height: screenHeigth * 0.002),
+
+                                              // New Row with Date and Arrows
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  // Left Arrow (Move to Previous Date)
+                                                  Transform.translate(
+                                                    offset: Offset(
+                                                        screenWidth * -0.03,
+                                                        0.0),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        _changeUL(
+                                                            false); // Change to previous UL number
+                                                      },
+                                                      child: const Icon(
+                                                        Icons
+                                                            .arrow_back_ios_rounded,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  // Selected Date in the Middle
+                                                  Text(
+                                                    'on $selectedDate', // Use selectedDate variable here
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * .04,
+                                                    ),
+                                                  ),
+
+                                                  // Right Arrow (Move to Next Date)
+                                                  Transform.translate(
+                                                    offset: Offset(
+                                                        screenWidth * 0.03,
+                                                        0.0),
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        _changeUL(
+                                                            true); // Change to next UL number
+                                                      },
+                                                      child: const Icon(
+                                                        Icons
+                                                            .arrow_forward_ios_rounded,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              SizedBox(
+                                                  height: screenHeigth * 0.002),
+
+                                              // Scheduled Time (Remains Below Date)
+                                              Text(
+                                                '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: screenWidth * .04,
+                                                ),
+                                              ),
+
+                                              SizedBox(
+                                                  height: screenHeigth * 0.001),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .end, // Space between items
+                                          children: [
+                                            Text(
+                                              'BC', // Business Class
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: screenWidth * 0.041,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: screenWidth * 0.099,
+                                            ),
+                                            Text(
+                                              'EY', // Economy Class
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: screenWidth * 0.041,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: screenWidth * 0.029,
+                                            ),
+                                          ],
+                                        ),
+
+                                        // Capacity information content
+                                        Row(
+                                          children: [
+                                            Text('Capacity',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            SizedBox(
+                                              width: screenWidth * 0.34,
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(screenWidth * 0.1,
+                                                  -0.5), //100.5
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jCapacity}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  screenWidth * 0.165,
+                                                  -0.5), //-12.55
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yCapacity}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        // Add more rows for other capacity information
+                                        SizedBox(height: screenHeigth * 0.01),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Booked',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            SizedBox(
+                                              width: screenWidth * 0.2,
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  screenWidth * 0.037,
+                                                  1.0), //87.0
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jBooked}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  -screenWidth * 0.01,
+                                                  1.0), //-11.55
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yBooked}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: screenHeigth * 0.01),
+                                        // Add more rows for other capacity information
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Checked-In',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            SizedBox(
+                                              width: screenWidth * 0.2,
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  screenWidth * 0.014,
+                                                  1.0), //52.0
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jCheckedIn}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  -screenWidth * 0.01,
+                                                  1.0), //-11.55
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yCheckedIn}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: screenHeigth * 0.01),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Commercial Standby',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            Transform.translate(
+                                              offset: Offset(screenWidth * 0.07,
+                                                  1.0), //87.0
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jCommercialStandby}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  -screenWidth * 0.008,
+                                                  1.0), //-11.50
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yCommercialStandby}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: screenHeigth * 0.01),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Staff Listed',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  screenWidth * 0.157,
+                                                  1.0), //65.0
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jStaffListed ?? 0}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  -screenWidth * 0.009,
+                                                  1.0), //-11.50
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yStaffListed ?? 0}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: screenHeigth * 0.01),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Staff on Standby',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            Transform.translate(
+                                              offset: Offset(screenWidth * 0.11,
+                                                  1.0), //31.0
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jStaffOnStandby ?? 0}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  -screenWidth * 0.01,
+                                                  1.0), //-11.50
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yStaffOnStandby ?? 0}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: screenHeigth * 0.01),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('Staff Accepted',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.041)),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  screenWidth * 0.128,
+                                                  1.0), //31.0
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.075,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.jStaffAccepted ?? 0}'),
+                                                ),
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  -screenWidth * 0.008,
+                                                  1.0), //-11.50
+                                              child: Container(
+                                                height: screenHeigth * 0.035,
+                                                width: screenWidth * 0.09,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                child: Center(
+                                                  child: Text(
+                                                      '${flightLoad?.yStaffAccepted ?? 0}'),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: screenHeigth * 0.047),
+
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            // ElevatedButton(
+                                            //   onPressed: areButtonsEnabled
+                                            //       ? () {
+                                            //           _navigateToMyPriorityPage(
+                                            //               context);
+                                            //         }
+                                            //       : null,
+                                            //   style: ElevatedButton.styleFrom(
+                                            //     backgroundColor: areButtonsEnabled
+                                            //         ? const Color.fromRGBO(
+                                            //             235,
+                                            //             97,
+                                            //             39,
+                                            //             1) // Normal color when enabled
+                                            //         : Colors
+                                            //             .grey, // Color when disabled
+                                            //     shape: RoundedRectangleBorder(
+                                            //       borderRadius:
+                                            //           BorderRadius.circular(9.0),
+                                            //     ),
+                                            //     disabledForegroundColor:
+                                            //         Colors.grey.withOpacity(0.38),
+                                            //     disabledBackgroundColor:
+                                            //         const Color.fromARGB(
+                                            //             169, 235, 98, 39),
+                                            //     padding: EdgeInsets.symmetric(
+                                            //         horizontal: screenWidth *
+                                            //             0.09), // Ensures background color is grey when disabled
+                                            //   ),
+                                            //   child: Text(
+                                            //     'My Priority(old)',
+                                            //     style: TextStyle(
+                                            //       color: areButtonsEnabled
+                                            //           ? Colors.white
+                                            //           : const Color.fromARGB(
+                                            //               189,
+                                            //               255,
+                                            //               255,
+                                            //               255), // Text color for enabled/disabled
+                                            //       fontWeight: FontWeight.bold,
+                                            //       fontSize: screenWidth * 0.04,
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                            Container(
+                                              width: screenWidth * 0.8,
+                                              height: screenHeigth * 0.045,
+                                              child: ElevatedButton(
+                                                onPressed: areButtonsEnabled
+                                                    ? () {
+                                                        _navigateToPriorityPage(
+                                                            context);
+                                                      }
+                                                    : null,
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      areButtonsEnabled
+                                                          ? Colors
+                                                              .white // Normal color when enabled
+                                                          : Colors
+                                                              .grey, // Color when disabled
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            9.0),
+                                                  ),
+                                                  disabledForegroundColor:
+                                                      const Color.fromARGB(255,
+                                                              255, 255, 255)
+                                                          .withOpacity(0.38),
+                                                  disabledBackgroundColor:
+                                                      const Color.fromARGB(255,
+                                                              242, 236, 236)
+                                                          .withOpacity(0.12),
+
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: screenWidth *
+                                                          0.03), // Ensures background color is grey when disabled
+                                                ),
+                                                child: Text(
+                                                  'My Priority',
+                                                  style: TextStyle(
+                                                    color: areButtonsEnabled
+                                                        ? const Color.fromRGBO(
+                                                            235,
+                                                            97,
+                                                            39,
+                                                            1) // Normal color for text when enabled
+                                                        : const Color.fromARGB(
+                                                            194,
+                                                            235,
+                                                            98,
+                                                            39), // Color when disabled
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize:
+                                                        screenWidth * 0.037,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22.0)),
+          child: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(0, 43, 71, 1),
-                  Color.fromRGBO(52, 164, 224, 1),
+                  Color.fromRGBO(2, 77, 117, 1),
+                  Color.fromRGBO(2, 77, 117, 1),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              borderRadius:
-                  BorderRadius.vertical(bottom: Radius.circular(22.0)),
             ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(22.0)),
-                    child: Container(
-                      child: const Image(
-                        image: AssetImage(
-                            'assets/istockphoto-155362201-612x612 1.png'),
-                        fit: BoxFit.cover,
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              elevation: 1,
+              currentIndex: 1,
+              selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
+              unselectedItemColor: Colors.white,
+              onTap: (index) async {
+                switch (index) {
+                  case 0: // History
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const HistoryPage(),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
                       ),
-                    ),
-                  ),
-                ),
-                // New content added to the flexibleSpace
-                Positioned.fill(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: screenHeigth * 0.08,
+                    );
+                    break;
+                  case 1: // Home
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            HomePage(selectedDate: selectedDate),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
                       ),
-                      SizedBox(
-                        height:
-                            screenHeigth * 0.054, // Adjust the height as needed
-                        width: screenWidth * 0.72,
-                        child: const Image(
-                          image: AssetImage('assets/airplane-route.png'),
-                          fit: BoxFit.fill,
-                        ),
+                    );
+                    break;
+
+                  case 2: // My Tickets
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const MyTickets(),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
                       ),
-                      SizedBox(
-                        height: screenHeigth * 0.03,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Transform.translate(
-                              offset: Offset(
-                                  -screenWidth * 0.086, -screenHeigth * 0.035),
+                    );
+                    break;
+                  case 3: // Logout
+                    bool? confirmLogout = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(
+                            "Confirm Logout",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.06,
+                            ),
+                          ),
+                          content: Text(
+                            "Are you sure you want to log out?",
+                            style: TextStyle(
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.045,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(false); // User chose "No"
+                              },
                               child: Text(
-                                widget.originCountryCode
-                                    .trim(), // Trim to remove leading/trailing spaces
-                                textAlign: TextAlign.center,
+                                "No",
                                 style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.06),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Transform.translate(
-                              offset: Offset(
-                                  screenWidth * 0.08, -screenHeigth * 0.035),
-                              child: Text(
-                                widget.destinationCountryCode
-                                    .trim(), // Trim to remove leading/trailing spaces
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.06),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.blue), // Set the color to blue
-              ),
-            )
-          : Transform.translate(
-              offset: Offset(screenWidth * -0.001, screenHeigth * 0.001),
-              child: SingleChildScrollView(
-                child: SizedBox(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: screenHeigth * 0.02),
-                      SingleChildScrollView(
-                        child: Container(
-                          padding: const EdgeInsets.all(16.0),
-                          margin: const EdgeInsets.all(14.0),
-                          height: screenHeigth * 0.7,
-                          width: screenWidth * 0.95,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color.fromRGBO(51, 123, 169, 1),
-                                Color.fromRGBO(2, 77, 117, 1),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                right: 0,
-                                top: 45,
-                                bottom: 0,
-                                child: Transform.translate(
-                                  offset: Offset(
-                                      screenWidth * 0.05, screenHeigth * 0.002),
-                                  child: Container(
-                                    padding: EdgeInsets.only(
-                                        right: screenWidth * 0.005),
-                                    child: Image(
-                                      image: const AssetImage(
-                                          'assets/flight seatng 1.png'),
-                                      fit: BoxFit.contain,
-                                      width: screenWidth * 0.42,
-                                    ),
-                                  ),
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
                                 ),
                               ),
-                              // Adjust the padding to move the image to the right
-
-                              Column(
-                                children: [
-                                  SizedBox(height: screenHeigth * 0.02),
-                                  SizedBox(
-                                    height: screenHeigth * 0.17,
-                                    width: screenWidth * .8,
-                                    child: Transform.translate(
-                                      offset: const Offset(0.4, -15.0),
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          // Handle checking availability
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              Color.fromARGB(75, 53, 87, 151),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(9.0),
-                                          ),
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: screenWidth * 0.08,
-                                              vertical: screenHeigth * 0.001),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            // UL Number Row (Without Arrows)
-                                            Text(
-                                              ' UL $selectedUL',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: screenWidth * 0.06,
-                                              ),
-                                            ),
-
-                                            SizedBox(
-                                                height: screenHeigth * 0.002),
-
-                                            // New Row with Date and Arrows
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                // Left Arrow (Move to Previous Date)
-                                                Transform.translate(
-                                                  offset: Offset(
-                                                      screenWidth * -0.03, 0.0),
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      _changeUL(
-                                                          false); // Change to previous UL number
-                                                    },
-                                                    child: const Icon(
-                                                      Icons
-                                                          .arrow_back_ios_rounded,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-
-                                                // Selected Date in the Middle
-                                                Text(
-                                                  ' on $selectedDate', // Use selectedDate variable here
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: screenWidth * .04,
-                                                  ),
-                                                ),
-
-                                                // Right Arrow (Move to Next Date)
-                                                Transform.translate(
-                                                  offset: Offset(
-                                                      screenWidth * 0.04, 0.0),
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      _changeUL(
-                                                          true); // Change to next UL number
-                                                    },
-                                                    child: const Icon(
-                                                      Icons
-                                                          .arrow_forward_ios_rounded,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-
-                                            SizedBox(
-                                                height: screenHeigth * 0.002),
-
-                                            // Scheduled Time (Remains Below Date)
-                                            Text(
-                                              '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: screenWidth * .04,
-                                              ),
-                                            ),
-
-                                            SizedBox(
-                                                height: screenHeigth * 0.001),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .end, // Space between items
-                                        children: [
-                                          Text(
-                                            'BC', // Business Class
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: screenWidth * 0.041,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth * 0.095,
-                                          ),
-                                          Text(
-                                            'EY', // Economy Class
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: screenWidth * 0.041,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: screenWidth * 0.029,
-                                          ),
-                                        ],
-                                      ),
-
-                                      // Capacity information content
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Capacity  ',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.17,
-                                                -0.5), //100.5
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jCapacity}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.01,
-                                                -0.5), //-12.55
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yCapacity}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      // Add more rows for other capacity information
-                                      SizedBox(height: screenHeigth * 0.01),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Booked ',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.188,
-                                                1.0), //87.0
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jBooked}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.01,
-                                                1.0), //-11.55
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yBooked}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.01),
-                                      // Add more rows for other capacity information
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Checked-In  ',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.145,
-                                                1.0), //52.0
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jCheckedIn}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.012,
-                                                1.0), //-11.55
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yCheckedIn}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.01),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Commercial Standby',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.065,
-                                                1.0), //87.0
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jCommercialStandby}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.013,
-                                                1.0), //-11.50
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yCommercialStandby}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.01),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Staff Listed  ',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(
-                                                screenWidth * 0.14, 1.0), //65.0
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jStaffListed ?? 0}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.016,
-                                                1.0), //-11.50
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yStaffListed ?? 0}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.01),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Staff on Standby',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.105,
-                                                1.0), //31.0
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jStaffOnStandby ?? 0}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.016,
-                                                1.0), //-11.50
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yStaffOnStandby ?? 0}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.01),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('Staff Accepted',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      screenWidth * 0.041)),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.125,
-                                                1.0), //31.0
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.075,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.jStaffAccepted ?? 0}'),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(-screenWidth * 0.016,
-                                                1.0), //-11.50
-                                            child: Container(
-                                              height: screenHeigth * 0.035,
-                                              width: screenWidth * 0.09,
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                    '${flightLoad?.yStaffAccepted ?? 0}'),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.047),
-
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          // ElevatedButton(
-                                          //   onPressed: areButtonsEnabled
-                                          //       ? () {
-                                          //           _navigateToMyPriorityPage(
-                                          //               context);
-                                          //         }
-                                          //       : null,
-                                          //   style: ElevatedButton.styleFrom(
-                                          //     backgroundColor: areButtonsEnabled
-                                          //         ? const Color.fromRGBO(
-                                          //             235,
-                                          //             97,
-                                          //             39,
-                                          //             1) // Normal color when enabled
-                                          //         : Colors
-                                          //             .grey, // Color when disabled
-                                          //     shape: RoundedRectangleBorder(
-                                          //       borderRadius:
-                                          //           BorderRadius.circular(9.0),
-                                          //     ),
-                                          //     disabledForegroundColor:
-                                          //         Colors.grey.withOpacity(0.38),
-                                          //     disabledBackgroundColor:
-                                          //         const Color.fromARGB(
-                                          //             169, 235, 98, 39),
-                                          //     padding: EdgeInsets.symmetric(
-                                          //         horizontal: screenWidth *
-                                          //             0.09), // Ensures background color is grey when disabled
-                                          //   ),
-                                          //   child: Text(
-                                          //     'My Priority(old)',
-                                          //     style: TextStyle(
-                                          //       color: areButtonsEnabled
-                                          //           ? Colors.white
-                                          //           : const Color.fromARGB(
-                                          //               189,
-                                          //               255,
-                                          //               255,
-                                          //               255), // Text color for enabled/disabled
-                                          //       fontWeight: FontWeight.bold,
-                                          //       fontSize: screenWidth * 0.04,
-                                          //     ),
-                                          //   ),
-                                          // ),
-                                          Container(
-                                            width: screenWidth * 0.8,
-                                            height: screenHeigth * 0.045,
-                                            child: ElevatedButton(
-                                              onPressed: areButtonsEnabled
-                                                  ? () {
-                                                      _navigateToPriorityPage(
-                                                          context);
-                                                    }
-                                                  : null,
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    areButtonsEnabled
-                                                        ? Colors
-                                                            .white // Normal color when enabled
-                                                        : Colors
-                                                            .grey, // Color when disabled
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          9.0),
-                                                ),
-                                                disabledForegroundColor:
-                                                    const Color.fromARGB(
-                                                            255, 255, 255, 255)
-                                                        .withOpacity(0.38),
-                                                disabledBackgroundColor:
-                                                    const Color.fromARGB(
-                                                            255, 242, 236, 236)
-                                                        .withOpacity(0.12),
-
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: screenWidth *
-                                                        0.03), // Ensures background color is grey when disabled
-                                              ),
-                                              child: Text(
-                                                'My Priority',
-                                                style: TextStyle(
-                                                  color: areButtonsEnabled
-                                                      ? const Color.fromRGBO(
-                                                          235,
-                                                          97,
-                                                          39,
-                                                          1) // Normal color for text when enabled
-                                                      : const Color.fromARGB(
-                                                          194,
-                                                          235,
-                                                          98,
-                                                          39), // Color when disabled
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: screenWidth * 0.037,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )
-                                ],
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(true); // User chose "Yes"
+                              },
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(22.0)),
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(2, 77, 117, 1),
-                Color.fromRGBO(2, 77, 117, 1),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirmLogout == true) {
+                      _logout(); // Call the logout function
+                    }
+                    break;
+                }
+              },
+              items: [
+                _buildCustomBottomNavigationBarItem(
+                    Icons.history, 'History', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.home_outlined, 'Home', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.airplane_ticket_outlined, 'My Tickets', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.logout, 'Logout', false),
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
             ),
-          ),
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 1,
-            currentIndex: 1,
-            selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
-            unselectedItemColor: Colors.white,
-            onTap: (index) async {
-              switch (index) {
-                case 0: // History
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const HistoryPage(),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-                case 1: // Home
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          HomePage(selectedDate: selectedDate),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-
-                case 2: // My Tickets
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const MyTickets(),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-                case 3: // Logout
-                  bool? confirmLogout = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text(
-                          "Confirm Logout",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromRGBO(2, 77, 117, 1),
-                            fontSize: screenWidth * 0.06,
-                          ),
-                        ),
-                        content: Text(
-                          "Are you sure you want to log out?",
-                          style: TextStyle(
-                            color: const Color.fromRGBO(2, 77, 117, 1),
-                            fontSize: screenWidth * 0.045,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pop(false); // User chose "No"
-                            },
-                            child: Text(
-                              "No",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                fontSize: screenWidth * 0.042,
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pop(true); // User chose "Yes"
-                            },
-                            child: Text(
-                              "Yes",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                fontSize: screenWidth * 0.042,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  if (confirmLogout == true) {
-                    _logout(); // Call the logout function
-                  }
-                  break;
-              }
-            },
-            items: [
-              _buildCustomBottomNavigationBarItem(
-                  Icons.history, 'History', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.home_outlined, 'Home', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.airplane_ticket_outlined, 'My Tickets', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.logout, 'Logout', false),
-            ],
           ),
         ),
       ),

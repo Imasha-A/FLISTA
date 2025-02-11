@@ -113,451 +113,25 @@ class _SelectDatePageState extends State<SelectDatePage> {
     String formattedDayAfterDayAfterTomorrow =
         '${dayAfterDayAfterTomorrow.day} ${_getMonthName(dayAfterDayAfterTomorrow.month)} ${dayAfterDayAfterTomorrow.year}';
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(screenHeight * 0.173),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          titleTextStyle: TextStyle(
-              fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-          leading: Transform.translate(
-            offset: const Offset(0, 0),
-            child: IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        HomePage(selectedDate: selectedDate),
-                    transitionDuration: Duration(seconds: 0), // No animation
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(0, 43, 71, 1),
-                  Color.fromRGBO(52, 164, 224, 1),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius:
-                  BorderRadius.vertical(bottom: Radius.circular(22.0)),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(22.0)),
-                    child: Container(
-                      child: const Image(
-                        image: AssetImage(
-                            'assets/istockphoto-155362201-612x612 1.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-                // New content added to the flexibleSpace
-                Positioned.fill(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: screenHeight * 0.08),
-                      SizedBox(
-                        height:
-                            screenHeight * 0.054, // Adjust the height as needed
-                        width: screenWidth * 0.72,
-                        child: const Image(
-                          image: AssetImage('assets/airplane-route.png'),
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                      SizedBox(
-                        height: screenHeight * 0.03,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Transform.translate(
-                              offset: Offset(
-                                  -screenWidth * 0.086, -screenHeight * 0.035),
-                              child: Text(
-                                widget.originCountryCode
-                                    .trim(), // Trim to remove leading/trailing spaces
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.06),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Transform.translate(
-                              offset: Offset(
-                                  screenWidth * 0.08, -screenHeight * 0.035),
-                              child: Text(
-                                widget.destinationCountryCode
-                                    .trim(), // Trim to remove leading/trailing spaces
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.06),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/homebgnew.png"), // Change to your image
+          fit: BoxFit.contain,
         ),
       ),
-      body: SizedBox(
-        height: screenHeight * 0.8,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: screenHeight * 0.02),
-              Transform.translate(
-                offset: Offset(screenWidth * -0.001, 0.0),
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  margin: const EdgeInsets.all(16.0),
-                  height: screenHeight * 0.48,
-                  width: screenWidth * 1,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color.fromRGBO(51, 123, 169, 1),
-                        Color.fromRGBO(2, 77, 117, 1),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  child: SingleChildScrollView(
-                    // Add scrolling
-                    child: Column(
-                      children: [
-                        Transform.translate(
-                          offset: const Offset(0.0, -3.0),
-                          child: Text(
-                            'Select a Date',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenWidth * 0.055,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.01),
-                        Center(
-                          child: SizedBox(
-                            width:
-                                screenWidth * 0.8, // Customize the width here
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  selectedDate = formattedToday;
-                                });
-                                _navigateToAvailableFlightsPage(
-                                    context); // Handle checking availability
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromRGBO(235, 97, 39, 1),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(9.0),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: screenHeight * 0.015),
-                                elevation: screenWidth * 0.015,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      'Today',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: screenWidth * 0.055,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      formattedToday,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: screenWidth * 0.044,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      _getDayOfWeek(now.weekday),
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: screenWidth * 0.04,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.02),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  selectedDate = formattedTomorrow;
-                                });
-                                _navigateToAvailableFlightsPage(
-                                    context); // Handle checking availability
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(198, 255, 255, 255),
-                                shadowColor:
-                                    const Color.fromARGB(255, 33, 144, 213),
-                                side: const BorderSide(
-                                    width: 1.5,
-                                    color: Color.fromARGB(0, 255, 255, 255)),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(9.0),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.06,
-                                    vertical: screenHeight * 0.017),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Tomorrow',
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 4, 88, 141),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * 0.045,
-                                    ),
-                                  ),
-                                  Text(
-                                    formattedTomorrow,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 4, 88, 141),
-                                      fontSize: screenWidth * 0.034,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    _getDayOfWeek(tomorrow.weekday),
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 4, 88, 141),
-                                      fontSize: screenWidth * 0.036,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: screenWidth * 0.02),
-                            ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  selectedDate = formattedDayAfterTomorrow;
-                                });
-                                _navigateToAvailableFlightsPage(
-                                    context); // Handle checking availability
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color.fromARGB(198, 255, 255, 255),
-                                shadowColor:
-                                    const Color.fromARGB(255, 33, 144, 213),
-                                side: const BorderSide(
-                                    width: 1.5,
-                                    color: Color.fromARGB(0, 255, 255, 255)),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(9.0),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.06,
-                                    vertical: screenHeight * 0.017),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Day After',
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 4, 88, 141),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * 0.045,
-                                    ),
-                                  ),
-                                  Text(
-                                    formattedDayAfterTomorrow,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 4, 88, 141),
-                                      fontSize: screenWidth * 0.034,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    _getDayOfWeek(dayAfterTomorrow.weekday),
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 4, 88, 141),
-                                      fontSize: screenWidth * 0.036,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: screenHeight * 0.02),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              selectedDate = formattedDayAfterDayAfterTomorrow;
-                            });
-                            _navigateToAvailableFlightsPage(
-                                context); // Handle checking availability
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(198, 255, 255, 255),
-                            shadowColor:
-                                const Color.fromARGB(255, 33, 144, 213),
-                            side: const BorderSide(
-                                width: 1.5,
-                                color: Color.fromARGB(0, 255, 255, 255)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(9.0),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.25,
-                                vertical: screenHeight * 0.014),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                'The Next Day',
-                                style: TextStyle(
-                                  color: const Color.fromARGB(255, 4, 88, 141),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: screenWidth * 0.05,
-                                ),
-                              ),
-                              Text(
-                                formattedDayAfterDayAfterTomorrow,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: const Color.fromARGB(255, 4, 88, 141),
-                                  fontSize: screenWidth * 0.036,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                _getDayOfWeek(dayAfterDayAfterTomorrow.weekday),
-                                style: TextStyle(
-                                  color: const Color.fromARGB(255, 4, 88, 141),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: screenWidth * 0.038,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Form card
-              SizedBox(height: screenHeight * 0.02)
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(22.0)),
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(2, 77, 117, 1),
-                Color.fromRGBO(2, 77, 117, 1),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
+      child: Scaffold(
+        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(screenHeight * 0.173),
+          child: AppBar(
             backgroundColor: Colors.transparent,
-            elevation: 1,
-            currentIndex: 1,
-            selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
-            unselectedItemColor: Colors.white,
-            onTap: (index) async {
-              switch (index) {
-                case 0: // History
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const HistoryPage(),
-                      transitionDuration: Duration(seconds: 0), // No animation
-                    ),
-                  );
-                  break;
-                case 1: // Home
+            titleTextStyle: TextStyle(
+                fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
+            leading: Transform.translate(
+              offset: const Offset(0, 0),
+              child: IconButton(
+                onPressed: () {
                   Navigator.push(
                     context,
                     PageRouteBuilder(
@@ -566,87 +140,530 @@ class _SelectDatePageState extends State<SelectDatePage> {
                       transitionDuration: Duration(seconds: 0), // No animation
                     ),
                   );
-                  break;
-                case 2: // My Tickets
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const MyTickets(),
-                      transitionDuration: Duration(seconds: 0), // No animation
+                },
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color.fromRGBO(0, 43, 71, 1),
+                    Color.fromRGBO(52, 164, 224, 1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(22.0)),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(22.0)),
+                      child: Container(
+                        child: const Image(
+                          image: AssetImage(
+                              'assets/istockphoto-155362201-612x612 1.png'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  );
-                  break;
-                case 3: // Logout
-                  bool? confirmLogout = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text(
-                          "Confirm Logout",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromRGBO(2, 77, 117, 1),
-                            fontSize: screenWidth * 0.06,
+                  ),
+                  // New content added to the flexibleSpace
+                  Positioned.fill(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: screenHeight * 0.08),
+                        SizedBox(
+                          height: screenHeight *
+                              0.054, // Adjust the height as needed
+                          width: screenWidth * 0.72,
+                          child: const Image(
+                            image: AssetImage('assets/airplane-route.png'),
+                            fit: BoxFit.fill,
                           ),
                         ),
-                        content: Text(
-                          "Are you sure you want to log out?",
-                          style: TextStyle(
-                            color: const Color.fromRGBO(2, 77, 117, 1),
-                            fontSize: screenWidth * 0.045,
-                          ),
+                        SizedBox(
+                          height: screenHeight * 0.03,
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pop(false); // User chose "No"
-                            },
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(-screenWidth * 0.086,
+                                    -screenHeight * 0.035),
+                                child: Text(
+                                  widget.originCountryCode
+                                      .trim(), // Trim to remove leading/trailing spaces
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.06),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Transform.translate(
+                                offset: Offset(
+                                    screenWidth * 0.08, -screenHeight * 0.035),
+                                child: Text(
+                                  widget.destinationCountryCode
+                                      .trim(), // Trim to remove leading/trailing spaces
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * 0.06),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        body: SizedBox(
+          height: screenHeight * 0.8,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: screenHeight * 0.02),
+                Transform.translate(
+                  offset: Offset(screenWidth * -0.001, 0.0),
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    margin: const EdgeInsets.all(16.0),
+                    height: screenHeight * 0.48,
+                    width: screenWidth * 1,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color.fromRGBO(51, 123, 169, 1),
+                          Color.fromRGBO(2, 77, 117, 1),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    child: SingleChildScrollView(
+                      // Add scrolling
+                      child: Column(
+                        children: [
+                          Transform.translate(
+                            offset: const Offset(0.0, -3.0),
                             child: Text(
-                              "No",
+                              'Select a Date',
                               style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                fontSize: screenWidth * 0.042,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: screenWidth * 0.055,
                               ),
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pop(true); // User chose "Yes"
-                            },
-                            child: Text(
-                              "Yes",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                fontSize: screenWidth * 0.042,
+                          SizedBox(height: screenHeight * 0.01),
+                          Center(
+                            child: SizedBox(
+                              width:
+                                  screenWidth * 0.8, // Customize the width here
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedDate = formattedToday;
+                                  });
+                                  _navigateToAvailableFlightsPage(
+                                      context); // Handle checking availability
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromRGBO(235, 97, 39, 1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(9.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: screenHeight * 0.015),
+                                  elevation: screenWidth * 0.015,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Center(
+                                      child: Text(
+                                        'Today',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: screenWidth * 0.055,
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        formattedToday,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * 0.044,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        _getDayOfWeek(now.weekday),
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * 0.04,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedDate = formattedTomorrow;
+                                  });
+                                  _navigateToAvailableFlightsPage(
+                                      context); // Handle checking availability
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(198, 255, 255, 255),
+                                  shadowColor:
+                                      const Color.fromARGB(255, 33, 144, 213),
+                                  side: const BorderSide(
+                                      width: 1.5,
+                                      color: Color.fromARGB(0, 255, 255, 255)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(9.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06,
+                                      vertical: screenHeight * 0.017),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Tomorrow',
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 4, 88, 141),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * 0.045,
+                                      ),
+                                    ),
+                                    Text(
+                                      formattedTomorrow,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 4, 88, 141),
+                                        fontSize: screenWidth * 0.034,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      _getDayOfWeek(tomorrow.weekday),
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 4, 88, 141),
+                                        fontSize: screenWidth * 0.036,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: screenWidth * 0.02),
+                              ElevatedButton(
+                                onPressed: () {
+                                  setState(() {
+                                    selectedDate = formattedDayAfterTomorrow;
+                                  });
+                                  _navigateToAvailableFlightsPage(
+                                      context); // Handle checking availability
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color.fromARGB(198, 255, 255, 255),
+                                  shadowColor:
+                                      const Color.fromARGB(255, 33, 144, 213),
+                                  side: const BorderSide(
+                                      width: 1.5,
+                                      color: Color.fromARGB(0, 255, 255, 255)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(9.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06,
+                                      vertical: screenHeight * 0.017),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Day After',
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 4, 88, 141),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * 0.045,
+                                      ),
+                                    ),
+                                    Text(
+                                      formattedDayAfterTomorrow,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 4, 88, 141),
+                                        fontSize: screenWidth * 0.034,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      _getDayOfWeek(dayAfterTomorrow.weekday),
+                                      style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            255, 4, 88, 141),
+                                        fontSize: screenWidth * 0.036,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                selectedDate =
+                                    formattedDayAfterDayAfterTomorrow;
+                              });
+                              _navigateToAvailableFlightsPage(
+                                  context); // Handle checking availability
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(198, 255, 255, 255),
+                              shadowColor:
+                                  const Color.fromARGB(255, 33, 144, 213),
+                              side: const BorderSide(
+                                  width: 1.5,
+                                  color: Color.fromARGB(0, 255, 255, 255)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(9.0),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.25,
+                                  vertical: screenHeight * 0.014),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'The Next Day',
+                                  style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 4, 88, 141),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: screenWidth * 0.05,
+                                  ),
+                                ),
+                                Text(
+                                  formattedDayAfterDayAfterTomorrow,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 4, 88, 141),
+                                    fontSize: screenWidth * 0.036,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  _getDayOfWeek(
+                                      dayAfterDayAfterTomorrow.weekday),
+                                  style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 4, 88, 141),
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: screenWidth * 0.038,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      );
-                    },
-                  );
+                      ),
+                    ),
+                  ),
+                ),
+                // Form card
+                SizedBox(height: screenHeight * 0.02)
+              ],
+            ),
+          ),
+        ),
+        bottomNavigationBar: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22.0)),
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(2, 77, 117, 1),
+                  Color.fromRGBO(2, 77, 117, 1),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              elevation: 1,
+              currentIndex: 1,
+              selectedItemColor: const Color.fromARGB(255, 234, 248, 249),
+              unselectedItemColor: Colors.white,
+              onTap: (index) async {
+                switch (index) {
+                  case 0: // History
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const HistoryPage(),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                  case 1: // Home
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            HomePage(selectedDate: selectedDate),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                  case 2: // My Tickets
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const MyTickets(),
+                        transitionDuration:
+                            Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                  case 3: // Logout
+                    bool? confirmLogout = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(
+                            "Confirm Logout",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.06,
+                            ),
+                          ),
+                          content: Text(
+                            "Are you sure you want to log out?",
+                            style: TextStyle(
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.045,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(false); // User chose "No"
+                              },
+                              child: Text(
+                                "No",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pop(true); // User chose "Yes"
+                              },
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
 
-                  if (confirmLogout == true) {
-                    _logout(); // Call the logout function
-                  }
-                  break;
-              }
-            },
-            items: [
-              _buildCustomBottomNavigationBarItem(
-                  Icons.history, 'History', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.home_outlined, 'Home', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.airplane_ticket_outlined, 'My Tickets', false),
-              _buildCustomBottomNavigationBarItem(
-                  Icons.logout, 'Logout', false),
-            ],
+                    if (confirmLogout == true) {
+                      _logout(); // Call the logout function
+                    }
+                    break;
+                }
+              },
+              items: [
+                _buildCustomBottomNavigationBarItem(
+                    Icons.history, 'History', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.home_outlined, 'Home', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.airplane_ticket_outlined, 'My Tickets', false),
+                _buildCustomBottomNavigationBarItem(
+                    Icons.logout, 'Logout', false),
+              ],
+            ),
           ),
         ),
       ),

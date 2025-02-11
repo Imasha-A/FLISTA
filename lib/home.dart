@@ -9,6 +9,7 @@ import './services/api_service.dart';
 import 'main.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/services.dart';
 
 class HomePage extends StatefulWidget {
   final String selectedDate;
@@ -266,79 +267,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // void _swapCountries() {
-  //   setState(() {
-  //     if (_flightSearchModel.selectedOriginCountry != null &&
-  //         _flightSearchModel.selectedDestinationCountry != null) {
-  //       // Swap origin and destination countries
-  //       final String temp = _flightSearchModel.selectedOriginCountry!.trim();
-  //       final String tempCode =
-  //           _flightSearchModel.selectedOriginCountryCode!.trim();
-  //       _flightSearchModel.selectedOriginCountry =
-  //           _flightSearchModel.selectedDestinationCountry!.trim();
-  //       _flightSearchModel.selectedOriginCountryCode =
-  //           _flightSearchModel.selectedDestinationCountryCode!.trim();
-  //       _flightSearchModel.selectedDestinationCountry = temp;
-  //       _flightSearchModel.selectedDestinationCountryCode = tempCode;
-
-  //       // Update controllers
-  //       _originController.text = _flightSearchModel.selectedOriginCountry!;
-  //       _destinationController.text =
-  //           _flightSearchModel.selectedDestinationCountry!;
-  //     } else {
-  //       // Show error if one of the countries is null
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content:
-  //               Text('Please select both origin and destination countries.'),
-  //         ),
-  //       );
-  //     }
-
-  //     // Save and refresh countries
-  //     _saveSelectedCountries();
-  //     _getSelectedCountries();
-  //   });
-  // }
-
-  // void _swapCountries() {
-  //   if (_flightSearchModel.selectedOriginCountry != null &&
-  //       _flightSearchModel.selectedDestinationCountry != null) {
-  //     setState(() {
-  //       // Swap origin and destination countries
-  //       final String temp = _flightSearchModel.selectedOriginCountry!.trim();
-  //       final String tempCode =
-  //           _flightSearchModel.selectedOriginCountryCode!.trim();
-  //       _flightSearchModel.selectedOriginCountry =
-  //           _flightSearchModel.selectedDestinationCountry!.trim();
-  //       _flightSearchModel.selectedOriginCountryCode =
-  //           _flightSearchModel.selectedDestinationCountryCode!.trim();
-  //       _flightSearchModel.selectedDestinationCountry = temp;
-  //       _flightSearchModel.selectedDestinationCountryCode = tempCode;
-
-  //       // Update text field controllers
-  //       _originController.text = _flightSearchModel.selectedOriginCountry!;
-  //       _destinationController.text =
-  //           _flightSearchModel.selectedDestinationCountry!;
-
-  //       // Refresh country filters
-  //       _filteredOriginCountries = _flightSearchModel.originCountries;
-  //       _filteredDestinationCountries = _flightSearchModel.destinationCountries;
-  //     });
-
-  //     // Save and refresh countries
-  //     _saveSelectedCountries();
-  //     _getSelectedCountries();
-  //   } else {
-  //     // Show error if one of the countries is null
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Please select both origin and destination countries.'),
-  //       ),
-  //     );
-  //   }
-  // }
-
   void _swapCountries() {
     if (_flightSearchModel.selectedOriginCountry != null &&
         _flightSearchModel.selectedDestinationCountry != null) {
@@ -588,637 +516,39 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<int>(
-        future: majorVersion, // Use FutureBuilder to handle async data
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else {
-            int majorVersion = snapshot.data ?? 0;
+    return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/homebgnew.png"),
+            fit: BoxFit.contain,
+          ),
+        ),
+        child: FutureBuilder<int>(
+            future: majorVersion, // Use FutureBuilder to handle async data
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator(); // Show a loading indicator while waiting
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                int majorVersion = snapshot.data ?? 0;
 
-            final screenHeight = MediaQuery.of(context).size.height;
-            final screenWidth = MediaQuery.of(context).size.width;
+                final screenHeight = MediaQuery.of(context).size.height;
+                final screenWidth = MediaQuery.of(context).size.width;
 
-            if (majorVersion > 0 && majorVersion <= 8) {
-              // Implementation for Android 8 or below
+                if (majorVersion > 0 && majorVersion <= 8) {
+                  // Implementation for Android 8 or below
 
-              return Scaffold(
-                appBar: PreferredSize(
-                  preferredSize: const Size.fromHeight(110.0),
-                  child: AppBar(
-                    automaticallyImplyLeading: false,
-                    backgroundColor: Colors.transparent,
-                    titleTextStyle: TextStyle(
-                        fontSize: screenHeight * 0.03,
-                        fontWeight: FontWeight.bold),
-                    flexibleSpace: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color.fromRGBO(0, 43, 71, 1),
-                            Color.fromRGBO(52, 164, 224, 1),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                        borderRadius: BorderRadius.vertical(
-                            bottom: Radius.circular(22.0)),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(22.0)),
-                              child: Container(
-                                child: const Image(
-                                  image: AssetImage(
-                                      'assets/istockphoto-155362201-612x612 1.png'),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                  left: screenWidth * 0.083,
-                                  right: screenWidth * 0.05,
-                                  top: screenHeight * 0.035),
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Transform.translate(
-                                    offset: Offset(
-                                        0,
-                                        screenHeight *
-                                            0), // Adjust this value to move the text up or down
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          'assets/logo.png',
-                                          width: screenWidth * 0.4,
-                                          height: screenWidth * 0.17,
-                                        ),
-                                        Container(
-                                          width: screenWidth *
-                                              0.63, // Set the desired width
-                                          height:
-                                              1.5, // Set the desired height (thickness of the divider)
-                                          color: Colors
-                                              .white, // Color of the divider
-                                        ),
-                                        SizedBox(height: screenHeight * 0.01),
-                                        Text(
-                                          _userName,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: screenWidth * 0.042,
-                                          ),
-                                        ),
-                                        Text(
-                                          _userId,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: screenWidth * 0.037,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Transform.translate(
-                                    offset: const Offset(0,
-                                        0), // Adjust this value to move the icon up or down
-                                    child: IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
-                                        Icons.account_circle,
-                                        size: screenWidth * 0.16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Container for Android <= 8
-                      GestureDetector(
-                        onTap: () {
-                          FocusScope.of(context).unfocus();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(15.0),
-                          margin: const EdgeInsets.all(15.0),
-                          height: screenHeight * 0.55,
-                          width: screenWidth * 0.9,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color.fromRGBO(51, 123, 169, 1),
-                                Color.fromRGBO(2, 77, 117, 1),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Align(
-                                alignment: Alignment
-                                    .topCenter, // Align the text to the top center
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      top: screenHeight *
-                                          0.01), // Add gap from top
-                                  child: Text(
-                                    'Search your Flight',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * 0.06,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: screenHeight * 0.03),
-
-                              // From Country Autocomplete
-                              Text(
-                                "From:",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth * 0.05,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Autocomplete<String>(
-                                optionsBuilder:
-                                    (TextEditingValue textEditingValue) {
-                                  if (textEditingValue.text.isEmpty) {
-                                    return const Iterable<String>.empty();
-                                  }
-                                  // Filter by name or code
-                                  return _filteredOriginCountries
-                                      .where((country) =>
-                                          country['name']!
-                                              .toLowerCase()
-                                              .contains(textEditingValue.text
-                                                  .toLowerCase()) ||
-                                          country['code']!
-                                              .toLowerCase()
-                                              .contains(textEditingValue.text
-                                                  .toLowerCase()))
-                                      .map((country) =>
-                                          '${country['name']} (${country['code']})') // Show name and code together in suggestions
-                                      .toList();
-                                },
-                                onSelected: (String selection) {
-                                  // Extract the country name from the selected suggestion
-                                  final selectedCountry =
-                                      _filteredOriginCountries.firstWhere(
-                                    (country) =>
-                                        '${country['name']} (${country['code']})' ==
-                                        selection,
-                                  );
-                                  setState(() {
-                                    _flightSearchModel.selectedOriginCountry =
-                                        selectedCountry['name'];
-                                    _flightSearchModel
-                                            .selectedOriginCountryCode =
-                                        selectedCountry['code'];
-                                  });
-                                },
-                                fieldViewBuilder: (context, controller,
-                                    focusNode, onEditingComplete) {
-                                  return TextField(
-                                    controller: controller,
-                                    focusNode: focusNode,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter & Select Origin',
-                                      hintStyle:
-                                          TextStyle(color: Colors.white54),
-                                    ),
-                                    style: const TextStyle(color: Colors.white),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _filteredOriginCountries =
-                                            _flightSearchModel.originCountries
-                                                .where((country) =>
-                                                    country['name']!
-                                                        .toLowerCase()
-                                                        .contains(value
-                                                            .toLowerCase()) ||
-                                                    country['code']!
-                                                        .toLowerCase()
-                                                        .contains(value
-                                                            .toLowerCase()))
-                                                .toList();
-                                      });
-                                    },
-                                  );
-                                },
-                                optionsViewBuilder:
-                                    (context, onSelected, options) {
-                                  return Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Material(
-                                      color: const Color.fromARGB(
-                                          255, 255, 255, 255),
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: screenWidth * 0.8,
-                                          maxHeight: screenHeight * 0.2,
-                                        ),
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          itemCount: options.length,
-                                          itemBuilder: (context, index) {
-                                            final option =
-                                                options.elementAt(index);
-                                            return ListTile(
-                                              title: Text(option,
-                                                  style: const TextStyle(
-                                                      color: Colors.black)),
-                                              onTap: () => onSelected(option),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              SizedBox(height: screenHeight * 0.03),
-
-                              // Destination Autocomplete
-                              Text(
-                                "To:",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth * 0.05,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Autocomplete<String>(
-                                optionsBuilder:
-                                    (TextEditingValue textEditingValue) {
-                                  if (textEditingValue.text.isEmpty) {
-                                    return const Iterable<String>.empty();
-                                  }
-                                  // Filter by name or code, excluding selected origin airport
-                                  return _filteredDestinationCountries
-                                      .where((country) =>
-                                          country['name']!
-                                              .toLowerCase()
-                                              .contains(textEditingValue.text
-                                                  .toLowerCase()) ||
-                                          country['code']!
-                                              .toLowerCase()
-                                              .contains(textEditingValue.text
-                                                  .toLowerCase()))
-                                      .where((country) =>
-                                          country['name'] !=
-                                              _flightSearchModel
-                                                  .selectedOriginCountry &&
-                                          country['code'] !=
-                                              _flightSearchModel
-                                                  .selectedOriginCountryCode) // Exclude origin airport
-                                      .map((country) =>
-                                          '${country['name']} (${country['code']})') // Show name and code together in suggestions
-                                      .toList();
-                                },
-                                onSelected: (String selection) {
-                                  // Extract the country name from the selected suggestion
-                                  final selectedCountry =
-                                      _filteredDestinationCountries.firstWhere(
-                                    (country) =>
-                                        '${country['name']} (${country['code']})' ==
-                                        selection,
-                                  );
-                                  setState(() {
-                                    _flightSearchModel
-                                            .selectedDestinationCountry =
-                                        selectedCountry['name'];
-                                    _flightSearchModel
-                                            .selectedDestinationCountryCode =
-                                        selectedCountry['code'];
-                                  });
-                                },
-                                fieldViewBuilder: (context, controller,
-                                    focusNode, onEditingComplete) {
-                                  return TextField(
-                                    controller: controller,
-                                    focusNode: focusNode,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter & Select Destination',
-                                      hintStyle:
-                                          TextStyle(color: Colors.white54),
-                                    ),
-                                    style: const TextStyle(color: Colors.white),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _filteredDestinationCountries =
-                                            _flightSearchModel
-                                                .destinationCountries
-                                                .where((country) =>
-                                                    country['name']!
-                                                        .toLowerCase()
-                                                        .contains(value
-                                                            .toLowerCase()) ||
-                                                    country['code']!
-                                                        .toLowerCase()
-                                                        .contains(value
-                                                            .toLowerCase()))
-                                                .where((country) =>
-                                                    country['name'] !=
-                                                        _flightSearchModel
-                                                            .selectedOriginCountry &&
-                                                    country['code'] !=
-                                                        _flightSearchModel
-                                                            .selectedOriginCountryCode)
-                                                .toList();
-                                      });
-                                    },
-                                  );
-                                },
-                                optionsViewBuilder:
-                                    (context, onSelected, options) {
-                                  return Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Material(
-                                      color: const Color.fromARGB(
-                                          255, 255, 255, 255),
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: screenWidth * 0.8,
-                                          maxHeight: screenHeight * 0.2,
-                                        ),
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          itemCount: options.length,
-                                          itemBuilder: (context, index) {
-                                            final option =
-                                                options.elementAt(index);
-                                            return ListTile(
-                                              title: Text(option,
-                                                  style: const TextStyle(
-                                                      color: Colors.black)),
-                                              onTap: () => onSelected(option),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                              SizedBox(height: screenHeight * 0.04),
-
-                              // Check Availability Button
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (_flightSearchModel
-                                                .selectedOriginCountry ==
-                                            null ||
-                                        _flightSearchModel
-                                                .selectedDestinationCountry ==
-                                            null ||
-                                        _flightSearchModel
-                                            .selectedOriginCountry!.isEmpty ||
-                                        _flightSearchModel
-                                            .selectedDestinationCountry!
-                                            .isEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Please select both origin and destination countries'),
-                                        ),
-                                      );
-                                    } else {
-                                      // Save selected countries and navigate
-                                      _saveSelectedCountries();
-                                      _navigateToSelectDatePage(context);
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(9.0),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.009),
-                                    elevation: 0,
-                                    backgroundColor: Colors.transparent,
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color.fromARGB(255, 192, 73, 22),
-                                          Color.fromARGB(255, 192, 73, 22),
-                                        ],
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                      ),
-                                      borderRadius: BorderRadius.circular(9.0),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(
-                                              0.35), // Adjust shadow color and opacity
-                                          blurRadius:
-                                              4.0, // Adjust blur radius for the shadow size
-                                          offset: Offset(2,
-                                              2), // Adjust shadow direction and distance
-                                        ),
-                                      ],
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: screenHeight * 0.02),
-                                    child: Center(
-                                      child: Text(
-                                        'Check Availability',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: screenWidth *
-                                              0.038, // Adjust font size as needed
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: Padding(
-                          padding: EdgeInsets.all(screenWidth * 0.05),
-                          child: FloatingActionButton(
-                            onPressed: _showRatingPopup,
-                            backgroundColor: Color.fromARGB(255, 209, 77, 20),
-                            child: Icon(Icons.info, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                bottomNavigationBar: ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(22.0)),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromRGBO(2, 77, 117, 1),
-                          Color.fromRGBO(2, 77, 117, 1),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                    child: BottomNavigationBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 1,
-                      currentIndex: 0,
-                      selectedItemColor:
-                          const Color.fromARGB(255, 234, 248, 249),
-                      unselectedItemColor: Colors.white,
-                      onTap: (index) async {
-                        switch (index) {
-                          case 0:
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HistoryPage()),
-                            );
-                            break;
-                          case 1:
-                            break;
-                          case 2:
-                            bool? confirmLogout = await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(
-                                    "Confirm Logout",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          const Color.fromRGBO(2, 77, 117, 1),
-                                      fontSize: screenWidth * 0.06,
-                                    ),
-                                  ),
-                                  content: Text(
-                                    "Are you sure you want to log out?",
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromRGBO(2, 77, 117, 1),
-                                      fontSize: screenWidth * 0.045,
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pop(false); // User chose "No"
-                                      },
-                                      child: Text(
-                                        "No",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color.fromRGBO(
-                                              2, 77, 117, 1),
-                                          fontSize: screenWidth * 0.042,
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context)
-                                            .pop(true); // User chose "Yes"
-                                      },
-                                      child: Text(
-                                        "Yes",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color.fromRGBO(
-                                              2, 77, 117, 1),
-                                          fontSize: screenWidth * 0.042,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                            // If the user confirms, perform the logout
-                            if (confirmLogout == true) {
-                              _logout(); // Call the logout function
-                            }
-                            break;
-                        }
-                      },
-                      items: [
-                        _buildCustomBottomNavigationBarItem(
-                            Icons.history, 'History', false),
-                        _buildCustomBottomNavigationBarItem(
-                            Icons.home, 'Home', true),
-                        _buildCustomBottomNavigationBarItem(
-                            Icons.logout, 'Logout', false),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            } else {
-              return WillPopScope(
-                onWillPop: () async => false,
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                  },
-                  child: Scaffold(
+                  return Scaffold(
+                    backgroundColor: const Color.fromARGB(0, 255, 255, 255),
                     appBar: PreferredSize(
-                      preferredSize: Size.fromHeight(screenHeight * 0.173),
+                      preferredSize: const Size.fromHeight(110.0),
                       child: AppBar(
                         automaticallyImplyLeading: false,
                         backgroundColor: Colors.transparent,
-                        titleTextStyle: const TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                        titleTextStyle: TextStyle(
+                            fontSize: screenHeight * 0.03,
+                            fontWeight: FontWeight.bold),
                         flexibleSpace: Container(
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
@@ -1309,7 +639,8 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                       Transform.translate(
-                                        offset: const Offset(0, -8),
+                                        offset: const Offset(0,
+                                            0), // Adjust this value to move the icon up or down
                                         child: IconButton(
                                           onPressed: () {},
                                           icon: Icon(
@@ -1328,894 +659,396 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    body: _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : SingleChildScrollView(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: screenHeight * 0.02),
-                                Container(
-                                  padding: const EdgeInsets.all(2.0),
-                                  margin: const EdgeInsets.all(15.0),
-                                  height: screenHeight * 0.42,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color.fromRGBO(51, 123, 169, 1),
-                                        Color.fromRGBO(2, 77, 117, 1),
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
+                    body: SingleChildScrollView(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Container for Android <= 8
+                          GestureDetector(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(15.0),
+                              margin: const EdgeInsets.all(15.0),
+                              height: screenHeight * 0.55,
+                              width: screenWidth * 0.9,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color.fromRGBO(51, 123, 169, 1),
+                                    Color.fromRGBO(2, 77, 117, 1),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                borderRadius: BorderRadius.circular(16.0),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment
+                                        .topCenter, // Align the text to the top center
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: screenHeight *
+                                              0.01), // Add gap from top
+                                      child: Text(
+                                        'Search your Flight',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: screenWidth * 0.06,
+                                        ),
+                                      ),
                                     ),
-                                    image: const DecorationImage(
-                                      image: AssetImage('assets/world.png'),
-                                      fit: BoxFit.scaleDown,
-                                      scale:
-                                          2, // Ensures the image covers the entire container
-                                      opacity:
-                                          0.32, // Adjust opacity to blend with the gradient
-                                    ),
-                                    borderRadius: BorderRadius.circular(16.0),
                                   ),
-                                  child: Column(
-                                    children: [
-                                      SizedBox(height: screenHeight * 0.06),
-                                      Transform.translate(
-                                        offset: const Offset(0.0, -32.0),
-                                        child: Text(
-                                          'Search your Flight',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: screenWidth * 0.06,
-                                          ),
+                                  SizedBox(height: screenHeight * 0.03),
+
+                                  // From Country Autocomplete
+                                  Text(
+                                    "From:",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.05,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Autocomplete<String>(
+                                    optionsBuilder:
+                                        (TextEditingValue textEditingValue) {
+                                      if (textEditingValue.text.isEmpty) {
+                                        return const Iterable<String>.empty();
+                                      }
+                                      // Filter by name or code
+                                      return _filteredOriginCountries
+                                          .where((country) =>
+                                              country['name']!
+                                                  .toLowerCase()
+                                                  .contains(textEditingValue
+                                                      .text
+                                                      .toLowerCase()) ||
+                                              country['code']!
+                                                  .toLowerCase()
+                                                  .contains(textEditingValue
+                                                      .text
+                                                      .toLowerCase()))
+                                          .map((country) =>
+                                              '${country['name']} (${country['code']})') // Show name and code together in suggestions
+                                          .toList();
+                                    },
+                                    onSelected: (String selection) {
+                                      // Extract the country name from the selected suggestion
+                                      final selectedCountry =
+                                          _filteredOriginCountries.firstWhere(
+                                        (country) =>
+                                            '${country['name']} (${country['code']})' ==
+                                            selection,
+                                      );
+                                      setState(() {
+                                        _flightSearchModel
+                                                .selectedOriginCountry =
+                                            selectedCountry['name'];
+                                        _flightSearchModel
+                                                .selectedOriginCountryCode =
+                                            selectedCountry['code'];
+                                      });
+                                    },
+                                    fieldViewBuilder: (context, controller,
+                                        focusNode, onEditingComplete) {
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
+                                        decoration: const InputDecoration(
+                                          hintText: 'Enter & Select Origin',
+                                          hintStyle:
+                                              TextStyle(color: Colors.white54),
                                         ),
-                                      ),
-                                      Stack(
-                                        children: [
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Transform.translate(
-                                                  offset:
-                                                      const Offset(0.85, -20.0),
-                                                  child: Container(
-                                                    margin: EdgeInsets.only(
-                                                        left:
-                                                            screenWidth * 0.05),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        // Title with Close Button
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            SizedBox(
-                                                              height:
-                                                                  screenHeight *
-                                                                      0.05,
-                                                              width:
-                                                                  screenWidth *
-                                                                      0.08,
-                                                              child:
-                                                                  Image.asset(
-                                                                'assets/from.png',
-                                                                width:
-                                                                    screenWidth *
-                                                                        0.1,
-                                                                height:
-                                                                    screenHeight *
-                                                                        0.01,
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                width:
-                                                                    screenWidth *
-                                                                        0.06),
-                                                            Text(
-                                                              'From',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize:
-                                                                    screenWidth *
-                                                                        0.05,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-
-                                                        SizedBox(
-                                                            height:
-                                                                screenHeight *
-                                                                    0.015),
-
-                                                        // Container for origin selection
-                                                        SingleChildScrollView(
-                                                          child:
-                                                              GestureDetector(
-                                                            onTap: () {
-                                                              _searchQuery = '';
-                                                              // Show the modal bottom sheet when the container is clicked
-                                                              showCupertinoModalBottomSheet(
-                                                                context:
-                                                                    context,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .transparent,
-                                                                builder:
-                                                                    (BuildContext
-                                                                        context) {
-                                                                  return StatefulBuilder(
-                                                                    // Ensures the modal updates dynamically
-                                                                    builder:
-                                                                        (context,
-                                                                            setModalState) {
-                                                                      // Ensure focus is requested when the modal opens
-                                                                      Future.delayed(
-                                                                          Duration
-                                                                              .zero,
-                                                                          () {
-                                                                        _searchFocusNode
-                                                                            .requestFocus();
-                                                                      });
-
-                                                                      return Material(
-                                                                        color: Colors
-                                                                            .transparent,
-                                                                        child:
-                                                                            Container(
-                                                                          padding: const EdgeInsets
-                                                                              .fromLTRB(
-                                                                              10,
-                                                                              0,
-                                                                              10,
-                                                                              0),
-                                                                          height:
-                                                                              screenHeight * 0.88,
-                                                                          decoration:
-                                                                              const BoxDecoration(
-                                                                            color:
-                                                                                Colors.white,
-                                                                            borderRadius:
-                                                                                BorderRadius.only(
-                                                                              topLeft: Radius.circular(16.0),
-                                                                              topRight: Radius.circular(16.0),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            children: [
-                                                                              Container(
-                                                                                height: screenHeight * 0.005,
-                                                                                width: screenWidth * 0.35,
-                                                                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                                                                decoration: BoxDecoration(
-                                                                                  color: const Color.fromARGB(255, 195, 191, 191),
-                                                                                  borderRadius: BorderRadius.circular(10),
-                                                                                ),
-                                                                              ),
-                                                                              SizedBox(height: screenHeight * 0.02),
-
-                                                                              // Search TextField
-                                                                              TextField(
-                                                                                focusNode: _searchFocusNode,
-                                                                                cursorColor: const Color.fromARGB(175, 60, 60, 60),
-                                                                                onChanged: (value) {
-                                                                                  setModalState(() {
-                                                                                    // Updates modal UI dynamically
-                                                                                    _searchQuery = value.toLowerCase();
-                                                                                    _filteredOriginCountries = _flightSearchModel.originCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
-                                                                                  });
-                                                                                },
-                                                                                decoration: InputDecoration(
-                                                                                  labelText: "Search Origin",
-                                                                                  labelStyle: TextStyle(
-                                                                                    color: const Color.fromARGB(255, 169, 165, 165),
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontSize: screenWidth * 0.035,
-                                                                                  ),
-                                                                                  border: OutlineInputBorder(
-                                                                                    borderRadius: BorderRadius.circular(8.0),
-                                                                                    borderSide: const BorderSide(
-                                                                                      color: Colors.grey,
-                                                                                      width: 1.0,
-                                                                                    ),
-                                                                                  ),
-                                                                                  focusedBorder: OutlineInputBorder(
-                                                                                    borderRadius: BorderRadius.circular(8.0),
-                                                                                    borderSide: const BorderSide(
-                                                                                      color: Color.fromARGB(175, 60, 60, 60),
-                                                                                      width: 1.5,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-
-                                                                              SizedBox(height: screenHeight * 0.02),
-                                                                              Container(height: 2, color: Colors.grey[300]),
-
-                                                                              // Filtered Country List
-                                                                              Expanded(
-                                                                                child: ListView(
-                                                                                  shrinkWrap: true,
-                                                                                  children: _filteredOriginCountries.where((country) => country['code'] != _flightSearchModel.selectedOriginCountryCode && country['code'] != _destinationController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
-                                                                                    return Column(
-                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                      children: [
-                                                                                        ListTile(
-                                                                                          onTap: () {
-                                                                                            setState(() {
-                                                                                              _originController.text = country['code']!;
-                                                                                              _flightSearchModel.selectedOriginCountry = country['name'];
-                                                                                              _flightSearchModel.selectedOriginCountryCode = country['code'];
-                                                                                              _searchQuery = '';
-                                                                                            });
-                                                                                            Navigator.pop(context);
-                                                                                          },
-                                                                                          title: Column(
-                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                            children: [
-                                                                                              Text(
-                                                                                                country['name']!,
-                                                                                                style: const TextStyle(
-                                                                                                  color: Color.fromARGB(255, 0, 0, 0),
-                                                                                                  fontWeight: FontWeight.w400,
-                                                                                                  fontSize: 16,
-                                                                                                ),
-                                                                                              ),
-                                                                                              Text(
-                                                                                                country['code']!,
-                                                                                                style: TextStyle(
-                                                                                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                                                                                  fontWeight: FontWeight.w700,
-                                                                                                  fontSize: screenWidth * .035,
-                                                                                                ),
-                                                                                              ),
-                                                                                            ],
-                                                                                          ),
-                                                                                        ),
-                                                                                        Divider(
-                                                                                          thickness: 0.8,
-                                                                                          height: 2,
-                                                                                          color: Colors.grey[300],
-                                                                                        ),
-                                                                                      ],
-                                                                                    );
-                                                                                  }).toList(),
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                },
-                                                              );
-                                                            },
-                                                            child: Container(
-                                                              width: screenWidth *
-                                                                  0.9, // Made the box smaller
-                                                              height:
-                                                                  screenHeight *
-                                                                      0.139,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8.0),
-                                                                color: _originController
-                                                                        .text
-                                                                        .isEmpty
-                                                                    ? const Color
-                                                                        .fromARGB(
-                                                                        92,
-                                                                        255,
-                                                                        255,
-                                                                        255) // When no country is selected
-                                                                    : const Color
-                                                                        .fromARGB(
-                                                                        230,
-                                                                        255,
-                                                                        255,
-                                                                        255), // When a country is selected
-                                                                border:
-                                                                    Border.all(
-                                                                  color: _originController
-                                                                          .text
-                                                                          .isEmpty
-                                                                      ? const Color
-                                                                          .fromARGB(
-                                                                          17,
-                                                                          190,
-                                                                          190,
-                                                                          190) // When no country is selected
-                                                                      : const Color
-                                                                          .fromRGBO(
-                                                                          255,
-                                                                          255,
-                                                                          255,
-                                                                          0.776), // When a country is selected
-                                                                  width: 1.2,
-                                                                ),
-                                                                boxShadow: [
-                                                                  BoxShadow(
-                                                                    color: Colors
-                                                                        .black
-                                                                        .withOpacity(
-                                                                            0.35), // Light shadow
-                                                                    offset: const Offset(
-                                                                        0,
-                                                                        2), // Slight downward shadow
-                                                                    blurRadius:
-                                                                        4.0, // Soft blur effect
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              padding:
-                                                                  EdgeInsets.all(
-                                                                      screenWidth *
-                                                                          0.02),
-                                                              child: Center(
-                                                                // Center align the content
-                                                                child: _originController
-                                                                        .text
-                                                                        .isEmpty
-                                                                    ? Text(
-                                                                        "Select\n Origin",
-                                                                        style:
-                                                                            TextStyle(
-                                                                          color: const Color
-                                                                              .fromARGB(
-                                                                              255,
-                                                                              255,
-                                                                              255,
-                                                                              255),
-                                                                          fontSize:
-                                                                              screenWidth * 0.045,
-                                                                          fontWeight:
-                                                                              FontWeight.w300,
-                                                                        ),
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                      )
-                                                                    : SingleChildScrollView(
-                                                                        child:
-                                                                            Column(
-                                                                          mainAxisAlignment:
-                                                                              MainAxisAlignment.center,
-                                                                          children: [
-                                                                            Text(
-                                                                              _originController.text,
-                                                                              style: TextStyle(
-                                                                                fontWeight: FontWeight.w700,
-                                                                                fontSize: screenWidth * 0.065,
-                                                                                color: const Color.fromARGB(255, 4, 88, 141),
-                                                                              ),
-                                                                            ),
-                                                                            Text(
-                                                                              _filteredOriginCountries.firstWhere(
-                                                                                (country) => country['code'] == _originController.text,
-                                                                                orElse: () => {
-                                                                                  'name': 'Unknown'
-                                                                                },
-                                                                              )['name']!,
-                                                                              style: TextStyle(
-                                                                                color: const Color.fromARGB(255, 4, 88, 141),
-                                                                                fontSize: screenWidth * 0.04,
-                                                                              ),
-                                                                              textAlign: TextAlign.center,
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                  width: screenWidth * 0.04),
-                                              Expanded(
-                                                child: Transform.translate(
-                                                  offset:
-                                                      const Offset(0.50, -20.0),
-                                                  child: Container(
-                                                    margin: EdgeInsets.only(
-                                                        right:
-                                                            screenWidth * 0.05),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        // Title with Close Button
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            SizedBox(
-                                                              height:
-                                                                  screenHeight *
-                                                                      0.05,
-                                                              width:
-                                                                  screenWidth *
-                                                                      0.08,
-                                                              child:
-                                                                  Image.asset(
-                                                                'assets/to.png',
-                                                                width:
-                                                                    screenWidth *
-                                                                        0.1,
-                                                                height:
-                                                                    screenHeight *
-                                                                        0.01,
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                                width:
-                                                                    screenWidth *
-                                                                        0.09),
-                                                            Text(
-                                                              'To',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize:
-                                                                    screenWidth *
-                                                                        0.05,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                            height:
-                                                                screenHeight *
-                                                                    0.015),
-
-                                                        SingleChildScrollView(
-                                                          child:
-                                                              GestureDetector(
-                                                            onTap: () {
-                                                              _searchQuery = '';
-                                                              // Show the modal bottom sheet when the container is clicked
-                                                              showCupertinoModalBottomSheet(
-                                                                context:
-                                                                    context,
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .transparent,
-                                                                builder:
-                                                                    (BuildContext
-                                                                        context) {
-                                                                  return StatefulBuilder(
-                                                                    // Ensures real-time updates inside the modal
-                                                                    builder:
-                                                                        (context,
-                                                                            setModalState) {
-                                                                      // Ensure focus is requested when the modal opens
-                                                                      Future.delayed(
-                                                                          Duration
-                                                                              .zero,
-                                                                          () {
-                                                                        _searchFocusNode
-                                                                            .requestFocus();
-                                                                      });
-
-                                                                      return Material(
-                                                                        color: Colors
-                                                                            .transparent,
-                                                                        child:
-                                                                            Container(
-                                                                          padding: const EdgeInsets
-                                                                              .fromLTRB(
-                                                                              10,
-                                                                              0,
-                                                                              10,
-                                                                              0),
-                                                                          height:
-                                                                              screenHeight * 0.88,
-                                                                          decoration:
-                                                                              const BoxDecoration(
-                                                                            color:
-                                                                                Colors.white,
-                                                                            borderRadius:
-                                                                                BorderRadius.only(
-                                                                              topLeft: Radius.circular(16.0),
-                                                                              topRight: Radius.circular(16.0),
-                                                                            ),
-                                                                          ),
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min,
-                                                                            children: [
-                                                                              Container(
-                                                                                height: screenHeight * 0.005,
-                                                                                width: screenWidth * 0.35,
-                                                                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                                                                decoration: BoxDecoration(
-                                                                                  color: const Color.fromARGB(255, 195, 191, 191),
-                                                                                  borderRadius: BorderRadius.circular(10),
-                                                                                ),
-                                                                              ),
-                                                                              SizedBox(height: screenHeight * 0.02),
-
-                                                                              // Search TextField
-                                                                              TextField(
-                                                                                focusNode: _searchFocusNode,
-                                                                                cursorColor: const Color.fromARGB(175, 60, 60, 60),
-                                                                                onChanged: (value) {
-                                                                                  setModalState(() {
-                                                                                    // Update modal UI dynamically
-                                                                                    _searchQuery = value.toLowerCase();
-                                                                                    _filteredDestinationCountries = _flightSearchModel.destinationCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
-                                                                                  });
-                                                                                },
-                                                                                decoration: InputDecoration(
-                                                                                  labelText: "Search Destination",
-                                                                                  labelStyle: TextStyle(
-                                                                                    color: const Color.fromARGB(255, 169, 165, 165),
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontSize: screenWidth * 0.035,
-                                                                                  ),
-                                                                                  border: OutlineInputBorder(
-                                                                                    borderRadius: BorderRadius.circular(8.0),
-                                                                                    borderSide: const BorderSide(
-                                                                                      color: Colors.grey,
-                                                                                      width: 1.0,
-                                                                                    ),
-                                                                                  ),
-                                                                                  focusedBorder: OutlineInputBorder(
-                                                                                    borderRadius: BorderRadius.circular(8.0),
-                                                                                    borderSide: const BorderSide(
-                                                                                      color: Color.fromARGB(175, 60, 60, 60),
-                                                                                      width: 1.5,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-
-                                                                              SizedBox(height: screenHeight * 0.02),
-                                                                              Container(height: 2, color: Colors.grey[300]),
-
-                                                                              // Filtered Destination List
-                                                                              Expanded(
-                                                                                child: ListView(
-                                                                                  shrinkWrap: true,
-                                                                                  children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
-                                                                                    return Column(
-                                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                      children: [
-                                                                                        ListTile(
-                                                                                          onTap: () {
-                                                                                            setState(() {
-                                                                                              _destinationController.text = country['code']!;
-                                                                                              _flightSearchModel.selectedDestinationCountry = country['name'];
-                                                                                              _flightSearchModel.selectedDestinationCountryCode = country['code'];
-                                                                                              _searchQuery = '';
-                                                                                            });
-                                                                                            Navigator.pop(context);
-                                                                                          },
-                                                                                          title: Column(
-                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                            children: [
-                                                                                              Text(
-                                                                                                country['name']!,
-                                                                                                style: const TextStyle(
-                                                                                                  color: Color.fromARGB(255, 0, 0, 0),
-                                                                                                  fontWeight: FontWeight.w400,
-                                                                                                  fontSize: 16,
-                                                                                                ),
-                                                                                              ),
-                                                                                              Text(
-                                                                                                country['code']!,
-                                                                                                style: TextStyle(
-                                                                                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                                                                                  fontWeight: FontWeight.w700,
-                                                                                                  fontSize: screenWidth * .035,
-                                                                                                ),
-                                                                                              ),
-                                                                                            ],
-                                                                                          ),
-                                                                                        ),
-                                                                                        Divider(
-                                                                                          thickness: 0.8,
-                                                                                          height: 5,
-                                                                                          color: Colors.grey[300],
-                                                                                        ),
-                                                                                      ],
-                                                                                    );
-                                                                                  }).toList(),
-                                                                                ),
-                                                                              )
-                                                                            ],
-                                                                          ),
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                },
-                                                              );
-                                                            },
-                                                            child: Container(
-                                                              width: screenWidth *
-                                                                  0.9, // Adjusted for uniformity
-                                                              height:
-                                                                  screenHeight *
-                                                                      0.139,
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8.0),
-                                                                color: _destinationController
-                                                                        .text
-                                                                        .isEmpty
-                                                                    ? const Color
-                                                                        .fromARGB(
-                                                                        92,
-                                                                        255,
-                                                                        255,
-                                                                        255) // When no country is selected
-                                                                    : const Color
-                                                                        .fromARGB(
-                                                                        230,
-                                                                        255,
-                                                                        255,
-                                                                        255), // When a country is selected
-                                                                border:
-                                                                    Border.all(
-                                                                  color: _destinationController
-                                                                          .text
-                                                                          .isEmpty
-                                                                      ? const Color
-                                                                          .fromARGB(
-                                                                          17,
-                                                                          190,
-                                                                          190,
-                                                                          190) // When no country is selected
-                                                                      : const Color
-                                                                          .fromARGB(
-                                                                          230,
-                                                                          255,
-                                                                          255,
-                                                                          255), // When a country is selected
-                                                                  width: 1.0,
-                                                                ),
-                                                                boxShadow: [
-                                                                  BoxShadow(
-                                                                    color: Colors
-                                                                        .black
-                                                                        .withOpacity(
-                                                                            0.35), // Light shadow
-                                                                    offset: const Offset(
-                                                                        0,
-                                                                        2), // Slight downward shadow
-                                                                    blurRadius:
-                                                                        4.0, // Soft blur effect
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              padding:
-                                                                  EdgeInsets.all(
-                                                                      screenWidth *
-                                                                          0.02),
-                                                              child: Center(
-                                                                child: _destinationController
-                                                                        .text
-                                                                        .isEmpty
-                                                                    ? Text(
-                                                                        "Select Destination",
-                                                                        style:
-                                                                            TextStyle(
-                                                                          color: const Color
-                                                                              .fromARGB(
-                                                                              255,
-                                                                              255,
-                                                                              255,
-                                                                              255),
-                                                                          fontSize:
-                                                                              screenWidth * 0.045,
-                                                                          fontWeight:
-                                                                              FontWeight.w300,
-                                                                        ),
-                                                                        textAlign:
-                                                                            TextAlign.center,
-                                                                      )
-                                                                    : SingleChildScrollView(
-                                                                        child:
-                                                                            Column(
-                                                                          mainAxisAlignment:
-                                                                              MainAxisAlignment.center,
-                                                                          children: [
-                                                                            Text(
-                                                                              _destinationController.text,
-                                                                              style: TextStyle(
-                                                                                fontWeight: FontWeight.w700,
-                                                                                fontSize: screenWidth * 0.065,
-                                                                                color: const Color.fromARGB(255, 4, 88, 141),
-                                                                              ),
-                                                                            ),
-                                                                            Text(
-                                                                              _filteredDestinationCountries.firstWhere(
-                                                                                (country) => country['code'] == _destinationController.text,
-                                                                                orElse: () => {
-                                                                                  'name': 'Unknown'
-                                                                                },
-                                                                              )['name']!,
-                                                                              style: TextStyle(
-                                                                                color: const Color.fromARGB(255, 4, 88, 141),
-                                                                                fontSize: screenWidth * 0.04,
-                                                                              ),
-                                                                              textAlign: TextAlign.center,
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Transform.translate(
-                                            offset: Offset(screenWidth * 0.37,
-                                                screenHeight * 0.07),
-                                            child: Container(
-                                                width: screenWidth * 0.18,
-                                                height: screenHeight * 0.05,
-                                                decoration: const BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Color.fromARGB(
-                                                          255, 192, 73, 22),
-                                                      Color.fromARGB(
-                                                          255, 192, 73, 22),
-                                                    ],
-                                                    begin: Alignment.centerLeft,
-                                                    end: Alignment.centerRight,
-                                                  ),
-                                                ),
-                                                child: GestureDetector(
-                                                  onTap: _swapCountries,
-                                                  child: Image.asset(
-                                                    'assets/arrows.png',
-                                                    width: screenWidth * 0.56,
-                                                    height: screenHeight * 0.12,
-                                                  ),
-                                                )),
-                                          ),
-                                        ],
-                                      ),
-                                      if (_errorMessage != null)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              top: 5.0, bottom: 8),
-                                          child: Text(
-                                            _errorMessage!,
-                                            style: TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 209, 77, 20),
-                                                fontSize: screenWidth * 0.04,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          if (_originController.text.isEmpty ||
-                                              _destinationController
-                                                  .text.isEmpty) {
-                                            setState(() {
-                                              _errorMessage =
-                                                  "Please enter both Origin and Destination";
-                                            });
-                                          } else {
-                                            setState(() {
-                                              _errorMessage = null;
-                                            });
-                                            _saveSelectedCountries();
-                                            _navigateToSelectDatePage(context);
-                                          }
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _filteredOriginCountries =
+                                                _flightSearchModel
+                                                    .originCountries
+                                                    .where((country) =>
+                                                        country['name']!
+                                                            .toLowerCase()
+                                                            .contains(value
+                                                                .toLowerCase()) ||
+                                                        country['code']!
+                                                            .toLowerCase()
+                                                            .contains(value
+                                                                .toLowerCase()))
+                                                    .toList();
+                                          });
                                         },
-                                        style: ElevatedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(9.0),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 28.0),
-                                          elevation: 0,
-                                          backgroundColor: Colors.transparent,
-                                        ),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            gradient: const LinearGradient(
-                                              colors: [
-                                                Color.fromARGB(
-                                                    255, 209, 77, 20),
-                                                Color.fromARGB(
-                                                    255, 192, 73, 22),
-                                              ],
-                                              begin: Alignment.centerLeft,
-                                              end: Alignment.centerRight,
+                                      );
+                                    },
+                                    optionsViewBuilder:
+                                        (context, onSelected, options) {
+                                      return Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Material(
+                                          color: const Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: screenWidth * 0.8,
+                                              maxHeight: screenHeight * 0.2,
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(9.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                    0.35), // Adjust shadow color and opacity
-                                                blurRadius:
-                                                    4.0, // Adjust blur radius for the shadow size
-                                                offset: Offset(2,
-                                                    2), // Adjust shadow direction and distance
-                                              ),
-                                            ],
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              itemCount: options.length,
+                                              itemBuilder: (context, index) {
+                                                final option =
+                                                    options.elementAt(index);
+                                                return ListTile(
+                                                  title: Text(option,
+                                                      style: const TextStyle(
+                                                          color: Colors.black)),
+                                                  onTap: () =>
+                                                      onSelected(option),
+                                                );
+                                              },
+                                            ),
                                           ),
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: screenHeight * 0.015),
-                                          child: Center(
-                                            child: Text(
-                                              'Check Availability',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: screenWidth * 0.038,
-                                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(height: screenHeight * 0.03),
+
+                                  // Destination Autocomplete
+                                  Text(
+                                    "To:",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: screenWidth * 0.05,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Autocomplete<String>(
+                                    optionsBuilder:
+                                        (TextEditingValue textEditingValue) {
+                                      if (textEditingValue.text.isEmpty) {
+                                        return const Iterable<String>.empty();
+                                      }
+                                      // Filter by name or code, excluding selected origin airport
+                                      return _filteredDestinationCountries
+                                          .where((country) =>
+                                              country['name']!
+                                                  .toLowerCase()
+                                                  .contains(textEditingValue
+                                                      .text
+                                                      .toLowerCase()) ||
+                                              country['code']!
+                                                  .toLowerCase()
+                                                  .contains(textEditingValue
+                                                      .text
+                                                      .toLowerCase()))
+                                          .where((country) =>
+                                              country['name'] !=
+                                                  _flightSearchModel
+                                                      .selectedOriginCountry &&
+                                              country['code'] !=
+                                                  _flightSearchModel
+                                                      .selectedOriginCountryCode) // Exclude origin airport
+                                          .map((country) =>
+                                              '${country['name']} (${country['code']})') // Show name and code together in suggestions
+                                          .toList();
+                                    },
+                                    onSelected: (String selection) {
+                                      // Extract the country name from the selected suggestion
+                                      final selectedCountry =
+                                          _filteredDestinationCountries
+                                              .firstWhere(
+                                        (country) =>
+                                            '${country['name']} (${country['code']})' ==
+                                            selection,
+                                      );
+                                      setState(() {
+                                        _flightSearchModel
+                                                .selectedDestinationCountry =
+                                            selectedCountry['name'];
+                                        _flightSearchModel
+                                                .selectedDestinationCountryCode =
+                                            selectedCountry['code'];
+                                      });
+                                    },
+                                    fieldViewBuilder: (context, controller,
+                                        focusNode, onEditingComplete) {
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
+                                        decoration: const InputDecoration(
+                                          hintText:
+                                              'Enter & Select Destination',
+                                          hintStyle:
+                                              TextStyle(color: Colors.white54),
+                                        ),
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _filteredDestinationCountries =
+                                                _flightSearchModel
+                                                    .destinationCountries
+                                                    .where((country) =>
+                                                        country['name']!
+                                                            .toLowerCase()
+                                                            .contains(value
+                                                                .toLowerCase()) ||
+                                                        country['code']!
+                                                            .toLowerCase()
+                                                            .contains(value
+                                                                .toLowerCase()))
+                                                    .where((country) =>
+                                                        country['name'] !=
+                                                            _flightSearchModel
+                                                                .selectedOriginCountry &&
+                                                        country['code'] !=
+                                                            _flightSearchModel
+                                                                .selectedOriginCountryCode)
+                                                    .toList();
+                                          });
+                                        },
+                                      );
+                                    },
+                                    optionsViewBuilder:
+                                        (context, onSelected, options) {
+                                      return Align(
+                                        alignment: Alignment.topLeft,
+                                        child: Material(
+                                          color: const Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: screenWidth * 0.8,
+                                              maxHeight: screenHeight * 0.2,
+                                            ),
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              itemCount: options.length,
+                                              itemBuilder: (context, index) {
+                                                final option =
+                                                    options.elementAt(index);
+                                                return ListTile(
+                                                  title: Text(option,
+                                                      style: const TextStyle(
+                                                          color: Colors.black)),
+                                                  onTap: () =>
+                                                      onSelected(option),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(height: screenHeight * 0.04),
+
+                                  // Check Availability Button
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        if (_flightSearchModel
+                                                    .selectedOriginCountry ==
+                                                null ||
+                                            _flightSearchModel
+                                                    .selectedDestinationCountry ==
+                                                null ||
+                                            _flightSearchModel
+                                                .selectedOriginCountry!
+                                                .isEmpty ||
+                                            _flightSearchModel
+                                                .selectedDestinationCountry!
+                                                .isEmpty) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Please select both origin and destination countries'),
+                                            ),
+                                          );
+                                        } else {
+                                          // Save selected countries and navigate
+                                          _saveSelectedCountries();
+                                          _navigateToSelectDatePage(context);
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(9.0),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: screenWidth * 0.009),
+                                        elevation: 0,
+                                        backgroundColor: Colors.transparent,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color.fromARGB(255, 192, 73, 22),
+                                              Color.fromARGB(255, 192, 73, 22),
+                                            ],
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(9.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                  0.35), // Adjust shadow color and opacity
+                                              blurRadius:
+                                                  4.0, // Adjust blur radius for the shadow size
+                                              offset: Offset(2,
+                                                  2), // Adjust shadow direction and distance
+                                            ),
+                                          ],
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: screenHeight * 0.02),
+                                        child: Center(
+                                          child: Text(
+                                            'Check Availability',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: screenWidth *
+                                                  0.038, // Adjust font size as needed
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: screenHeight * 0.12),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Padding(
-                                    padding: EdgeInsets.all(screenWidth * 0.05),
-                                    child: FloatingActionButton(
-                                      onPressed: _showRatingPopup,
-                                      backgroundColor:
-                                          Color.fromARGB(255, 209, 77, 20),
-                                      child:
-                                          Icon(Icons.info, color: Colors.white),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Padding(
+                              padding: EdgeInsets.all(screenWidth * 0.05),
+                              child: FloatingActionButton(
+                                onPressed: _showRatingPopup,
+                                backgroundColor:
+                                    Color.fromARGB(255, 209, 77, 20),
+                                child: Icon(Icons.info, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     bottomNavigationBar: ClipRRect(
                       borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(22.0)),
@@ -2231,10 +1064,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: BottomNavigationBar(
-                          type: BottomNavigationBarType.fixed,
                           backgroundColor: Colors.transparent,
                           elevation: 1,
-                          currentIndex: 1,
+                          currentIndex: 0,
                           selectedItemColor:
                               const Color.fromARGB(255, 234, 248, 249),
                           unselectedItemColor: Colors.white,
@@ -2243,42 +1075,14 @@ class _HomePageState extends State<HomePage> {
                               case 0:
                                 Navigator.push(
                                   context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        const HistoryPage(),
-                                    transitionDuration:
-                                        const Duration(seconds: 0),
-                                  ),
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HistoryPage()),
                                 );
                                 break;
                               case 1:
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        const HomePage(
-                                      selectedDate: '',
-                                    ),
-                                    transitionDuration: const Duration(
-                                        seconds: 0), // No animation
-                                  ),
-                                );
                                 break;
-                              case 2: // My Tickets
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        const MyTickets(),
-                                    transitionDuration: const Duration(
-                                        seconds: 0), // No animation
-                                  ),
-                                );
-                                break;
-                              case 3: // Logout
+                              case 2:
                                 bool? confirmLogout = await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -2335,7 +1139,6 @@ class _HomePageState extends State<HomePage> {
                                     );
                                   },
                                 );
-
                                 // If the user confirms, perform the logout
                                 if (confirmLogout == true) {
                                   _logout(); // Call the logout function
@@ -2349,21 +1152,1163 @@ class _HomePageState extends State<HomePage> {
                             _buildCustomBottomNavigationBarItem(
                                 Icons.home, 'Home', true),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.airplane_ticket_outlined,
-                                'My Tickets',
-                                false),
-                            _buildCustomBottomNavigationBarItem(
                                 Icons.logout, 'Logout', false),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            }
-          }
-        });
+                  );
+                } else {
+                  return WillPopScope(
+                    onWillPop: () async => false,
+                    child: GestureDetector(
+                      onTap: () {
+                        FocusScope.of(context).unfocus();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("assets/homebgnew.png"),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        child: Scaffold(
+                          backgroundColor:
+                              const Color.fromARGB(0, 255, 255, 255),
+                          appBar: PreferredSize(
+                            preferredSize:
+                                Size.fromHeight(screenHeight * 0.173),
+                            child: AppBar(
+                              automaticallyImplyLeading: false,
+                              backgroundColor:
+                                  const Color.fromARGB(0, 255, 255, 255),
+                              titleTextStyle: const TextStyle(
+                                  fontSize: 20.0, fontWeight: FontWeight.bold),
+                              flexibleSpace: Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color.fromRGBO(0, 43, 71, 1),
+                                      Color.fromRGBO(52, 164, 224, 1),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                  borderRadius: BorderRadius.vertical(
+                                      bottom: Radius.circular(22.0)),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                                bottom: Radius.circular(22.0)),
+                                        child: Container(
+                                          child: const Image(
+                                            image: AssetImage(
+                                                'assets/istockphoto-155362201-612x612 1.png'),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      child: Container(
+                                        padding: EdgeInsets.only(
+                                            left: screenWidth * 0.083,
+                                            right: screenWidth * 0.05,
+                                            top: screenHeight * 0.035),
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Transform.translate(
+                                              offset: Offset(
+                                                  0,
+                                                  screenHeight *
+                                                      0), // Adjust this value to move the text up or down
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/logo.png',
+                                                    width: screenWidth * 0.4,
+                                                    height: screenWidth * 0.17,
+                                                  ),
+                                                  Container(
+                                                    width: screenWidth *
+                                                        0.63, // Set the desired width
+                                                    height:
+                                                        1.5, // Set the desired height (thickness of the divider)
+                                                    color: Colors
+                                                        .white, // Color of the divider
+                                                  ),
+                                                  SizedBox(
+                                                      height:
+                                                          screenHeight * 0.01),
+                                                  Text(
+                                                    _userName,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize:
+                                                          screenWidth * 0.042,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    _userId,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.037,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Transform.translate(
+                                              offset: const Offset(0, -8),
+                                              child: IconButton(
+                                                onPressed: () {},
+                                                icon: Icon(
+                                                  Icons.account_circle,
+                                                  size: screenWidth * 0.16,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          body: _isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(height: screenHeight * 0.02),
+                                      Container(
+                                        padding: const EdgeInsets.all(2.0),
+                                        margin: const EdgeInsets.all(15.0),
+                                        height: screenHeight * 0.42,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color.fromRGBO(51, 123, 169, 1),
+                                              Color.fromRGBO(2, 77, 117, 1),
+                                            ],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                          ),
+                                          image: const DecorationImage(
+                                            image:
+                                                AssetImage('assets/world.png'),
+                                            fit: BoxFit.scaleDown,
+                                            scale:
+                                                2, // Ensures the image covers the entire container
+                                            opacity:
+                                                0.32, // Adjust opacity to blend with the gradient
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(16.0),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                                height: screenHeight * 0.06),
+                                            Transform.translate(
+                                              offset: const Offset(0.0, -32.0),
+                                              child: Text(
+                                                'Search your Flight',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: screenWidth * 0.06,
+                                                ),
+                                              ),
+                                            ),
+                                            Stack(
+                                              children: [
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                      child:
+                                                          Transform.translate(
+                                                        offset: const Offset(
+                                                            0.85, -20.0),
+                                                        child: Container(
+                                                          margin: EdgeInsets.only(
+                                                              left:
+                                                                  screenWidth *
+                                                                      0.05),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              // Title with Close Button
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  SizedBox(
+                                                                    height:
+                                                                        screenHeight *
+                                                                            0.05,
+                                                                    width:
+                                                                        screenWidth *
+                                                                            0.08,
+                                                                    child: Image
+                                                                        .asset(
+                                                                      'assets/from.png',
+                                                                      width:
+                                                                          screenWidth *
+                                                                              0.1,
+                                                                      height:
+                                                                          screenHeight *
+                                                                              0.01,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                      width: screenWidth *
+                                                                          0.06),
+                                                                  Text(
+                                                                    'From',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          screenWidth *
+                                                                              0.05,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+
+                                                              SizedBox(
+                                                                  height:
+                                                                      screenHeight *
+                                                                          0.015),
+
+                                                              // Container for origin selection
+                                                              SingleChildScrollView(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    _searchQuery =
+                                                                        '';
+                                                                    // Show the modal bottom sheet when the container is clicked
+                                                                    showCupertinoModalBottomSheet(
+                                                                      context:
+                                                                          context,
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return StatefulBuilder(
+                                                                          // Ensures the modal updates dynamically
+                                                                          builder:
+                                                                              (context, setModalState) {
+                                                                            // Ensure focus is requested when the modal opens
+                                                                            Future.delayed(Duration.zero,
+                                                                                () {
+                                                                              _searchFocusNode.requestFocus();
+                                                                            });
+
+                                                                            return Material(
+                                                                              color: Colors.transparent,
+                                                                              child: Container(
+                                                                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                                                                height: screenHeight * 0.88,
+                                                                                decoration: const BoxDecoration(
+                                                                                  color: Colors.white,
+                                                                                  borderRadius: BorderRadius.only(
+                                                                                    topLeft: Radius.circular(16.0),
+                                                                                    topRight: Radius.circular(16.0),
+                                                                                  ),
+                                                                                ),
+                                                                                child: Column(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: [
+                                                                                    Container(
+                                                                                      height: screenHeight * 0.005,
+                                                                                      width: screenWidth * 0.35,
+                                                                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                                                                      decoration: BoxDecoration(
+                                                                                        color: const Color.fromARGB(255, 195, 191, 191),
+                                                                                        borderRadius: BorderRadius.circular(10),
+                                                                                      ),
+                                                                                    ),
+                                                                                    SizedBox(height: screenHeight * 0.02),
+
+                                                                                    // Search TextField
+                                                                                    TextField(
+                                                                                      focusNode: _searchFocusNode,
+                                                                                      cursorColor: const Color.fromARGB(175, 60, 60, 60),
+                                                                                      onChanged: (value) {
+                                                                                        setModalState(() {
+                                                                                          // Updates modal UI dynamically
+                                                                                          _searchQuery = value.toLowerCase();
+                                                                                          _filteredOriginCountries = _flightSearchModel.originCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
+                                                                                        });
+                                                                                      },
+                                                                                      decoration: InputDecoration(
+                                                                                        labelText: "Search Origin",
+                                                                                        labelStyle: TextStyle(
+                                                                                          color: const Color.fromARGB(255, 169, 165, 165),
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                          fontSize: screenWidth * 0.035,
+                                                                                        ),
+                                                                                        border: OutlineInputBorder(
+                                                                                          borderRadius: BorderRadius.circular(8.0),
+                                                                                          borderSide: const BorderSide(
+                                                                                            color: Colors.grey,
+                                                                                            width: 1.0,
+                                                                                          ),
+                                                                                        ),
+                                                                                        focusedBorder: OutlineInputBorder(
+                                                                                          borderRadius: BorderRadius.circular(8.0),
+                                                                                          borderSide: const BorderSide(
+                                                                                            color: Color.fromARGB(175, 60, 60, 60),
+                                                                                            width: 1.5,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+
+                                                                                    SizedBox(height: screenHeight * 0.02),
+                                                                                    Container(height: 2, color: Colors.grey[300]),
+
+                                                                                    // Filtered Country List
+                                                                                    Expanded(
+                                                                                      child: ListView(
+                                                                                        shrinkWrap: true,
+                                                                                        children: _filteredOriginCountries.where((country) => country['code'] != _flightSearchModel.selectedOriginCountryCode && country['code'] != _destinationController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                          return Column(
+                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                            children: [
+                                                                                              ListTile(
+                                                                                                onTap: () {
+                                                                                                  setState(() {
+                                                                                                    _originController.text = country['code']!;
+                                                                                                    _flightSearchModel.selectedOriginCountry = country['name'];
+                                                                                                    _flightSearchModel.selectedOriginCountryCode = country['code'];
+                                                                                                    _searchQuery = '';
+                                                                                                  });
+                                                                                                  Navigator.pop(context);
+                                                                                                },
+                                                                                                title: Column(
+                                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                  children: [
+                                                                                                    Text(
+                                                                                                      country['name']!,
+                                                                                                      style: const TextStyle(
+                                                                                                        color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                        fontWeight: FontWeight.w400,
+                                                                                                        fontSize: 16,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                    Text(
+                                                                                                      country['code']!,
+                                                                                                      style: TextStyle(
+                                                                                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                                                                                        fontWeight: FontWeight.w700,
+                                                                                                        fontSize: screenWidth * .035,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              ),
+                                                                                              Divider(
+                                                                                                thickness: 0.8,
+                                                                                                height: 2,
+                                                                                                color: Colors.grey[300],
+                                                                                              ),
+                                                                                            ],
+                                                                                          );
+                                                                                        }).toList(),
+                                                                                      ),
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            );
+                                                                          },
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    width: screenWidth *
+                                                                        0.9, // Made the box smaller
+                                                                    height:
+                                                                        screenHeight *
+                                                                            0.139,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                      color: _originController
+                                                                              .text
+                                                                              .isEmpty
+                                                                          ? const Color
+                                                                              .fromARGB(
+                                                                              92,
+                                                                              255,
+                                                                              255,
+                                                                              255) // When no country is selected
+                                                                          : const Color
+                                                                              .fromARGB(
+                                                                              230,
+                                                                              255,
+                                                                              255,
+                                                                              255), // When a country is selected
+                                                                      border:
+                                                                          Border
+                                                                              .all(
+                                                                        color: _originController
+                                                                                .text.isEmpty
+                                                                            ? const Color.fromARGB(
+                                                                                17,
+                                                                                190,
+                                                                                190,
+                                                                                190) // When no country is selected
+                                                                            : const Color.fromRGBO(
+                                                                                255,
+                                                                                255,
+                                                                                255,
+                                                                                0.776), // When a country is selected
+                                                                        width:
+                                                                            1.2,
+                                                                      ),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color: Colors
+                                                                              .black
+                                                                              .withOpacity(0.35), // Light shadow
+                                                                          offset: const Offset(
+                                                                              0,
+                                                                              2), // Slight downward shadow
+                                                                          blurRadius:
+                                                                              4.0, // Soft blur effect
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    padding: EdgeInsets.all(
+                                                                        screenWidth *
+                                                                            0.02),
+                                                                    child:
+                                                                        Center(
+                                                                      // Center align the content
+                                                                      child: _originController
+                                                                              .text
+                                                                              .isEmpty
+                                                                          ? Text(
+                                                                              "Select\n Origin",
+                                                                              style: TextStyle(
+                                                                                color: const Color.fromARGB(255, 255, 255, 255),
+                                                                                fontSize: screenWidth * 0.045,
+                                                                                fontWeight: FontWeight.w300,
+                                                                              ),
+                                                                              textAlign: TextAlign.center,
+                                                                            )
+                                                                          : SingleChildScrollView(
+                                                                              child: Column(
+                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    _originController.text,
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w700,
+                                                                                      fontSize: screenWidth * 0.065,
+                                                                                      color: const Color.fromARGB(255, 4, 88, 141),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    _filteredOriginCountries.firstWhere(
+                                                                                      (country) => country['code'] == _originController.text,
+                                                                                      orElse: () => {
+                                                                                        'name': 'Unknown'
+                                                                                      },
+                                                                                    )['name']!,
+                                                                                    style: TextStyle(
+                                                                                      color: const Color.fromARGB(255, 4, 88, 141),
+                                                                                      fontSize: screenWidth * 0.04,
+                                                                                    ),
+                                                                                    textAlign: TextAlign.center,
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                        width:
+                                                            screenWidth * 0.04),
+                                                    Expanded(
+                                                      child:
+                                                          Transform.translate(
+                                                        offset: const Offset(
+                                                            0.50, -20.0),
+                                                        child: Container(
+                                                          margin: EdgeInsets.only(
+                                                              right:
+                                                                  screenWidth *
+                                                                      0.05),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              // Title with Close Button
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  SizedBox(
+                                                                    height:
+                                                                        screenHeight *
+                                                                            0.05,
+                                                                    width:
+                                                                        screenWidth *
+                                                                            0.08,
+                                                                    child: Image
+                                                                        .asset(
+                                                                      'assets/to.png',
+                                                                      width:
+                                                                          screenWidth *
+                                                                              0.1,
+                                                                      height:
+                                                                          screenHeight *
+                                                                              0.01,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                      width: screenWidth *
+                                                                          0.09),
+                                                                  Text(
+                                                                    'To',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          screenWidth *
+                                                                              0.05,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              SizedBox(
+                                                                  height:
+                                                                      screenHeight *
+                                                                          0.015),
+
+                                                              SingleChildScrollView(
+                                                                child:
+                                                                    GestureDetector(
+                                                                  onTap: () {
+                                                                    _searchQuery =
+                                                                        '';
+                                                                    // Show the modal bottom sheet when the container is clicked
+                                                                    showCupertinoModalBottomSheet(
+                                                                      context:
+                                                                          context,
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .transparent,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return StatefulBuilder(
+                                                                          // Ensures real-time updates inside the modal
+                                                                          builder:
+                                                                              (context, setModalState) {
+                                                                            // Ensure focus is requested when the modal opens
+                                                                            Future.delayed(Duration.zero,
+                                                                                () {
+                                                                              _searchFocusNode.requestFocus();
+                                                                            });
+
+                                                                            return Material(
+                                                                              color: Colors.transparent,
+                                                                              child: Container(
+                                                                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                                                                height: screenHeight * 0.88,
+                                                                                decoration: const BoxDecoration(
+                                                                                  color: Colors.white,
+                                                                                  borderRadius: BorderRadius.only(
+                                                                                    topLeft: Radius.circular(16.0),
+                                                                                    topRight: Radius.circular(16.0),
+                                                                                  ),
+                                                                                ),
+                                                                                child: Column(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: [
+                                                                                    Container(
+                                                                                      height: screenHeight * 0.005,
+                                                                                      width: screenWidth * 0.35,
+                                                                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                                                                      decoration: BoxDecoration(
+                                                                                        color: const Color.fromARGB(255, 195, 191, 191),
+                                                                                        borderRadius: BorderRadius.circular(10),
+                                                                                      ),
+                                                                                    ),
+                                                                                    SizedBox(height: screenHeight * 0.02),
+
+                                                                                    // Search TextField
+                                                                                    TextField(
+                                                                                      focusNode: _searchFocusNode,
+                                                                                      cursorColor: const Color.fromARGB(175, 60, 60, 60),
+                                                                                      onChanged: (value) {
+                                                                                        setModalState(() {
+                                                                                          // Update modal UI dynamically
+                                                                                          _searchQuery = value.toLowerCase();
+                                                                                          _filteredDestinationCountries = _flightSearchModel.destinationCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
+                                                                                        });
+                                                                                      },
+                                                                                      decoration: InputDecoration(
+                                                                                        labelText: "Search Destination",
+                                                                                        labelStyle: TextStyle(
+                                                                                          color: const Color.fromARGB(255, 169, 165, 165),
+                                                                                          fontWeight: FontWeight.bold,
+                                                                                          fontSize: screenWidth * 0.035,
+                                                                                        ),
+                                                                                        border: OutlineInputBorder(
+                                                                                          borderRadius: BorderRadius.circular(8.0),
+                                                                                          borderSide: const BorderSide(
+                                                                                            color: Colors.grey,
+                                                                                            width: 1.0,
+                                                                                          ),
+                                                                                        ),
+                                                                                        focusedBorder: OutlineInputBorder(
+                                                                                          borderRadius: BorderRadius.circular(8.0),
+                                                                                          borderSide: const BorderSide(
+                                                                                            color: Color.fromARGB(175, 60, 60, 60),
+                                                                                            width: 1.5,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+
+                                                                                    SizedBox(height: screenHeight * 0.02),
+                                                                                    Container(height: 2, color: Colors.grey[300]),
+
+                                                                                    // Filtered Destination List
+                                                                                    Expanded(
+                                                                                      child: ListView(
+                                                                                        shrinkWrap: true,
+                                                                                        children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                          return Column(
+                                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                            children: [
+                                                                                              ListTile(
+                                                                                                onTap: () {
+                                                                                                  setState(() {
+                                                                                                    _destinationController.text = country['code']!;
+                                                                                                    _flightSearchModel.selectedDestinationCountry = country['name'];
+                                                                                                    _flightSearchModel.selectedDestinationCountryCode = country['code'];
+                                                                                                    _searchQuery = '';
+                                                                                                  });
+                                                                                                  Navigator.pop(context);
+                                                                                                },
+                                                                                                title: Column(
+                                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                                  children: [
+                                                                                                    Text(
+                                                                                                      country['name']!,
+                                                                                                      style: const TextStyle(
+                                                                                                        color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                        fontWeight: FontWeight.w400,
+                                                                                                        fontSize: 16,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                    Text(
+                                                                                                      country['code']!,
+                                                                                                      style: TextStyle(
+                                                                                                        color: const Color.fromARGB(255, 0, 0, 0),
+                                                                                                        fontWeight: FontWeight.w700,
+                                                                                                        fontSize: screenWidth * .035,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              ),
+                                                                                              Divider(
+                                                                                                thickness: 0.8,
+                                                                                                height: 5,
+                                                                                                color: Colors.grey[300],
+                                                                                              ),
+                                                                                            ],
+                                                                                          );
+                                                                                        }).toList(),
+                                                                                      ),
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            );
+                                                                          },
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    width: screenWidth *
+                                                                        0.9, // Adjusted for uniformity
+                                                                    height:
+                                                                        screenHeight *
+                                                                            0.139,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                      color: _destinationController
+                                                                              .text
+                                                                              .isEmpty
+                                                                          ? const Color
+                                                                              .fromARGB(
+                                                                              92,
+                                                                              255,
+                                                                              255,
+                                                                              255) // When no country is selected
+                                                                          : const Color
+                                                                              .fromARGB(
+                                                                              230,
+                                                                              255,
+                                                                              255,
+                                                                              255), // When a country is selected
+                                                                      border:
+                                                                          Border
+                                                                              .all(
+                                                                        color: _destinationController
+                                                                                .text.isEmpty
+                                                                            ? const Color.fromARGB(
+                                                                                17,
+                                                                                190,
+                                                                                190,
+                                                                                190) // When no country is selected
+                                                                            : const Color.fromARGB(
+                                                                                230,
+                                                                                255,
+                                                                                255,
+                                                                                255), // When a country is selected
+                                                                        width:
+                                                                            1.0,
+                                                                      ),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color: Colors
+                                                                              .black
+                                                                              .withOpacity(0.35), // Light shadow
+                                                                          offset: const Offset(
+                                                                              0,
+                                                                              2), // Slight downward shadow
+                                                                          blurRadius:
+                                                                              4.0, // Soft blur effect
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    padding: EdgeInsets.all(
+                                                                        screenWidth *
+                                                                            0.02),
+                                                                    child:
+                                                                        Center(
+                                                                      child: _destinationController
+                                                                              .text
+                                                                              .isEmpty
+                                                                          ? Text(
+                                                                              "Select Destination",
+                                                                              style: TextStyle(
+                                                                                color: const Color.fromARGB(255, 255, 255, 255),
+                                                                                fontSize: screenWidth * 0.045,
+                                                                                fontWeight: FontWeight.w300,
+                                                                              ),
+                                                                              textAlign: TextAlign.center,
+                                                                            )
+                                                                          : SingleChildScrollView(
+                                                                              child: Column(
+                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    _destinationController.text,
+                                                                                    style: TextStyle(
+                                                                                      fontWeight: FontWeight.w700,
+                                                                                      fontSize: screenWidth * 0.065,
+                                                                                      color: const Color.fromARGB(255, 4, 88, 141),
+                                                                                    ),
+                                                                                  ),
+                                                                                  Text(
+                                                                                    _filteredDestinationCountries.firstWhere(
+                                                                                      (country) => country['code'] == _destinationController.text,
+                                                                                      orElse: () => {
+                                                                                        'name': 'Unknown'
+                                                                                      },
+                                                                                    )['name']!,
+                                                                                    style: TextStyle(
+                                                                                      color: const Color.fromARGB(255, 4, 88, 141),
+                                                                                      fontSize: screenWidth * 0.04,
+                                                                                    ),
+                                                                                    textAlign: TextAlign.center,
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                            ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Transform.translate(
+                                                  offset: Offset(
+                                                      screenWidth * 0.37,
+                                                      screenHeight * 0.07),
+                                                  child: Container(
+                                                      width: screenWidth * 0.18,
+                                                      height:
+                                                          screenHeight * 0.05,
+                                                      decoration:
+                                                          const BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        gradient:
+                                                            LinearGradient(
+                                                          colors: [
+                                                            Color.fromARGB(255,
+                                                                192, 73, 22),
+                                                            Color.fromARGB(255,
+                                                                192, 73, 22),
+                                                          ],
+                                                          begin: Alignment
+                                                              .centerLeft,
+                                                          end: Alignment
+                                                              .centerRight,
+                                                        ),
+                                                      ),
+                                                      child: GestureDetector(
+                                                        onTap: _swapCountries,
+                                                        child: Image.asset(
+                                                          'assets/arrows.png',
+                                                          width: screenWidth *
+                                                              0.56,
+                                                          height: screenHeight *
+                                                              0.12,
+                                                        ),
+                                                      )),
+                                                ),
+                                              ],
+                                            ),
+                                            if (_errorMessage != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 5.0, bottom: 8),
+                                                child: Text(
+                                                  _errorMessage!,
+                                                  style: TextStyle(
+                                                      color: Color.fromARGB(
+                                                          255, 209, 77, 20),
+                                                      fontSize:
+                                                          screenWidth * 0.04,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                if (_originController
+                                                        .text.isEmpty ||
+                                                    _destinationController
+                                                        .text.isEmpty) {
+                                                  setState(() {
+                                                    _errorMessage =
+                                                        "Please enter both Origin and Destination";
+                                                  });
+                                                } else {
+                                                  setState(() {
+                                                    _errorMessage = null;
+                                                  });
+                                                  _saveSelectedCountries();
+                                                  _navigateToSelectDatePage(
+                                                      context);
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          9.0),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 28.0),
+                                                elevation: 0,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                              ),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  gradient:
+                                                      const LinearGradient(
+                                                    colors: [
+                                                      Color.fromARGB(
+                                                          255, 209, 77, 20),
+                                                      Color.fromARGB(
+                                                          255, 192, 73, 22),
+                                                    ],
+                                                    begin: Alignment.centerLeft,
+                                                    end: Alignment.centerRight,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          9.0),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(
+                                                              0.35), // Adjust shadow color and opacity
+                                                      blurRadius:
+                                                          4.0, // Adjust blur radius for the shadow size
+                                                      offset: Offset(2,
+                                                          2), // Adjust shadow direction and distance
+                                                    ),
+                                                  ],
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical:
+                                                        screenHeight * 0.015),
+                                                child: Center(
+                                                  child: Text(
+                                                    'Check Availability',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize:
+                                                          screenWidth * 0.038,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(height: screenHeight * 0.12),
+                                      Align(
+                                        alignment: Alignment.bottomRight,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(
+                                              screenWidth * 0.05),
+                                          child: FloatingActionButton(
+                                            onPressed: _showRatingPopup,
+                                            backgroundColor: Color.fromARGB(
+                                                255, 209, 77, 20),
+                                            child: Icon(Icons.info,
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                          bottomNavigationBar: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(22.0)),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color.fromRGBO(2, 77, 117, 1),
+                                    Color.fromRGBO(2, 77, 117, 1),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                              child: BottomNavigationBar(
+                                type: BottomNavigationBarType.fixed,
+                                backgroundColor: Colors.transparent,
+                                elevation: 1,
+                                currentIndex: 1,
+                                selectedItemColor:
+                                    const Color.fromARGB(255, 234, 248, 249),
+                                unselectedItemColor: Colors.white,
+                                onTap: (index) async {
+                                  switch (index) {
+                                    case 0:
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation,
+                                                  secondaryAnimation) =>
+                                              const HistoryPage(),
+                                          transitionDuration:
+                                              const Duration(seconds: 0),
+                                        ),
+                                      );
+                                      break;
+                                    case 1:
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation,
+                                                  secondaryAnimation) =>
+                                              const HomePage(
+                                            selectedDate: '',
+                                          ),
+                                          transitionDuration: const Duration(
+                                              seconds: 0), // No animation
+                                        ),
+                                      );
+                                      break;
+                                    case 2: // My Tickets
+                                      Navigator.push(
+                                        context,
+                                        PageRouteBuilder(
+                                          pageBuilder: (context, animation,
+                                                  secondaryAnimation) =>
+                                              const MyTickets(),
+                                          transitionDuration: const Duration(
+                                              seconds: 0), // No animation
+                                        ),
+                                      );
+                                      break;
+                                    case 3: // Logout
+                                      bool? confirmLogout = await showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text(
+                                              "Confirm Logout",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color.fromRGBO(
+                                                    2, 77, 117, 1),
+                                                fontSize: screenWidth * 0.06,
+                                              ),
+                                            ),
+                                            content: Text(
+                                              "Are you sure you want to log out?",
+                                              style: TextStyle(
+                                                color: const Color.fromRGBO(
+                                                    2, 77, 117, 1),
+                                                fontSize: screenWidth * 0.045,
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(
+                                                      false); // User chose "No"
+                                                },
+                                                child: Text(
+                                                  "No",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    color: const Color.fromRGBO(
+                                                        2, 77, 117, 1),
+                                                    fontSize:
+                                                        screenWidth * 0.042,
+                                                  ),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(
+                                                      true); // User chose "Yes"
+                                                },
+                                                child: Text(
+                                                  "Yes",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    color: const Color.fromRGBO(
+                                                        2, 77, 117, 1),
+                                                    fontSize:
+                                                        screenWidth * 0.042,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+
+                                      // If the user confirms, perform the logout
+                                      if (confirmLogout == true) {
+                                        _logout(); // Call the logout function
+                                      }
+                                      break;
+                                  }
+                                },
+                                items: [
+                                  _buildCustomBottomNavigationBarItem(
+                                      Icons.history, 'History', false),
+                                  _buildCustomBottomNavigationBarItem(
+                                      Icons.home, 'Home', true),
+                                  _buildCustomBottomNavigationBarItem(
+                                      Icons.airplane_ticket_outlined,
+                                      'My Tickets',
+                                      false),
+                                  _buildCustomBottomNavigationBarItem(
+                                      Icons.logout, 'Logout', false),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              }
+            }));
   }
 
   int selectedRating = 0; // Move this outside the method to retain state
@@ -2435,7 +2380,7 @@ class _HomePageState extends State<HomePage> {
                             SizedBox(height: screenHeight * 0.02),
                             Center(
                               child: Image.asset(
-                                'assets/star.png',
+                                'assets/Star${selectedRating == 0 ? 4 : selectedRating}.png',
                                 width: screenWidth * 0.3,
                                 height: screenHeight * 0.1,
                               ),
@@ -2476,15 +2421,28 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      selectedRating = index + 1;
+                                      // If the first star is tapped while the rating is 1, remove it.
+                                      if (index == 0 && selectedRating == 1) {
+                                        selectedRating = 0;
+                                      } else {
+                                        selectedRating = index + 1;
+                                      }
                                     });
+                                    // Vibrate with increasing intensity based on selectedRating
+                                    if (selectedRating <= 1) {
+                                      HapticFeedback.heavyImpact();
+                                    } else if (selectedRating == 2) {
+                                      HapticFeedback.mediumImpact();
+                                    } else if (selectedRating >= 3) {
+                                      HapticFeedback.lightImpact();
+                                    }
                                   },
                                 );
                               }),
                             ),
                           ],
                         ),
-                        SizedBox(height: screenHeight * 0.03),
+                        SizedBox(height: screenHeight * 0.1),
                       ],
                     ),
                   ),
@@ -2499,13 +2457,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Column(
                       children: [
-                        SizedBox(height: screenHeight * 0.005),
                         Text(
                           "V $appVersion",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: screenHeight * 0.0173,
-                            color: Color.fromARGB(136, 128, 126, 126),
+                            color: Color.fromARGB(134, 82, 81, 81),
                           ),
                         ),
                         RichText(
@@ -2516,7 +2473,7 @@ class _HomePageState extends State<HomePage> {
                                 text: "Need help? ",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  color: Color.fromARGB(134, 70, 69, 69),
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -2524,7 +2481,7 @@ class _HomePageState extends State<HomePage> {
                                 text: "Contact IT Service Desk",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  color: Color.fromARGB(134, 82, 81, 81),
                                 ),
                               ),
                             ],
@@ -2539,14 +2496,14 @@ class _HomePageState extends State<HomePage> {
                                 text: "(Ext: ",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  color: Color.fromARGB(134, 82, 81, 81),
                                 ),
                               ),
                               TextSpan(
                                 text: "3000",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  color: Color.fromARGB(134, 70, 69, 69),
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -2554,7 +2511,7 @@ class _HomePageState extends State<HomePage> {
                                 text: ") | 24×7 Support",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(136, 128, 126, 126),
+                                  color: Color.fromARGB(134, 82, 81, 81),
                                 ),
                               ),
                             ],

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
@@ -5,6 +7,57 @@ import './services/api_service.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyLoginPage()), // Navigate to login page
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Full-screen Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/seats.jpg', // Background image
+              //'assets/splash.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Logo at the Bottom
+          Positioned(
+            bottom: -20,
+            left: 15,
+            right: 0,
+            child: Center(
+              child: Image.asset(
+                'assets/Srilankan-white.png', // Logo image
+                height: 70,
+                width: 150,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +72,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyLoginPage(),
+      home: SplashScreen(),
     );
   }
 }

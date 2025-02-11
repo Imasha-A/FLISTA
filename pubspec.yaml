@@ -46,6 +46,7 @@ dependencies:
   dropdown_search: ^5.0.6
   modal_bottom_sheet: ^3.0.0
   package_info_plus: ^8.2.0
+  
 
 
 flutter_icons:
@@ -109,6 +110,16 @@ flutter:
      - assets/world.png
      - assets/arrows.png
      - assets/star.png
+     - assets/homebgnew.png
+     - assets/Star1.png
+     - assets/Star2.png
+     - assets/Star3.png
+     - assets/Star4.png
+     - assets/Star5.png
+     - assets/seats.jpg
+     - assets/splash.png
+
+
 
    
      
