@@ -515,6 +515,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage("assets/homebgnew.png"), context);
+  }
+
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
@@ -540,7 +545,7 @@ class _HomePageState extends State<HomePage> {
                   // Implementation for Android 8 or below
 
                   return Scaffold(
-                    backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+                    backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                     appBar: PreferredSize(
                       preferredSize: const Size.fromHeight(110.0),
                       child: AppBar(
