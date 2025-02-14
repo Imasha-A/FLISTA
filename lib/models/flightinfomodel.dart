@@ -6,6 +6,8 @@ class FlightInfo {
   final String arrivalStation;
   final String departureTime;
   final String arrivalTime;
+  final List confirmedStatus;
+  final String terminal;
 
   FlightInfo({
     required this.flightNo,
@@ -15,18 +17,21 @@ class FlightInfo {
     required this.arrivalStation,
     required this.departureTime,
     required this.arrivalTime,
+    required this.confirmedStatus,
+    required this.terminal,
   });
 
   factory FlightInfo.fromJson(Map<String, dynamic> json) {
     return FlightInfo(
-      flightNo: json['FlightNo'],
-      departureDate: json['DepartureDate'],
-      arrivalDate: json['ArrivalDate'],
-      departureStation: json['DepartureStation'],
-      arrivalStation: json['ArrivalStation'],
-      departureTime: json['DepartuerTime'],
-      arrivalTime: json['ArrivalTime'],
+      flightNo: json['FlightNumber'],
+      departureDate: json['DepDate'],
+      arrivalDate: json['ArrDate'],
+      departureStation: json['Boardpoint'],
+      arrivalStation: json['Offpoint'],
+      departureTime: json['DepTime'],
+      arrivalTime: json['ArrTime'],
+      confirmedStatus: json['ConfirmedStatus'],
+      terminal: json['terminal'],
     );
   }
 }
-

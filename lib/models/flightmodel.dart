@@ -28,4 +28,6 @@ class FlightInformation {
       Offpoint: json['Offpoint'] ?? '',
     );
   }
+
+  get terminal => null;
 }

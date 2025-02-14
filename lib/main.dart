@@ -221,7 +221,6 @@ class _MyLoginPageState extends State<MyLoginPage> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-
         _saveCredentials(username, password);
 
         // Print username and password to console
@@ -254,7 +253,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
         _errorMessage = 'An error occurred. Please try again later.';
         _loginSuccessMessage = null;
       });
-
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:

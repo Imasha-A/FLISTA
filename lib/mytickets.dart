@@ -1,12 +1,16 @@
 import 'package:flista_new/history.dart';
 import 'package:flista_new/home.dart';
 import 'package:flista_new/main.dart';
+import 'package:flista_new/models/staffmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flista_new/models/ticketInformationmodel.dart';
+import 'package:flista_new/models/flightmodel.dart';
+import '../services/api_service.dart';
 
 class MyTickets extends StatefulWidget {
   const MyTickets({super.key});
-
   @override
   State<MyTickets> createState() => _MyTicketsState();
 }
@@ -15,18 +19,97 @@ class _MyTicketsState extends State<MyTickets> {
   String _userName = "username";
   String _userId = "12345";
   bool _isLoading = true;
+  final APIService _apiService = APIService();
+  List<StaffMember> staffMembers = [];
+  List<TicketInformation> allTicketInfo = [];
+  List<FlightInformation> allFlightInfo = [];
+  TicketInformation? ticket;
+  FlightInformation? flight;
 
   @override
   void initState() {
     super.initState();
-    _fetchTicketInformation();
     _loadUserName();
     _loadUserId();
+    _loadUserIdFromPreferences().then((_) async {
+      String pnr = await _fetchPNR(); // Wait for the PNR to be retrieved
+      fetchData(pnr); // Pass the retrieved PNR to fetchData
+    });
+    _loadData();
   }
 
-  Future<void> _fetchTicketInformation() async {
+  Future<void> _loadUserIdFromPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId') ??
+          '16231'; // Load the userId (default to '123456')
+    });
+  }
+
+  //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
+  Future<String> _fetchPNR() async {
+    String pnr = '5TP2SH';
+    return pnr;
+  }
+
+  String formatDate(String date) {
+    final year =
+        "20" + date.substring(4, 6); // Assuming the year is in 'YY' format
+    final month = date.substring(2, 4);
+    final day = date.substring(0, 2);
+
+    final dateTime = DateTime.parse("$year-$month-$day");
+    return DateFormat('dd MMM yyyy').format(dateTime);
+  }
+
+  String formatTime(String time) {
+    final hours = time.substring(0, 2);
+    final minutes = time.substring(2, 4);
+
+    return "$hours:$minutes (Local)";
+  }
+
+  Future<void> fetchData(String pnr) async {
+    try {
+      allTicketInfo = await _apiService.viewTicketInformation(pnr);
+      allFlightInfo = await _apiService.viewFlightInformation(pnr);
+
+      // Print stored ticket details
+      for (var ticket in allTicketInfo) {
+        print(
+            'Name: ${ticket.firstName} ${ticket.lastName}, Ticket No: ${ticket.TicketNumber}, Passport: ${ticket.PassportNumber}, Seat: ${ticket.SeatMapped}, Barcode: ${ticket.Ticket2DBarcode}');
+      }
+      for (var flights in allFlightInfo) {
+        print(
+            'Flight Number: ${flights.flightNumber}, Dep Date: ${flights.depDate}, Dep Time: ${flights.depTime}, Arr Date: ${flights.arrDate}, Arr Time: ${flights.arrTime}, BoardPoint: ${flights.Boardpoint}, Off Point: ${flights.Offpoint},, Off Point: ${flights.terminal}');
+      }
+    } catch (e) {
+      print('Error fetching ticket information: $e');
+    }
+
     await Future.delayed(Duration(seconds: 1));
     setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _loadData() async {
+    String pnr = await _fetchPNR();
+    TicketInformation? fetchedTicket;
+    FlightInformation? fetchedFlight;
+
+    if (pnr.isNotEmpty) {
+      fetchedTicket = await _apiService
+          .viewTicketInformation(pnr)
+          .then((list) => list.isNotEmpty ? list.first : null);
+      fetchedFlight = await _apiService
+          .viewFlightInformation(pnr)
+          .then((list) => list.isNotEmpty ? list.first : null);
+    }
+
+    setState(() {
+      ticket = fetchedTicket;
+      flight = fetchedFlight;
       _isLoading = false;
     });
   }
@@ -40,7 +123,7 @@ class _MyTicketsState extends State<MyTickets> {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/homebgnew.png"), // Change to your image
+          image: AssetImage("assets/homebgnew.png"),
           fit: BoxFit.contain,
         ),
       ),
@@ -127,8 +210,8 @@ class _MyTicketsState extends State<MyTickets> {
                       if (_userId == "23799" ||
                           _userId == "IN1927" ||
                           _userId == "IN1913" ||
-                          _userId == "23933") //temporary
-
+                          _userId == "23933" ||
+                          allTicketInfo != []) //temporary
                         Container(
                             width: screenWidth * 0.99,
                             height: screenHeight * 0.992,
@@ -141,16 +224,13 @@ class _MyTicketsState extends State<MyTickets> {
                               Align(
                                 alignment: Alignment.center,
                                 child: Container(
-                                  width: screenWidth *
-                                      0.875, // Adjust this for the ticket size
-                                  height: screenHeight *
-                                      0.92, // Adjust this for the ticket height
+                                  width: screenWidth * 0.875,
+                                  height: screenHeight * 0.92,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                       image:
                                           AssetImage("assets/ticketCard.png"),
-                                      fit: BoxFit
-                                          .fill, // Ensures the image respects aspect ratio
+                                      fit: BoxFit.fill,
                                     ),
                                   ),
                                 ),
@@ -177,8 +257,28 @@ class _MyTicketsState extends State<MyTickets> {
                                                     fontSize:
                                                         screenWidth * 0.038)),
                                             Text(
-                                              "Chamila Kanchana (N9553378)",
+                                              ticket!.firstName,
                                               style: TextStyle(
+                                                fontSize: screenWidth * 0.04,
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
+                                              ),
+                                            ),
+                                            Text(
+                                              ticket!.lastName,
+                                              style: TextStyle(
+                                                fontSize: screenWidth * 0.04,
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
+                                              ),
+                                            ),
+                                            Text(
+                                              ' (${ticket!.PassportNumber})',
+                                              style: TextStyle(
+                                                  color: const Color.fromARGB(
+                                                      255, 25, 25, 26),
                                                   fontSize: screenWidth * 0.04,
                                                   fontWeight: FontWeight.bold),
                                             ),
@@ -198,14 +298,17 @@ class _MyTicketsState extends State<MyTickets> {
                                                                   screenWidth *
                                                                       0.038)),
                                                       Text(
-                                                        "603 1276598760",
+                                                        ticket!.TicketNumber,
                                                         style: TextStyle(
-                                                            fontSize:
-                                                                screenWidth *
-                                                                    0.04,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                          fontSize:
+                                                              screenWidth *
+                                                                  0.04,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255, 25, 25, 26),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
@@ -221,14 +324,17 @@ class _MyTicketsState extends State<MyTickets> {
                                                                   screenWidth *
                                                                       0.038)),
                                                       Text(
-                                                        "QR1725",
+                                                        ticket!.PNRNumber,
                                                         style: TextStyle(
-                                                            fontSize:
-                                                                screenWidth *
-                                                                    0.04,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                          fontSize:
+                                                              screenWidth *
+                                                                  0.04,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255, 25, 25, 26),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
@@ -259,16 +365,16 @@ class _MyTicketsState extends State<MyTickets> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              "CMB",
+                                              flight!.Boardpoint,
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.07,
-                                                fontWeight: FontWeight.w900,
-                                                color: const Color.fromRGBO(
-                                                    49, 121, 167, 1),
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
                                               ),
                                             ),
                                             Text(
-                                              "Colombo",
+                                              "CITY MAKE",
                                               style: TextStyle(
                                                   fontSize: screenWidth * 0.03,
                                                   fontWeight: FontWeight.bold),
@@ -276,15 +382,19 @@ class _MyTicketsState extends State<MyTickets> {
                                             SizedBox(
                                                 height: screenHeight * 0.01),
                                             Text(
-                                              "17 Jan 2025",
+                                              formatDate(flight!.depDate),
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.03,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
                                               ),
                                             ),
                                             Text(
-                                              "08:00 (Local)",
+                                              formatTime(flight!.depTime),
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.03,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
                                               ),
                                             ),
                                           ],
@@ -310,7 +420,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             Text(
-                                              "Terminal : 1",
+                                              "Terminal${flight!.terminal}",
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.03,
                                               ),
@@ -322,16 +432,16 @@ class _MyTicketsState extends State<MyTickets> {
                                               CrossAxisAlignment.end,
                                           children: [
                                             Text(
-                                              "DXB",
+                                              flight!.Offpoint,
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.07,
-                                                fontWeight: FontWeight.w900,
-                                                color: const Color.fromRGBO(
-                                                    49, 121, 167, 1),
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
                                               ),
                                             ),
                                             Text(
-                                              "Dubai",
+                                              "CITY MAKE",
                                               style: TextStyle(
                                                   fontSize: screenWidth * 0.03,
                                                   fontWeight: FontWeight.bold),
@@ -339,15 +449,19 @@ class _MyTicketsState extends State<MyTickets> {
                                             SizedBox(
                                                 height: screenHeight * 0.01),
                                             Text(
-                                              "17 Jan 2025",
+                                              formatDate(flight!.arrDate),
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.03,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
                                               ),
                                             ),
                                             Text(
-                                              "11:35 AM",
+                                              formatTime(flight!.arrTime),
                                               style: TextStyle(
                                                 fontSize: screenWidth * 0.03,
+                                                color: const Color.fromARGB(
+                                                    255, 25, 25, 26),
                                               ),
                                             ),
                                           ],
@@ -373,14 +487,11 @@ class _MyTicketsState extends State<MyTickets> {
                                                           fontSize:
                                                               screenWidth *
                                                                   0.038)),
-                                                  Text(
-                                                    "SA",
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            screenWidth * 0.04,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
+                                                  Text("SA FIXXX",
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              screenWidth *
+                                                                  0.038)),
                                                 ],
                                               ),
                                             ),
@@ -395,7 +506,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                               screenWidth *
                                                                   0.038)),
                                                   Text(
-                                                    "30KG",
+                                                    "30KG GET",
                                                     style: TextStyle(
                                                         fontSize:
                                                             screenWidth * 0.04,

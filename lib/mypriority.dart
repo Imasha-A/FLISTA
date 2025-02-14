@@ -171,7 +171,6 @@ class _MyPriorityState extends State<MyPriorityPage> {
               print(
                   'Passenger Name: ${ticketInfo.firstName} ${ticketInfo.lastName}');
               print('Ticket Number: ${ticketInfo.TicketNumber}');
-              print('Flight Numbers: ${ticketInfo.FlightNumbers}');
               print('Passport Number: ${ticketInfo.PassportNumber}');
               print('Seat Mapped: ${ticketInfo.SeatMapped}');
 
