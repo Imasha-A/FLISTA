@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:flista_new/models/flightmodel.dart';
 import '../services/api_service.dart';
+import 'package:flista_new/services/image.dart';
 
 class MyTickets extends StatefulWidget {
   const MyTickets({super.key});
@@ -48,7 +49,7 @@ class _MyTicketsState extends State<MyTickets> {
 
   //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
   Future<String> _fetchPNR() async {
-    String pnr = '5TP2SH';
+    String pnr = '5EJUNP';
     return pnr;
   }
 
@@ -257,25 +258,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                     fontSize:
                                                         screenWidth * 0.038)),
                                             Text(
-                                              ticket!.firstName,
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.04,
-                                                fontWeight: FontWeight.bold,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                            Text(
-                                              ticket!.lastName,
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.04,
-                                                fontWeight: FontWeight.bold,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                            Text(
-                                              ' (${ticket!.PassportNumber})',
+                                              '${ticket!.lastName} ${ticket!.firstName} (${ticket!.PassportNumber})',
                                               style: TextStyle(
                                                   color: const Color.fromARGB(
                                                       255, 25, 25, 26),
@@ -341,14 +324,9 @@ class _MyTicketsState extends State<MyTickets> {
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(
-                                                height: screenHeight * 0.01),
-                                            Image.asset(
-                                              'assets/barcode.png',
-                                              width: screenWidth * 0.8,
-                                              height: screenHeight * 0.14,
-                                              fit: BoxFit.contain,
-                                            ),
+                                            BarcodeImage(
+                                                base64String:
+                                                    ticket!.Ticket2DBarcode),
                                           ],
                                         ),
                                       ],
@@ -412,18 +390,12 @@ class _MyTicketsState extends State<MyTickets> {
                                               fit: BoxFit.contain,
                                             ),
                                             SizedBox(
-                                                height: screenHeight * 0.03),
+                                                height: screenHeight * 0.01),
                                             Text(
                                               "UL255",
                                               style: TextStyle(
                                                   fontSize: screenWidth * 0.04,
                                                   fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              "Terminal${flight!.terminal}",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
                                             ),
                                           ],
                                         ),
