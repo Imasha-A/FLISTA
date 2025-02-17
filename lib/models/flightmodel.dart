@@ -6,6 +6,7 @@ class FlightInformation {
   final String arrTime;
   final String Boardpoint;
   final String Offpoint;
+  final List confirmedStatus;
 
   FlightInformation({
     required this.flightNumber,
@@ -15,6 +16,7 @@ class FlightInformation {
     required this.arrTime,
     required this.Boardpoint,
     required this.Offpoint,
+    required this.confirmedStatus,
   });
 
   factory FlightInformation.fromJson(Map<String, dynamic> json) {
@@ -26,8 +28,7 @@ class FlightInformation {
       arrTime: json['ArrTime'] ?? '',
       Boardpoint: json['Boardpoint'] ?? '',
       Offpoint: json['Offpoint'] ?? '',
+      confirmedStatus: json['ConfirmedStatus'] ?? [],
     );
   }
-
-  get terminal => null;
 }

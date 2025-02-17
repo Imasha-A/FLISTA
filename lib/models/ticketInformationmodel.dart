@@ -4,7 +4,7 @@ class TicketInformation {
   final String TicketNumber;
   final String PassportNumber;
   final String SeatMapped;
-  final String Ticket2DBarcode;
+  final String? Ticket2DBarcode;
   final String PNRNumber;
 
   TicketInformation({
@@ -15,7 +15,6 @@ class TicketInformation {
     required this.SeatMapped,
     required this.Ticket2DBarcode,
     required this.PNRNumber,
-    
   });
 
   factory TicketInformation.fromJson(Map<String, dynamic> json) {
@@ -30,4 +29,3 @@ class TicketInformation {
     );
   }
 }
-

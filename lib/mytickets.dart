@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flista_new/history.dart';
 import 'package:flista_new/home.dart';
 import 'package:flista_new/main.dart';
@@ -26,12 +29,14 @@ class _MyTicketsState extends State<MyTickets> {
   List<FlightInformation> allFlightInfo = [];
   TicketInformation? ticket;
   FlightInformation? flight;
+  late Future<List<Map<String, dynamic>>> airportDataFuture;
 
   @override
   void initState() {
     super.initState();
     _loadUserName();
     _loadUserId();
+    airportDataFuture = APIService.getOriginsAndDestinations();
     _loadUserIdFromPreferences().then((_) async {
       String pnr = await _fetchPNR(); // Wait for the PNR to be retrieved
       fetchData(pnr); // Pass the retrieved PNR to fetchData
@@ -49,8 +54,21 @@ class _MyTicketsState extends State<MyTickets> {
 
   //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
   Future<String> _fetchPNR() async {
-    String pnr = '5EJUNP';
+    String pnr = '6ZEQOF';
     return pnr;
+  }
+
+  String? getCityFromCode(String code, List<Map<String, dynamic>> airportData) {
+    final match = airportData.firstWhere(
+      (entry) => entry['code'] == code,
+      orElse: () => {'name': 'Unknown City'}, // Return a valid default map
+    );
+
+    String? fullName = match['name'];
+    if (fullName != null && fullName.contains(" - ")) {
+      return fullName.split(" - ")[0].trim(); // Get the city part
+    }
+    return fullName; // Return as is if no hyphen is found
   }
 
   String formatDate(String date) {
@@ -82,7 +100,7 @@ class _MyTicketsState extends State<MyTickets> {
       }
       for (var flights in allFlightInfo) {
         print(
-            'Flight Number: ${flights.flightNumber}, Dep Date: ${flights.depDate}, Dep Time: ${flights.depTime}, Arr Date: ${flights.arrDate}, Arr Time: ${flights.arrTime}, BoardPoint: ${flights.Boardpoint}, Off Point: ${flights.Offpoint},, Off Point: ${flights.terminal}');
+            'Flight Number: ${flights.flightNumber}, Dep Date: ${flights.depDate}, Dep Time: ${flights.depTime}, Arr Date: ${flights.arrDate}, Arr Time: ${flights.arrTime}, BoardPoint: ${flights.Boardpoint}, Off Point: ${flights.Offpoint}');
       }
     } catch (e) {
       print('Error fetching ticket information: $e');
@@ -120,6 +138,31 @@ class _MyTicketsState extends State<MyTickets> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     _loadUserId();
+    Uint8List? imageBytes;
+
+    if (ticket == null) {
+      print("❌ ticket is NULL");
+    } else {
+      print("✅ ticket exists: ${ticket!.TicketNumber}");
+    }
+
+    if (ticket?.Ticket2DBarcode == null || ticket!.Ticket2DBarcode!.isEmpty) {
+      print("❌ Ticket2DBarcode is NULL or EMPTY");
+    } else {
+      print(
+          "✅ Ticket2DBarcode exists: ${ticket!.Ticket2DBarcode!.substring(0, 20)}..."); // Print only the first 20 chars
+    }
+
+    try {
+      if (ticket?.Ticket2DBarcode != null &&
+          ticket!.Ticket2DBarcode!.isNotEmpty) {
+        imageBytes = base64Decode(ticket!.Ticket2DBarcode!);
+        print("✅ Base64 Decoding Success");
+      }
+    } catch (e) {
+      print("❌ Base64 Decoding Failed: $e");
+    }
+
 
     return Container(
       decoration: BoxDecoration(
@@ -215,7 +258,7 @@ class _MyTicketsState extends State<MyTickets> {
                           allTicketInfo != []) //temporary
                         Container(
                             width: screenWidth * 0.99,
-                            height: screenHeight * 0.992,
+                            height: screenHeight * 1,
                             decoration: BoxDecoration(
                               color: Color.fromRGBO(49, 121, 167, 1),
                               borderRadius: BorderRadius.circular(12),
@@ -226,7 +269,7 @@ class _MyTicketsState extends State<MyTickets> {
                                 alignment: Alignment.center,
                                 child: Container(
                                   width: screenWidth * 0.875,
-                                  height: screenHeight * 0.92,
+                                  height: screenHeight * .95,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                       image:
@@ -236,6 +279,7 @@ class _MyTicketsState extends State<MyTickets> {
                                   ),
                                 ),
                               ),
+
                               // Content Overlay
                               Padding(
                                 padding: EdgeInsets.symmetric(
@@ -324,457 +368,383 @@ class _MyTicketsState extends State<MyTickets> {
                                                 ),
                                               ],
                                             ),
-                                            BarcodeImage(
-                                                base64String:
-                                                    ticket!.Ticket2DBarcode),
+                                            //BarcodeImage(base64String: ticket!.Ticket2DBarcode),
+                                            Center(
+                                              child: imageBytes != null
+                                                  ? Image.memory(imageBytes)
+                                                  : Text(
+                                                      "No barcode available"),
+                                            ),
                                           ],
                                         ),
                                       ],
                                     ),
 
                                     SizedBox(height: screenHeight * 0.04),
-                                    // Main Ticket Information - depart
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              flight!.Boardpoint,
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.07,
-                                                fontWeight: FontWeight.bold,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                            Text(
-                                              "CITY MAKE",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.03,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.01),
-                                            Text(
-                                              formatDate(flight!.depDate),
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                            Text(
-                                              formatTime(flight!.depTime),
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              "assets/airplaneticket.png",
-                                              width: screenWidth * 0.3,
-                                              height: screenHeight * 0.05,
-                                              fit: BoxFit.contain,
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.01),
-                                            Text(
-                                              "UL255",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.04,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              flight!.Offpoint,
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.07,
-                                                fontWeight: FontWeight.bold,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                            Text(
-                                              "CITY MAKE",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.03,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.01),
-                                            Text(
-                                              formatDate(flight!.arrDate),
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                            Text(
-                                              formatTime(flight!.arrTime),
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                                color: const Color.fromARGB(
-                                                    255, 25, 25, 26),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
 
-                                    SizedBox(height: screenHeight * 0.02),
                                     Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(height: screenHeight * 0.01),
-                                        Row(
+                                      children:
+                                          allFlightInfo.map<Widget>((flight) {
+                                        return Column(
                                           children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text("Status",
+                                            // Main Ticket Information - Departure and Arrival
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                // Departure Info
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      flight.Boardpoint,
                                                       style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth *
-                                                                  0.038)),
-                                                  Text("SA FIXXX",
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth *
-                                                                  0.038)),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text("Baggage",
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth *
-                                                                  0.038)),
-                                                  Text(
-                                                    "30KG GET",
-                                                    style: TextStyle(
                                                         fontSize:
-                                                            screenWidth * 0.04,
+                                                            screenWidth * 0.07,
                                                         fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  Text("Duration",
+                                                            FontWeight.bold,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                      ),
+                                                    ),
+                                                    FutureBuilder<
+                                                        List<
+                                                            Map<String,
+                                                                dynamic>>>(
+                                                      future:
+                                                          airportDataFuture, // Use the initialized Future
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return Text(
+                                                            "Loading...",
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    screenWidth *
+                                                                        0.03),
+                                                          );
+                                                        } else if (snapshot
+                                                                .hasError ||
+                                                            !snapshot.hasData ||
+                                                            snapshot.data!
+                                                                .isEmpty) {
+                                                          return Text(
+                                                            "Error fetching country",
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    screenWidth *
+                                                                        0.03),
+                                                          );
+                                                        }
+
+                                                        final country =
+                                                            getCityFromCode(
+                                                                flight
+                                                                    .Boardpoint,
+                                                                snapshot.data!);
+                                                        return Text(
+                                                          country ??
+                                                              "Unknown country",
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  screenWidth *
+                                                                      0.03),
+                                                        );
+                                                      },
+                                                    ),
+                                                    SizedBox(
+                                                        height: screenHeight *
+                                                            0.01),
+                                                    Text(
+                                                      formatDate(
+                                                          flight.depDate),
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.03,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      formatTime(
+                                                          flight.depTime),
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.03,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                // Flight Image
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/airplaneticket.png",
+                                                      width: screenWidth * 0.3,
+                                                      height:
+                                                          screenHeight * 0.05,
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                    SizedBox(
+                                                        height: screenHeight *
+                                                            0.01),
+                                                    Text(
+                                                      "UL255",
                                                       style: TextStyle(
                                                           fontSize:
                                                               screenWidth *
-                                                                  0.038)),
-                                                  Text(
-                                                    "03:35",
-                                                    style: TextStyle(
+                                                                  0.04,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ],
+                                                ),
+                                                // Arrival Info
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  children: [
+                                                    Text(
+                                                      flight.Offpoint,
+                                                      style: TextStyle(
                                                         fontSize:
-                                                            screenWidth * 0.04,
+                                                            screenWidth * 0.07,
                                                         fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
+                                                            FontWeight.bold,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                      ),
+                                                    ),
+                                                    FutureBuilder<
+                                                        List<
+                                                            Map<String,
+                                                                dynamic>>>(
+                                                      future:
+                                                          airportDataFuture, // Use the initialized Future
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return Text(
+                                                            "Loading...",
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    screenWidth *
+                                                                        0.03),
+                                                          );
+                                                        } else if (snapshot
+                                                                .hasError ||
+                                                            !snapshot.hasData ||
+                                                            snapshot.data!
+                                                                .isEmpty) {
+                                                          return Text(
+                                                            "Error fetching country",
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    screenWidth *
+                                                                        0.03),
+                                                          );
+                                                        }
+
+                                                        final country =
+                                                            getCityFromCode(
+                                                                flight.Offpoint,
+                                                                snapshot.data!);
+                                                        return Text(
+                                                          country ??
+                                                              "Unknown country",
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  screenWidth *
+                                                                      0.03),
+                                                        );
+                                                      },
+                                                    ),
+                                                    SizedBox(
+                                                        height: screenHeight *
+                                                            0.01),
+                                                    Text(
+                                                      formatDate(
+                                                          flight.arrDate),
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.03,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      formatTime(
+                                                          flight.arrTime),
+                                                      style: TextStyle(
+                                                        fontSize:
+                                                            screenWidth * 0.03,
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        SizedBox(height: screenHeight * 0.01),
-                                        Center(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              // Define the action when the button is pressed
-                                              print(
-                                                  'Excess Baggage button pressed');
-                                            },
-                                            child: Text('Excess Baggage'),
-                                            style: ElevatedButton.styleFrom(
-                                              disabledBackgroundColor:
-                                                  Color.fromARGB(255, 238, 238,
-                                                      243), // Background color when disabled
-                                              elevation: 0,
-                                              foregroundColor:
-                                                  const Color.fromARGB(255, 107,
-                                                      109, 118), // Text color
-                                              backgroundColor: const Color
-                                                  .fromARGB(255, 255, 255,
-                                                  255), // Button background color
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal:
-                                                      screenWidth * 0.25,
-                                                  vertical: screenHeight *
-                                                      0.005), // Button padding
-                                              textStyle: TextStyle(
-                                                  fontSize: screenWidth *
-                                                      0.037), // Text size
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        5), // Rounded corners
-                                                side: BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255,
-                                                      144,
-                                                      140,
-                                                      159), // Border color
-                                                  width: 1, // Border width
+                                            // Additional Flight Details
+                                            SizedBox(
+                                                height: screenHeight * 0.02),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text("Status",
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  screenWidth *
+                                                                      0.038)),
+                                                      Text(
+                                                        flight.confirmedStatus
+                                                                .isNotEmpty
+                                                            ? flight.confirmedStatus[
+                                                                0] // Display the first status element
+                                                            : "N/A", // Fallback text if the list is empty
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.038,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text("Baggage",
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  screenWidth *
+                                                                      0.038)),
+                                                      Text(
+                                                        "GET",
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.04,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Text("Duration",
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  screenWidth *
+                                                                      0.038)),
+                                                      Text(
+                                                        "03:35",
+                                                        style: TextStyle(
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.04,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Center(
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  // Define the action when the button is pressed
+                                                  print(
+                                                      'Excess Baggage button pressed');
+                                                },
+                                                child: Text('Excess Baggage'),
+                                                style: ElevatedButton.styleFrom(
+                                                  disabledBackgroundColor:
+                                                      Color.fromARGB(
+                                                          255,
+                                                          238,
+                                                          238,
+                                                          243), // Background color when disabled
+                                                  elevation: 0,
+                                                  foregroundColor:
+                                                      const Color.fromARGB(
+                                                          255,
+                                                          107,
+                                                          109,
+                                                          118), // Text color
+                                                  backgroundColor: const Color
+                                                      .fromARGB(255, 255, 255,
+                                                      255), // Button background color
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          screenWidth * 0.25,
+                                                      vertical: screenHeight *
+                                                          0.005), // Button padding
+                                                  textStyle: TextStyle(
+                                                      fontSize: screenWidth *
+                                                          0.037), // Text size
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5), // Rounded corners
+                                                    side: BorderSide(
+                                                      color: Color.fromARGB(
+                                                          255,
+                                                          144,
+                                                          140,
+                                                          159), // Border color
+                                                      width: 1, // Border width
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                        SizedBox(height: screenHeight * 0.04),
-                                      ],
-                                    ),
-                                    // Main Ticket Information - arrival
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "DXB",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.07,
-                                                fontWeight: FontWeight.w900,
-                                                color: const Color.fromRGBO(
-                                                    49, 121, 167, 1),
-                                              ),
-                                            ),
-                                            Text(
-                                              "Dubai",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.03,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
                                             SizedBox(
-                                                height: screenHeight * 0.01),
-                                            Text(
-                                              "30 Jan 2025",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
-                                            ),
-                                            Text(
-                                              "11:00 (Local)",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
-                                            ),
+                                                height: screenHeight * 0.02),
+                                            Divider(
+                                                color: Colors
+                                                    .grey), // Adds a separator between flights
                                           ],
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Image.asset(
-                                              "assets/airplaneticket.png",
-                                              width: screenWidth * 0.3,
-                                              height: screenHeight * 0.05,
-                                              fit: BoxFit.contain,
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.03),
-                                            Text(
-                                              "UL256",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.04,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              "Terminal : 1",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              "CMB",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.07,
-                                                fontWeight: FontWeight.w900,
-                                                color: const Color.fromRGBO(
-                                                    49, 121, 167, 1),
-                                              ),
-                                            ),
-                                            Text(
-                                              "Colombo",
-                                              style: TextStyle(
-                                                  fontSize: screenWidth * 0.03,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            SizedBox(
-                                                height: screenHeight * 0.01),
-                                            Text(
-                                              "30 Jan 2025",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
-                                            ),
-                                            Text(
-                                              "02:17 AM",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-
-                                    SizedBox(height: screenHeight * 0.02),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(height: screenHeight * 0.01),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text("Status",
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth *
-                                                                  0.038)),
-                                                  Text(
-                                                    "SA",
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            screenWidth * 0.04,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Text("Baggage",
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth *
-                                                                  0.038)),
-                                                  Text(
-                                                    "30KG",
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            screenWidth * 0.04,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  Text("Duration",
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              screenWidth *
-                                                                  0.038)),
-                                                  Text(
-                                                    "03:17",
-                                                    style: TextStyle(
-                                                        fontSize:
-                                                            screenWidth * 0.04,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: screenHeight * 0.01),
-                                        Center(
-                                          child: ElevatedButton(
-                                            onPressed:
-                                                null, // Setting onPressed to null disables the button
-                                            child: Text('Excess Baggage'),
-                                            style: ElevatedButton.styleFrom(
-                                              disabledBackgroundColor:
-                                                  Color.fromARGB(255, 238, 238,
-                                                      243), // Background color when disabled
-                                              elevation: 0,
-                                              foregroundColor:
-                                                  const Color.fromARGB(255, 107,
-                                                      109, 118), // Text color
-                                              backgroundColor: const Color
-                                                  .fromARGB(255, 255, 255,
-                                                  255), // Button background color
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal:
-                                                      screenWidth * 0.25,
-                                                  vertical:
-                                                      screenHeight * 0.005),
-                                              textStyle: TextStyle(
-                                                  fontSize:
-                                                      screenWidth * 0.037),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                side: BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 144, 140, 159),
-                                                  width: 1,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                        );
+                                      }).toList(), // Convert the map to a List<Widget>
                                     ),
                                   ],
                                 ),
