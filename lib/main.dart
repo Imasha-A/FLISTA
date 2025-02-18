@@ -253,7 +253,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
         _errorMessage = 'An error occurred. Please try again later.';
         _loginSuccessMessage = null;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:

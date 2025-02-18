@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:flista_new/models/flightmodel.dart';
 import '../services/api_service.dart';
-import 'package:flista_new/services/image.dart';
 
 class MyTickets extends StatefulWidget {
   const MyTickets({super.key});
@@ -30,6 +29,7 @@ class _MyTicketsState extends State<MyTickets> {
   TicketInformation? ticket;
   FlightInformation? flight;
   late Future<List<Map<String, dynamic>>> airportDataFuture;
+  Uint8List? imageBytes;
 
   @override
   void initState() {
@@ -42,6 +42,7 @@ class _MyTicketsState extends State<MyTickets> {
       fetchData(pnr); // Pass the retrieved PNR to fetchData
     });
     _loadData();
+    _loadUserId();
   }
 
   Future<void> _loadUserIdFromPreferences() async {
@@ -131,38 +132,35 @@ class _MyTicketsState extends State<MyTickets> {
       flight = fetchedFlight;
       _isLoading = false;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    _loadUserId();
-    Uint8List? imageBytes;
 
     if (ticket == null) {
-      print("❌ ticket is NULL");
+      print("ticket is NULL");
     } else {
-      print("✅ ticket exists: ${ticket!.TicketNumber}");
+      print("ticket exists: ${ticket!.TicketNumber}");
     }
 
     if (ticket?.Ticket2DBarcode == null || ticket!.Ticket2DBarcode!.isEmpty) {
-      print("❌ Ticket2DBarcode is NULL or EMPTY");
+      print("Ticket2DBarcode is NULL or EMPTY");
     } else {
       print(
-          "✅ Ticket2DBarcode exists: ${ticket!.Ticket2DBarcode!.substring(0, 20)}..."); // Print only the first 20 chars
+          "Ticket2DBarcode exists: ${ticket!.Ticket2DBarcode!.substring(0, 20)}..."); // Print only the first 20 chars
     }
 
     try {
       if (ticket?.Ticket2DBarcode != null &&
           ticket!.Ticket2DBarcode!.isNotEmpty) {
         imageBytes = base64Decode(ticket!.Ticket2DBarcode!);
-        print("✅ Base64 Decoding Success");
+        print("Base64 Decoding Success");
       }
     } catch (e) {
-      print("❌ Base64 Decoding Failed: $e");
+      print("Base64 Decoding Failed: $e");
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
       decoration: BoxDecoration(
@@ -258,7 +256,7 @@ class _MyTicketsState extends State<MyTickets> {
                           allTicketInfo != []) //temporary
                         Container(
                             width: screenWidth * 0.99,
-                            height: screenHeight * 1,
+                            height: screenHeight * .99,
                             decoration: BoxDecoration(
                               color: Color.fromRGBO(49, 121, 167, 1),
                               borderRadius: BorderRadius.circular(12),
@@ -368,25 +366,36 @@ class _MyTicketsState extends State<MyTickets> {
                                                 ),
                                               ],
                                             ),
-                                            //BarcodeImage(base64String: ticket!.Ticket2DBarcode),
+                                            SizedBox(
+                                                height: screenHeight * 0.01),
                                             Center(
                                               child: imageBytes != null
-                                                  ? Image.memory(imageBytes)
+                                                  ? Container(
+                                                      width: screenWidth *
+                                                          0.8, // Set your desired width
+                                                      height: screenHeight *
+                                                          0.1, // Set your desired height
+                                                      child: Image.memory(
+                                                        imageBytes!,
+                                                        fit: BoxFit
+                                                            .contain, // Optional: adjust how the image fits inside the box
+                                                      ),
+                                                    )
                                                   : Text(
                                                       "No barcode available"),
-                                            ),
+                                            )
                                           ],
                                         ),
                                       ],
                                     ),
-
-                                    SizedBox(height: screenHeight * 0.04),
 
                                     Column(
                                       children:
                                           allFlightInfo.map<Widget>((flight) {
                                         return Column(
                                           children: [
+                                            SizedBox(
+                                                height: screenHeight * 0.05),
                                             // Main Ticket Information - Departure and Arrival
                                             Row(
                                               mainAxisAlignment:
@@ -688,6 +697,8 @@ class _MyTicketsState extends State<MyTickets> {
                                                 ),
                                               ],
                                             ),
+                                            SizedBox(
+                                                height: screenHeight * 0.025),
                                             Center(
                                               child: ElevatedButton(
                                                 onPressed: () {
@@ -738,10 +749,7 @@ class _MyTicketsState extends State<MyTickets> {
                                               ),
                                             ),
                                             SizedBox(
-                                                height: screenHeight * 0.02),
-                                            Divider(
-                                                color: Colors
-                                                    .grey), // Adds a separator between flights
+                                                height: screenHeight * 0.005),
                                           ],
                                         );
                                       }).toList(), // Convert the map to a List<Widget>
