@@ -29,27 +29,29 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
           // Full-screen Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/seats.png', // Background image
-              //'assets/splash.png',
+              'assets/seats.png',
               fit: BoxFit.cover,
             ),
           ),
           // Logo at the Bottom
           Positioned(
             bottom: -20,
-            left: 15,
+            left: 23,
             right: 0,
             child: Center(
               child: Image.asset(
-                'assets/Srilankan-white.png', // Logo image
-                height: 70,
-                width: 150,
+                'assets/Srilankan-white.png',
+                height: screenHeight * 0.08,
+                width: screenWidth * .33,
                 fit: BoxFit.contain,
               ),
             ),
