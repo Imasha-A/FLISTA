@@ -29,29 +29,27 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       body: Stack(
         children: [
           // Full-screen Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/seats.png',
+              'assets/seats.png', // Background image
+              //'assets/splash.png',
               fit: BoxFit.cover,
             ),
           ),
           // Logo at the Bottom
           Positioned(
             bottom: -20,
-            left: 23,
+            left: 15,
             right: 0,
             child: Center(
               child: Image.asset(
-                'assets/Srilankan-white.png',
-                height: screenHeight * 0.08,
-                width: screenWidth * .33,
+                'assets/Srilankan-white.png', // Logo image
+                height: 70,
+                width: 150,
                 fit: BoxFit.contain,
               ),
             ),
@@ -255,7 +253,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
         _errorMessage = 'An error occurred. Please try again later.';
         _loginSuccessMessage = null;
       });
-
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:
@@ -372,66 +370,44 @@ class _MyLoginPageState extends State<MyLoginPage> {
         },
         child: Stack(
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white,
-                    Color(0xFF004A73),
-                  ],
-                  stops: [
-                    0.35,
-                    1.0,
-                  ],
-                ),
-              ),
-            ),
-            // Positioned login image in the background
-            Positioned(
-              top: 30, // Position it at the top
-              left: 0,
-              right: 0,
+            // Full-screen background image
+            Positioned.fill(
               child: Image.asset(
-                'assets/login_image.png',
-                fit: BoxFit
-                    .cover, // Ensure the image maintains its aspect ratio and covers the top part
-                width: double.infinity,
-                height: screenHeight * 0.35, // Adjust the height as needed
+                'assets/flistalogin.png', // Ensure this path is correct
+                fit: BoxFit.cover, // Cover the entire screen
               ),
             ),
+            
+            // Content (keeps the gradient if needed)
             SingleChildScrollView(
-              // Wrap the entire content in SingleChildScrollView
               child: Column(
                 children: [
                   SizedBox(height: screenHeight * 0.4),
-                  // Content area
                   Padding(
-                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    padding: EdgeInsets.all(screenWidth * 0.11),
                     child: Column(
                       children: <Widget>[
+                        // Logo
                         Transform.translate(
-                          offset: Offset(0.0, screenHeight * 0.05),
+                          offset: Offset(0.0, screenHeight * 0.08),
                           child: Image.asset(
                             'assets/logo.png',
                             height: logoHeight,
-                            width: screenWidth * 0.7,
+                            width: screenWidth * 0.45,
                           ),
                         ),
+                        SizedBox(height: screenHeight * 0.09),
+
                         // Staff ID TextField
-                        SizedBox(height: screenHeight * 0.06),
                         Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: textFieldPadding,
-                              vertical: textFieldHeight * 0.15),
-                          margin: EdgeInsets.all(buttonMargin * 0.9),
+                              vertical: textFieldHeight * 0.1),
+                          margin: EdgeInsets.all(buttonMargin * 0.5),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            border: Border.all(
-                                color: Colors.white.withOpacity(0.8)),
-                            borderRadius:
-                                BorderRadius.circular(screenWidth * 0.04),
+                            color: Colors.white.withOpacity(0.05),
+                            border: Border.all(color: Colors.white.withOpacity(0.8)),
+                            borderRadius: BorderRadius.circular(screenWidth * 0.04),
                           ),
                           child: TextField(
                             controller: _usernameController,
@@ -442,26 +418,24 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: textFieldFontSize,
                               ),
-                              prefixIcon:
-                                  const Icon(Icons.person, color: Colors.white),
+                              prefixIcon: const Icon(Icons.person, color: Colors.white),
                               border: InputBorder.none,
                             ),
                             textAlign: TextAlign.left,
                             style: TextStyle(fontSize: textFieldFontSize),
                           ),
                         ),
+                        
                         // Password TextField
                         Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: textFieldPadding,
-                              vertical: textFieldHeight * 0.15),
-                          margin: EdgeInsets.all(buttonMargin * 0.9),
+                              vertical: textFieldHeight * 0.1),
+                          margin: EdgeInsets.all(buttonMargin * 0.5),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.455),
-                            border: Border.all(
-                                color: Colors.white.withOpacity(0.8)),
-                            borderRadius:
-                                BorderRadius.circular(screenWidth * 0.04),
+                            color: Colors.white.withOpacity(0.05),
+                            border: Border.all(color: Colors.white.withOpacity(0.8)),
+                            borderRadius: BorderRadius.circular(screenWidth * 0.04),
                           ),
                           child: TextField(
                             controller: _passwordController,
@@ -472,13 +446,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: textFieldFontSize,
                               ),
-                              prefixIcon:
-                                  const Icon(Icons.lock, color: Colors.white),
+                              prefixIcon: const Icon(Icons.lock, color: Colors.white),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _obscureText
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
+                                  _obscureText ? Icons.visibility_off : Icons.visibility,
                                   color: Colors.white,
                                 ),
                                 onPressed: _togglePasswordVisibility,
@@ -490,30 +461,30 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             style: TextStyle(fontSize: textFieldFontSize),
                           ),
                         ),
+
                         SizedBox(height: screenHeight * 0.01),
+
                         // Login Button
                         Container(
                           width: double.infinity,
                           height: buttonHeight * 0.85,
-                          margin:
-                              EdgeInsets.symmetric(horizontal: buttonMargin),
+                          margin: EdgeInsets.symmetric(horizontal: buttonMargin*0.5),
                           decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(screenWidth * 0.03),
+                            borderRadius: BorderRadius.circular(screenWidth * 0.03),
                           ),
                           child: ElevatedButton(
                             onPressed: _login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 235, 98, 39),
+                              backgroundColor: const Color.fromARGB(255, 235, 98, 39),
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(screenWidth * 0.04),
+                                borderRadius: BorderRadius.circular(screenWidth * 0.04),
+                                
                               ),
+                              elevation: 5,
+                              shadowColor: Colors.black,
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
+                                ? const CircularProgressIndicator(color: Colors.white)
                                 : Text(
                                     'Login',
                                     style: TextStyle(
@@ -524,6 +495,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                   ),
                           ),
                         ),
+
                         if (_errorMessage != null)
                           Padding(
                             padding: EdgeInsets.only(top: screenHeight * 0.02),
@@ -535,9 +507,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
                               ),
                             ),
                           ),
+
                         // Bottom Logo
                         Padding(
-                          padding: EdgeInsets.only(top: screenHeight * 0.06),
+                          padding: EdgeInsets.only(top: screenHeight * 0.045),
                           child: Image.asset(
                             'assets/Srilankan-white.png',
                             height: screenHeight * 0.03,

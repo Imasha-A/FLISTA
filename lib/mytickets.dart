@@ -250,35 +250,6 @@ class _MyTicketsState extends State<MyTickets> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        margin: EdgeInsets.only(bottom: screenHeight * 0.02),
-                        width: screenWidth * 0.7,
-                        child: DropdownButton<String>(
-                          value: selectedValue,
-                          isExpanded: true,
-                          items: [
-                            // Add the "All" option
-                            DropdownMenuItem(
-                              value: 'all',
-                              child: Text('All'),
-                            ),
-                            // Iterate over allTicketInfo to create DropdownMenuItem for each passenger
-                            ...allTicketInfo.map((ticket) {
-                              String fullName =
-                                  '${ticket.firstName} ${ticket.lastName}';
-                              return DropdownMenuItem(
-                                value: fullName,
-                                child: Text(fullName),
-                              );
-                            }).toList(),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              selectedValue = value!;
-                            });
-                          },
-                        ),
-                      ),
                       //REPLACE WITH IF INFO IS THERE IN API, PASS THE ID TO API AND SEE IF DETAILS RETURN
                       if (_userId == "23799" ||
                           _userId == "IN1927" ||
@@ -296,6 +267,54 @@ class _MyTicketsState extends State<MyTickets> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Stack(children: [
+                                  Positioned(
+                                    top: screenHeight * 0.01,
+                                    right: screenWidth * 0.035,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: screenWidth * .02,
+                                          vertical: screenWidth * 0.001),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          value: selectedValue,
+                                          // Using minimal style to match the white box
+                                          icon:
+                                              const Icon(Icons.arrow_drop_down),
+                                          items: [
+                                            DropdownMenuItem(
+                                              value: 'all',
+                                              child: Text('All'),
+                                            ),
+                                            ...allTicketInfo.map((ticket) {
+                                              String fullName =
+                                                  '${ticket.firstName} ${ticket.lastName}';
+                                              return DropdownMenuItem(
+                                                value: fullName,
+                                                child: Text(
+                                                  fullName,
+                                                  style: TextStyle(
+                                                      fontSize:
+                                                          screenWidth * 0.035),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ],
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedValue = value!;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                   // Content Overlay
                                   Padding(
                                     padding: EdgeInsets.symmetric(
@@ -306,6 +325,7 @@ class _MyTicketsState extends State<MyTickets> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.stretch,
                                       children: [
+                                        SizedBox(height: screenHeight * 0.06),
                                         // Header Section
                                         Container(
                                           width: double
