@@ -253,7 +253,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
         _errorMessage = 'An error occurred. Please try again later.';
         _loginSuccessMessage = null;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content:
@@ -377,7 +377,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 fit: BoxFit.cover, // Cover the entire screen
               ),
             ),
-            
+
             // Content (keeps the gradient if needed)
             SingleChildScrollView(
               child: Column(
@@ -406,8 +406,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
                           margin: EdgeInsets.all(buttonMargin * 0.5),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.05),
-                            border: Border.all(color: Colors.white.withOpacity(0.8)),
-                            borderRadius: BorderRadius.circular(screenWidth * 0.04),
+                            border: Border.all(
+                                color: Colors.white.withOpacity(0.8)),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.04),
                           ),
                           child: TextField(
                             controller: _usernameController,
@@ -418,14 +420,15 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: textFieldFontSize,
                               ),
-                              prefixIcon: const Icon(Icons.person, color: Colors.white),
+                              prefixIcon:
+                                  const Icon(Icons.person, color: Colors.white),
                               border: InputBorder.none,
                             ),
                             textAlign: TextAlign.left,
                             style: TextStyle(fontSize: textFieldFontSize),
                           ),
                         ),
-                        
+
                         // Password TextField
                         Container(
                           padding: EdgeInsets.symmetric(
@@ -434,8 +437,10 @@ class _MyLoginPageState extends State<MyLoginPage> {
                           margin: EdgeInsets.all(buttonMargin * 0.5),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.05),
-                            border: Border.all(color: Colors.white.withOpacity(0.8)),
-                            borderRadius: BorderRadius.circular(screenWidth * 0.04),
+                            border: Border.all(
+                                color: Colors.white.withOpacity(0.8)),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.04),
                           ),
                           child: TextField(
                             controller: _passwordController,
@@ -446,10 +451,13 @@ class _MyLoginPageState extends State<MyLoginPage> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: textFieldFontSize,
                               ),
-                              prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                              prefixIcon:
+                                  const Icon(Icons.lock, color: Colors.white),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _obscureText ? Icons.visibility_off : Icons.visibility,
+                                  _obscureText
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
                                   color: Colors.white,
                                 ),
                                 onPressed: _togglePasswordVisibility,
@@ -468,23 +476,27 @@ class _MyLoginPageState extends State<MyLoginPage> {
                         Container(
                           width: double.infinity,
                           height: buttonHeight * 0.85,
-                          margin: EdgeInsets.symmetric(horizontal: buttonMargin*0.5),
+                          margin: EdgeInsets.symmetric(
+                              horizontal: buttonMargin * 0.5),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(screenWidth * 0.03),
+                            borderRadius:
+                                BorderRadius.circular(screenWidth * 0.03),
                           ),
                           child: ElevatedButton(
                             onPressed: _login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 235, 98, 39),
+                              backgroundColor:
+                                  const Color.fromARGB(255, 235, 98, 39),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(screenWidth * 0.04),
-                                
+                                borderRadius:
+                                    BorderRadius.circular(screenWidth * 0.04),
                               ),
                               elevation: 5,
                               shadowColor: Colors.black,
                             ),
                             child: _isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
                                 : Text(
                                     'Login',
                                     style: TextStyle(

@@ -7,6 +7,7 @@ class FlightInformation {
   final String Boardpoint;
   final String Offpoint;
   final List confirmedStatus;
+  final String SegmentTattooNumber;
 
   FlightInformation({
     required this.flightNumber,
@@ -17,6 +18,7 @@ class FlightInformation {
     required this.Boardpoint,
     required this.Offpoint,
     required this.confirmedStatus,
+    required this.SegmentTattooNumber,
   });
 
   factory FlightInformation.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class FlightInformation {
       Boardpoint: json['Boardpoint'] ?? '',
       Offpoint: json['Offpoint'] ?? '',
       confirmedStatus: json['ConfirmedStatus'] ?? [],
+      SegmentTattooNumber: json['SegmentTattooNumber'] ?? [],
     );
   }
 }

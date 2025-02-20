@@ -5,6 +5,7 @@ import 'package:flista_new/history.dart';
 import 'package:flista_new/home.dart';
 import 'package:flista_new/main.dart';
 import 'package:flista_new/models/staffmodel.dart';
+import 'package:flista_new/models/staffpnrmodal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,9 +57,29 @@ class _MyTicketsState extends State<MyTickets> {
 
   //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
   Future<String> _fetchPNR() async {
-    String pnr = '6ZEQOF';
+    String pnr = '5VU8HD';
     return pnr;
   }
+
+  // Future<String> _fetchPNR() async {
+  //   try {
+  //     if (_userId.isEmpty) {
+  //       await _loadUserIdFromPreferences(); // Ensure _userId is loaded
+  //     }
+
+  //     List<StaffPNRModal> pnrList = await _apiService.viewStaffPNR(_userId);
+
+  //     if (pnrList.isNotEmpty) {
+  //       String pnr = pnrList.first.pnr;
+  //       print("Fetched PNR: $pnr");
+  //       return pnr; // Successfully fetched PNR
+  //     }
+  //   } catch (e) {
+  //     print("Error fetching PNR: $e");
+  //   }
+
+  //   return "No PNR found"; // Return a default message without throwing an exception
+  // }
 
   String? getCityFromCode(String code, List<Map<String, dynamic>> airportData) {
     final match = airportData.firstWhere(
@@ -107,6 +128,7 @@ class _MyTicketsState extends State<MyTickets> {
     } catch (e) {
       print('Error fetching ticket information: $e');
     }
+    print(allTicketInfo);
 
     await Future.delayed(Duration(seconds: 1));
     setState(() {
@@ -162,7 +184,12 @@ class _MyTicketsState extends State<MyTickets> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
+    List<TicketInformation> displayedTickets = selectedValue == 'all'
+        ? allTicketInfo
+        : allTicketInfo.where((ticket) {
+            String fullName = '${ticket.firstName} ${ticket.lastName}';
+            return fullName == selectedValue;
+          }).toList();
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -251,13 +278,12 @@ class _MyTicketsState extends State<MyTickets> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       //REPLACE WITH IF INFO IS THERE IN API, PASS THE ID TO API AND SEE IF DETAILS RETURN
-                      if (_userId == "23799" ||
-                          _userId == "IN1927" ||
+                      if (_userId == "IN1927" ||
                           _userId == "IN1913" ||
                           _userId == "23933" ||
-                          allTicketInfo != []) //temporary
+                          allTicketInfo.isNotEmpty) //temporary
                         Column(
-                          children: allTicketInfo.map<Widget>((ticket) {
+                          children: displayedTickets.map<Widget>((ticket) {
                             return Container(
                                 margin: EdgeInsets.only(
                                     bottom: screenHeight * 0.02),

@@ -6,6 +6,7 @@ class TicketInformation {
   final String SeatMapped;
   final String? Ticket2DBarcode;
   final String PNRNumber;
+  final List<dynamic>? baggageAllowances; // Added field for baggage allowances
 
   TicketInformation({
     required this.firstName,
@@ -15,6 +16,7 @@ class TicketInformation {
     required this.SeatMapped,
     required this.Ticket2DBarcode,
     required this.PNRNumber,
+    this.baggageAllowances,
   });
 
   factory TicketInformation.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,9 @@ class TicketInformation {
       SeatMapped: json['SeatMapped'] ?? '',
       Ticket2DBarcode: json['Ticket2DBarcode'] ?? '',
       PNRNumber: json['PNRNumber'] ?? '',
+      baggageAllowances: json['BaggageAllowances'] != null
+          ? json['BaggageAllowances'] as List<dynamic>
+          : null,
     );
   }
 }
