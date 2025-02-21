@@ -32,6 +32,9 @@ class _MyTicketsState extends State<MyTickets> {
   late Future<List<Map<String, dynamic>>> airportDataFuture;
   Uint8List? imageBytes;
   String selectedValue = 'all';
+  String standardBaggageAllowance = '';
+  String segmentTattooNumber = '';
+  String excessBaggageInfo = ''; // Or a more appropriate default type if needed
 
   @override
   void initState() {
@@ -111,6 +114,50 @@ class _MyTicketsState extends State<MyTickets> {
     return "$hours:$minutes (Local)";
   }
 
+// Helper to get the standard baggage allowance for a given flight segment
+  String getStandardBaggageAllowanceForFlight(
+      String flightSegmentTattooNumber, TicketInformation ticket) {
+    if (ticket.baggageAllowances != null) {
+      for (var baggage in ticket.baggageAllowances!) {
+        final Map<String, dynamic> baggageMap = baggage as Map<String, dynamic>;
+        String baggageSegment =
+            (baggageMap['SegmentTattooNumber'] as String?) ?? '';
+        if (baggageSegment == flightSegmentTattooNumber) {
+          return (baggageMap['StandardBaggageAllowance'] as String?) ?? '';
+        }
+      }
+    }
+    return '';
+  }
+
+// Helper to get the excess baggage info for a given flight segment
+  String getExcessBaggageInfoForFlight(
+      String flightSegmentTattooNumber, TicketInformation ticket) {
+    if (ticket.baggageAllowances != null) {
+      for (var baggage in ticket.baggageAllowances!) {
+        final Map<String, dynamic> baggageMap = baggage as Map<String, dynamic>;
+        String baggageSegment =
+            (baggageMap['SegmentTattooNumber'] as String?) ?? '';
+        if (baggageSegment == flightSegmentTattooNumber) {
+          List<dynamic>? excessInfoList =
+              baggageMap['ExcessBaggageInfo'] as List<dynamic>?;
+          if (excessInfoList != null && excessInfoList.isNotEmpty) {
+            return excessInfoList.map((excess) {
+              final Map<String, dynamic> excessMap =
+                  excess as Map<String, dynamic>;
+              String type = excessMap['Type'] ?? 'N/A';
+              String freeText = excessMap['FreeText'] ?? 'N/A';
+              String otherDetails = excessMap['OtherDetails'] ?? 'N/A';
+              print(excessMap);
+              return 'Type: $type\nFreeText: $freeText\nOtherDetails: $otherDetails';
+            }).join('\n\n'); // Adds a blank line between each entry
+          }
+        }
+      }
+    }
+    return '';
+  }
+
   Future<void> fetchData(String pnr) async {
     try {
       allTicketInfo = await _apiService.viewTicketInformation(pnr);
@@ -130,7 +177,6 @@ class _MyTicketsState extends State<MyTickets> {
     }
     print(allTicketInfo);
 
-    await Future.delayed(Duration(seconds: 1));
     setState(() {
       _isLoading = false;
     });
@@ -153,6 +199,64 @@ class _MyTicketsState extends State<MyTickets> {
     setState(() {
       ticket = fetchedTicket;
       flight = fetchedFlight;
+
+      if (ticket?.baggageAllowances != null &&
+          ticket!.baggageAllowances!.isNotEmpty) {
+        // Assuming you want to extract data from the first baggage allowance
+        final Map<String, dynamic> baggageMap =
+            ticket?.baggageAllowances![0] as Map<String, dynamic>;
+
+        print("Baggage Allowance Details: $baggageMap");
+
+        segmentTattooNumber =
+            (baggageMap['SegmentTattooNumber'] as String?) ?? '';
+        print("SegmentTattooNumber: $segmentTattooNumber");
+        print(flight!.SegmentTattooNumber);
+
+        // Only populate standardBaggageAllowance if SegmentTattooNumber matches flight's SegmentTattooNumber
+        if (segmentTattooNumber == flight!.SegmentTattooNumber) {
+          standardBaggageAllowance =
+              (baggageMap['StandardBaggageAllowance'] as String?) ?? '';
+          print("Standard Baggage Allowance: $standardBaggageAllowance");
+        } else {
+          print(
+              "SegmentTattooNumber does not match, standardBaggageAllowance not populated.");
+        }
+
+        // For ExcessBaggageInfo, if you want to join multiple entries into one string:
+        // List<dynamic>? excessInfoList =
+        //     baggageMap['ExcessBaggageInfo'] as List<dynamic>?;
+        // print("CHECKKKKK");
+
+        List<dynamic>? excessInfoList = [
+          {
+            "Type": "DCHK",
+            "FreeText": "OK TO KIOSK CHECK IN",
+            "OtherDetails": "OK"
+          },
+        ];
+        print(excessInfoList);
+        if (excessInfoList != null && excessInfoList.isNotEmpty) {
+          // Concatenates all excess baggage info entries
+          excessBaggageInfo = excessInfoList.map((excess) {
+            final Map<String, dynamic> excessMap =
+                excess as Map<String, dynamic>;
+
+            String type = excessMap['Type'] ?? 'N/A';
+            String freeText = excessMap['FreeText'] ?? 'N/A';
+            String otherDetails = excessMap['OtherDetails'] ?? 'N/A';
+
+            return 'Type: $type | FreeText: $freeText | OtherDetails: $otherDetails';
+          }).join('\n'); // Each entry appears on a new line
+
+          print("Excess Baggage Info: $excessBaggageInfo");
+        } else {
+          print("No excess baggage info found.");
+        }
+      } else {
+        print("No baggage allowances found in the ticket.");
+      }
+
       _isLoading = false;
     });
 
@@ -178,6 +282,34 @@ class _MyTicketsState extends State<MyTickets> {
     } catch (e) {
       print("Base64 Decoding Failed: $e");
     }
+  }
+
+  String calculateDuration(
+      String depDate, String depTime, String arrDate, String arrTime) {
+    // Parse the date and time strings
+    final departure = DateTime(
+      2000 + int.parse(depDate.substring(4)), // Year
+      int.parse(depDate.substring(2, 4)), // Month
+      int.parse(depDate.substring(0, 2)), // Day
+      int.parse(depTime.substring(0, 2)), // Hour
+      int.parse(depTime.substring(2, 4)), // Minute
+    );
+
+    final arrival = DateTime(
+      2000 + int.parse(arrDate.substring(4)), // Year
+      int.parse(arrDate.substring(2, 4)), // Month
+      int.parse(arrDate.substring(0, 2)), // Day
+      int.parse(arrTime.substring(0, 2)), // Hour
+      int.parse(arrTime.substring(2, 4)), // Minute
+    );
+
+    // Calculate the duration
+    final duration = arrival.difference(departure);
+
+    // Format the duration as "Xh Ym"
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    return "${hours}h ${minutes}m";
   }
 
   @override
@@ -504,6 +636,17 @@ class _MyTicketsState extends State<MyTickets> {
                                           child: Column(
                                             children: allFlightInfo
                                                 .map<Widget>((flight) {
+                                              String baggageAllowance =
+                                                  getStandardBaggageAllowanceForFlight(
+                                                      flight
+                                                          .SegmentTattooNumber,
+                                                      ticket!);
+                                              String excessInfo =
+                                                  getExcessBaggageInfoForFlight(
+                                                      flight
+                                                          .SegmentTattooNumber,
+                                                      ticket!);
+                                              print(excessInfo);
                                               return Column(
                                                 children: [
                                                   Image.asset(
@@ -975,14 +1118,19 @@ class _MyTicketsState extends State<MyTickets> {
                                                                           screenWidth *
                                                                               0.038)),
                                                               Text(
-                                                                "GET",
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        screenWidth *
-                                                                            0.04,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
+                                                                baggageAllowance
+                                                                        .isEmpty
+                                                                    ? 'N/A'
+                                                                    : '${baggageAllowance}g',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      screenWidth *
+                                                                          0.04,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                ),
                                                               ),
                                                             ],
                                                           ),
@@ -999,7 +1147,15 @@ class _MyTicketsState extends State<MyTickets> {
                                                                           screenWidth *
                                                                               0.038)),
                                                               Text(
-                                                                "03:35",
+                                                                calculateDuration(
+                                                                    flight
+                                                                        .depDate,
+                                                                    flight
+                                                                        .depTime,
+                                                                    flight
+                                                                        .arrDate,
+                                                                    flight
+                                                                        .arrTime),
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         screenWidth *
@@ -1017,75 +1173,107 @@ class _MyTicketsState extends State<MyTickets> {
                                                   SizedBox(
                                                       height:
                                                           screenHeight * 0.025),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                      left: screenWidth * 0.04,
-                                                      right: screenWidth * 0.04,
-                                                    ),
-                                                    child: Center(
-                                                      child: ElevatedButton(
-                                                        onPressed: () {
-                                                          // Define the action when the button is pressed
-                                                          print(
-                                                              'Excess Baggage button pressed');
-                                                        },
-                                                        child: Text(
-                                                            'Excess Baggage'),
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                          disabledBackgroundColor:
-                                                              Color.fromARGB(
-                                                                  255,
-                                                                  238,
-                                                                  238,
-                                                                  243), // Background color when disabled
-                                                          elevation: 0,
-                                                          foregroundColor:
-                                                              const Color
-                                                                  .fromARGB(
-                                                                  255,
-                                                                  107,
-                                                                  109,
-                                                                  118), // Text color
-                                                          backgroundColor:
-                                                              const Color
-                                                                  .fromARGB(
-                                                                  255,
-                                                                  255,
-                                                                  255,
-                                                                  255), // Button background color
-                                                          padding: EdgeInsets.symmetric(
-                                                              horizontal:
-                                                                  screenWidth *
-                                                                      0.25,
-                                                              vertical:
-                                                                  screenHeight *
-                                                                      0.005), // Button padding
-                                                          textStyle: TextStyle(
-                                                              fontSize:
-                                                                  screenWidth *
-                                                                      0.037), // Text size
-                                                          shape:
-                                                              RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5), // Rounded corners
-                                                            side:
-                                                                const BorderSide(
-                                                              color: Color.fromARGB(
-                                                                  255,
-                                                                  144,
-                                                                  140,
-                                                                  159), // Border color
-                                                              width:
-                                                                  1, // Border width
+
+                                                  if (excessBaggageInfo
+                                                      .isNotEmpty)
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                        left:
+                                                            screenWidth * 0.04,
+                                                        right:
+                                                            screenWidth * 0.04,
+                                                      ),
+                                                      child: Center(
+                                                        child: ElevatedButton(
+                                                          onPressed: () {
+                                                            // Show a popup with the excess baggage info
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return AlertDialog(
+                                                                  title: Text(
+                                                                      'Excess Baggage Info'),
+                                                                  content:
+                                                                      Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(
+                                                                            8.0),
+                                                                    child: Text(
+                                                                        excessBaggageInfo),
+                                                                  ),
+                                                                  actions: [
+                                                                    TextButton(
+                                                                      onPressed:
+                                                                          () =>
+                                                                              Navigator.pop(context),
+                                                                      child: Text(
+                                                                          'Close'),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                            );
+                                                          },
+                                                          child: Text(
+                                                              'Excess Baggage'),
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            disabledBackgroundColor:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    238,
+                                                                    238,
+                                                                    243),
+                                                            elevation: 0,
+                                                            foregroundColor:
+                                                                const Color
+                                                                    .fromARGB(
+                                                                    255,
+                                                                    107,
+                                                                    109,
+                                                                    118),
+                                                            backgroundColor:
+                                                                const Color
+                                                                    .fromARGB(
+                                                                    255,
+                                                                    255,
+                                                                    255,
+                                                                    255),
+                                                            padding: EdgeInsets.symmetric(
+                                                                horizontal:
+                                                                    screenWidth *
+                                                                        0.25,
+                                                                vertical:
+                                                                    screenHeight *
+                                                                        0.005),
+                                                            textStyle: TextStyle(
+                                                                fontSize:
+                                                                    screenWidth *
+                                                                        0.037),
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
+                                                              side:
+                                                                  const BorderSide(
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        144,
+                                                                        140,
+                                                                        159),
+                                                                width: 1,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
-                                                  ),
                                                   SizedBox(
                                                       height:
                                                           screenHeight * 0.02),

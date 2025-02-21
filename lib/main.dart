@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
@@ -21,8 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-            builder: (context) => MyLoginPage()), // Navigate to login page
+        MaterialPageRoute(builder: (context) => MyLoginPage()),
       );
     });
   }
@@ -425,11 +423,15 @@ class _MyLoginPageState extends State<MyLoginPage> {
                               border: InputBorder.none,
                             ),
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: textFieldFontSize),
+                            style: TextStyle(
+                              fontSize: textFieldFontSize,
+                              color: Colors
+                                  .white, // This makes the text color white
+                            ),
                           ),
                         ),
 
-                        // Password TextField
+// Password TextField
                         Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: textFieldPadding,
@@ -466,7 +468,11 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             ),
                             obscureText: _obscureText,
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: textFieldFontSize),
+                            style: TextStyle(
+                              fontSize: textFieldFontSize,
+                              color: Colors
+                                  .white, // This makes the text color white
+                            ),
                           ),
                         ),
 
