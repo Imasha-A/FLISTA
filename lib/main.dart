@@ -30,22 +30,19 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Full-screen Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/seats.png', // Background image
-              //'assets/splash.png',
+              'assets/seats.png',
               fit: BoxFit.cover,
             ),
           ),
-          // Logo at the Bottom
           Positioned(
             bottom: -20,
             left: 15,
             right: 0,
             child: Center(
               child: Image.asset(
-                'assets/Srilankan-white.png', // Logo image
+                'assets/Srilankan-white.png',
                 height: 70,
                 width: 150,
                 fit: BoxFit.contain,
@@ -83,7 +80,7 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
-  late String selectedDate = ''; // Initialize selectedDate variable
+  late String selectedDate = '';
   late PageController _pageController;
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -364,15 +361,15 @@ class _MyLoginPageState extends State<MyLoginPage> {
           true, // Allow resizing when the keyboard appears
       body: GestureDetector(
         onTap: () {
-          FocusScope.of(context).unfocus(); // Dismiss the keyboard
+          FocusScope.of(context).unfocus();
         },
         child: Stack(
           children: [
             // Full-screen background image
             Positioned.fill(
               child: Image.asset(
-                'assets/flistalogin.png', // Ensure this path is correct
-                fit: BoxFit.cover, // Cover the entire screen
+                'assets/flistalogin.png',
+                fit: BoxFit.cover,
               ),
             ),
 
@@ -394,7 +391,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             width: screenWidth * 0.45,
                           ),
                         ),
-                        SizedBox(height: screenHeight * 0.09),
+                        SizedBox(height: screenHeight * 0.08),
 
                         // Staff ID TextField
                         Container(
@@ -528,7 +525,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
 
                         // Bottom Logo
                         Padding(
-                          padding: EdgeInsets.only(top: screenHeight * 0.045),
+                          padding: EdgeInsets.only(top: screenHeight * 0.04),
                           child: Image.asset(
                             'assets/Srilankan-white.png',
                             height: screenHeight * 0.03,

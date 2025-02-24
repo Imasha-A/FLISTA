@@ -77,6 +77,38 @@ class APIService {
     }
   }
 
+  Future<void> submitRating(String userId, int rating, String comment) async {
+    final Uri url = Uri.parse(
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/RateFlistaApp_New');
+
+    // Properly URL-encode the parameters
+    final Map<String, String> body = {
+      'StaffID': userId,
+      'Rating': rating.toString(),
+      'Comments': comment,
+    };
+
+    print(body);
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body, // http package automatically encodes it as form-urlencoded
+        encoding: Encoding.getByName('utf-8'),
+      );
+
+      if (response.statusCode == 200) {
+        print('Rating submitted successfully');
+      } else {
+        print(
+            'Failed to submit rating: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error submitting rating: $e');
+    }
+  }
+
   // Add login method to main.dart
   Future<Map<String, dynamic>> login(String username, String password) async {
     final response = await http.post(

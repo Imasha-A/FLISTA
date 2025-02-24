@@ -2317,13 +2317,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   int selectedRating = 0; // Move this outside the method to retain state
-
+  String comment = '';
   void _showRatingPopup() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         final screenHeight = MediaQuery.of(context).size.height;
         final screenWidth = MediaQuery.of(context).size.width;
+        bool isSubmitting = false;
+        TextEditingController reviewController = TextEditingController();
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
@@ -2370,7 +2372,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: Icon(
                                 Icons.close,
-                                color: const Color.fromARGB(255, 255, 255, 255),
+                                color: Colors.white,
                                 size: 20,
                               ),
                             ),
@@ -2420,40 +2422,157 @@ class _HomePageState extends State<HomePage> {
                                     color: index < selectedRating
                                         ? const Color.fromARGB(
                                             255, 255, 178, 13)
-                                        : const Color.fromARGB(
-                                            255, 255, 255, 255),
+                                        : Colors.white,
                                     size: screenWidth * 0.086,
                                   ),
-                                  onPressed: () {
-                                    setState(() {
-                                      // If the first star is tapped while the rating is 1, remove it.
-                                      if (index == 0 && selectedRating == 1) {
-                                        selectedRating = 0;
-                                      } else {
-                                        selectedRating = index + 1;
-                                      }
-                                    });
-                                    // Vibrate with increasing intensity based on selectedRating
-                                    if (selectedRating <= 1) {
-                                      HapticFeedback.heavyImpact();
-                                    } else if (selectedRating == 2) {
-                                      HapticFeedback.mediumImpact();
-                                    } else if (selectedRating >= 3) {
-                                      HapticFeedback.lightImpact();
-                                    }
-                                  },
+                                  onPressed: isSubmitting
+                                      ? null
+                                      : () async {
+                                          setState(() {
+                                            selectedRating = (index == 0 &&
+                                                    selectedRating == 1)
+                                                ? 0
+                                                : index + 1;
+                                          });
+                                          if (selectedRating > 0) {
+                                            setState(() {
+                                              isSubmitting = true;
+                                            });
+                                            try {
+                                              APIService apiService =
+                                                  APIService();
+                                              await apiService.submitRating(
+                                                  _userId,
+                                                  selectedRating,
+                                                  reviewController.text);
+                                            } catch (error) {
+                                              print(
+                                                  "Failed to submit rating: $error");
+                                            } finally {
+                                              setState(() {
+                                                isSubmitting = false;
+                                              });
+                                            }
+                                          }
+                                        },
                                 );
                               }),
                             ),
+                            SizedBox(height: screenHeight * 0.02),
+                            // "Leave a Review" button
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    FocusNode focusNode = FocusNode();
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      FocusScope.of(context)
+                                          .requestFocus(focusNode);
+                                    });
+
+                                    return AlertDialog(
+                                      backgroundColor: Color(0xFF337BA9),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            screenWidth * 0.05),
+                                      ),
+                                      title: Text(
+                                        "Leave a Review",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * 0.05,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      content: TextField(
+                                        focusNode: focusNode,
+                                        controller: reviewController,
+                                        maxLines: 3,
+                                        style: TextStyle(color: Colors.white),
+                                        decoration: InputDecoration(
+                                          hintText: "Write your review here...",
+                                          hintStyle:
+                                              TextStyle(color: Colors.white60),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide:
+                                                BorderSide(color: Colors.white),
+                                            borderRadius: BorderRadius.circular(
+                                                screenWidth * 0.03),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide:
+                                                BorderSide(color: Colors.white),
+                                            borderRadius: BorderRadius.circular(
+                                                screenWidth * 0.03),
+                                          ),
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            "Cancel",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            setState(() {
+                                              isSubmitting = true;
+                                            });
+                                            try {
+                                              APIService apiService =
+                                                  APIService();
+                                              await apiService.submitRating(
+                                                  _userId,
+                                                  selectedRating,
+                                                  reviewController.text);
+                                            } catch (error) {
+                                              print(
+                                                  "Failed to submit review: $error");
+                                            } finally {
+                                              setState(() {
+                                                isSubmitting = false;
+                                              });
+                                            }
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            "Submit",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text(
+                                "Leave a Review",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: screenWidth * 0.04,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: screenHeight * 0.02),
                           ],
                         ),
-                        SizedBox(height: screenHeight * 0.1),
                       ],
                     ),
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255, 255, 255),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(screenWidth * 0.04),
                     ),
                     padding: EdgeInsets.symmetric(
@@ -2470,6 +2589,7 @@ class _HomePageState extends State<HomePage> {
                             color: Color.fromARGB(134, 82, 81, 81),
                           ),
                         ),
+                        SizedBox(height: screenHeight * 0.005),
                         RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
@@ -2505,7 +2625,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               TextSpan(
-                                text: "3000",
+                                text: "3000 ",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
                                   color: Color.fromARGB(134, 70, 69, 69),
@@ -2513,7 +2633,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               TextSpan(
-                                text: ") | 24×7 Support",
+                                text: ") | 24x7 Support",
                                 style: TextStyle(
                                   fontSize: screenHeight * 0.0173,
                                   color: Color.fromARGB(134, 82, 81, 81),
