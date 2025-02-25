@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:flista_new/models/flightmodel.dart';
 import '../services/api_service.dart';
+import 'dart:ui' as ui;
 
 class MyTickets extends StatefulWidget {
   const MyTickets({super.key});
@@ -316,7 +317,7 @@ class _MyTicketsState extends State<MyTickets> {
             return fullName == selectedValue;
           }).toList();
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/homebgnew.png"),
           fit: BoxFit.contain,
@@ -345,12 +346,12 @@ class _MyTicketsState extends State<MyTickets> {
               ),
               child: Stack(
                 children: [
-                  Positioned.fill(
+                  const Positioned.fill(
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
+                      borderRadius: BorderRadius.vertical(
                         bottom: Radius.circular(22.0),
                       ),
-                      child: const Image(
+                      child: Image(
                         image: AssetImage(
                             'assets/istockphoto-155362201-612x612 1.png'),
                         fit: BoxFit.cover,
@@ -398,14 +399,15 @@ class _MyTicketsState extends State<MyTickets> {
             : Scaffold(
                 body: Stack(children: [
                 Positioned(
-                  top: screenHeight * 0.01,
-                  left: screenWidth * 0.43,
+                  top: screenHeight * 0.0001,
+                  left: screenWidth * 0.25,
                   child: Container(
+                    width: screenWidth * 0.7, // Fixed width (adjust as needed)
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 255, 255, 255),
+                      color: const Color.fromARGB(0, 255, 255, 255),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Colors.grey.shade300,
+                        color: const Color.fromARGB(0, 224, 224, 224),
                       ),
                     ),
                     padding: EdgeInsets.symmetric(
@@ -413,10 +415,12 @@ class _MyTicketsState extends State<MyTickets> {
                         vertical: screenWidth * 0.001),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
+                        isExpanded:
+                            true, // Ensures the dropdown fills the fixed width
                         value: selectedValue,
                         icon: const Icon(Icons.arrow_drop_down),
                         items: [
-                          DropdownMenuItem(
+                          const DropdownMenuItem(
                             value: 'all',
                             child: Text('All'),
                           ),
@@ -425,9 +429,88 @@ class _MyTicketsState extends State<MyTickets> {
                                 '${ticket.firstName} ${ticket.lastName}';
                             return DropdownMenuItem(
                               value: fullName,
-                              child: Text(
-                                fullName,
-                                style: TextStyle(fontSize: screenWidth * 0.035),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final textStyle =
+                                      TextStyle(fontSize: screenWidth * 0.035);
+                                  // Measure the text to determine if it overflows
+                                  final textSpan = TextSpan(
+                                      text: fullName, style: textStyle);
+                                  final textPainter = TextPainter(
+                                    text: textSpan,
+                                    maxLines: 1,
+                                    textDirection: ui.TextDirection.ltr,
+                                  );
+                                  textPainter.layout(
+                                      maxWidth: constraints.maxWidth);
+                                  final isOverflowing =
+                                      textPainter.didExceedMaxLines;
+
+                                  return GestureDetector(
+                                    onLongPress: () {
+                                      if (isOverflowing) {
+                                        final overlay = Overlay.of(context);
+                                        final RenderBox renderBox = context
+                                            .findRenderObject() as RenderBox;
+                                        final Offset position = renderBox
+                                            .localToGlobal(Offset.zero);
+
+                                        OverlayEntry overlayEntry =
+                                            OverlayEntry(
+                                          builder: (context) => Positioned(
+                                            left: position.dx -
+                                                90, // Adjust as needed
+                                            top: position.dy -
+                                                45, // Positioned slightly above the text
+                                            child: Material(
+                                              color: Colors.transparent,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.8),
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                child: ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth: screenWidth *
+                                                          0.85), // Set desired max width
+                                                  child: Text(
+                                                    fullName,
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 14),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    softWrap: true,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                        overlay.insert(overlayEntry);
+
+                                        Future.delayed(
+                                            const Duration(seconds: 2), () {
+                                          overlayEntry
+                                              .remove(); // Auto-dismiss the overlay after 2 seconds
+                                        });
+                                      }
+                                    },
+                                    child: Text(
+                                      fullName,
+                                      style: textStyle,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                },
                               ),
                             );
                           }).toList(),
@@ -442,8 +525,7 @@ class _MyTicketsState extends State<MyTickets> {
                   ),
                 ),
                 Positioned.fill(
-                  top: screenHeight * 0.075,
-                  
+                  top: screenHeight * 0.045,
                   child: SingleChildScrollView(
                     child: Padding(
                       padding: EdgeInsets.all(screenWidth * 0.035),
@@ -464,7 +546,8 @@ class _MyTicketsState extends State<MyTickets> {
                                         bottom: screenHeight * 0.02),
                                     width: screenWidth * 0.99,
                                     decoration: BoxDecoration(
-                                      color: Color.fromRGBO(49, 121, 167, 1),
+                                      color:
+                                          const Color.fromRGBO(49, 121, 167, 1),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Stack(children: [
@@ -516,11 +599,143 @@ class _MyTicketsState extends State<MyTickets> {
                                                           fontSize:
                                                               screenWidth *
                                                                   0.038)),
+                                                  LayoutBuilder(
+                                                    builder:
+                                                        (BuildContext context,
+                                                            BoxConstraints
+                                                                constraints) {
+                                                      final fullName =
+                                                          '${ticket!.lastName} ${ticket!.firstName}';
+                                                      final textStyle =
+                                                          TextStyle(
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 25, 25, 26),
+                                                        fontSize:
+                                                            screenWidth * 0.04,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      );
+
+                                                      final textSpan = TextSpan(
+                                                          text: fullName,
+                                                          style: textStyle);
+                                                      final textPainter =
+                                                          TextPainter(
+                                                        text: textSpan,
+                                                        maxLines: 1,
+                                                        textDirection: ui
+                                                            .TextDirection.ltr,
+                                                      );
+                                                      textPainter.layout(
+                                                          maxWidth: constraints
+                                                              .maxWidth);
+                                                      final isOverflowing =
+                                                          textPainter
+                                                              .didExceedMaxLines;
+
+                                                      return GestureDetector(
+                                                        onTap: () {
+                                                          if (isOverflowing) {
+                                                            final overlay =
+                                                                Overlay.of(
+                                                                    context);
+                                                            final RenderBox
+                                                                renderBox =
+                                                                context.findRenderObject()
+                                                                    as RenderBox;
+                                                            final Offset
+                                                                offset =
+                                                                renderBox
+                                                                    .localToGlobal(
+                                                                        Offset
+                                                                            .zero);
+
+                                                            OverlayEntry
+                                                                overlayEntry =
+                                                                OverlayEntry(
+                                                              builder:
+                                                                  (context) =>
+                                                                      Positioned(
+                                                                left: offset
+                                                                        .dx -
+                                                                    10, // Align horizontally with the text
+                                                                top: offset.dy -
+                                                                    45, // Position slightly above the text
+                                                                child: Material(
+                                                                  color: Colors
+                                                                      .transparent,
+                                                                  child:
+                                                                      Container(
+                                                                    padding: const EdgeInsets
+                                                                        .symmetric(
+                                                                        horizontal:
+                                                                            8,
+                                                                        vertical:
+                                                                            4),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Colors
+                                                                          .black
+                                                                          .withOpacity(
+                                                                              0.8),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8),
+                                                                    ),
+                                                                    child:
+                                                                        ConstrainedBox(
+                                                                      constraints:
+                                                                          BoxConstraints(
+                                                                              maxWidth: screenWidth * 0.8),
+                                                                      child:
+                                                                          Text(
+                                                                        fullName,
+                                                                        style: const TextStyle(
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontSize: 14),
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        softWrap:
+                                                                            true,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+
+                                                            overlay.insert(
+                                                                overlayEntry);
+
+                                                            Future.delayed(
+                                                                const Duration(
+                                                                    seconds: 2),
+                                                                () {
+                                                              overlayEntry
+                                                                  .remove(); // Auto-dismiss the overlay after 2 seconds
+                                                            });
+                                                          }
+                                                        },
+                                                        child: Text(
+                                                          fullName,
+                                                          style: textStyle,
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
                                                   Text(
-                                                    '${ticket!.lastName} ${ticket!.firstName} (${ticket!.PassportNumber})',
+                                                    '(${ticket!.PassportNumber})',
                                                     style: TextStyle(
-                                                      color: Color.fromARGB(
-                                                          255, 25, 25, 26),
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255, 25, 25, 26),
                                                       fontSize:
                                                           screenWidth * 0.04,
                                                       fontWeight:
@@ -553,12 +768,12 @@ class _MyTicketsState extends State<MyTickets> {
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
-                                                                color: Color
+                                                                color: const Color
                                                                     .fromARGB(
-                                                                        255,
-                                                                        25,
-                                                                        25,
-                                                                        26),
+                                                                    255,
+                                                                    25,
+                                                                    25,
+                                                                    26),
                                                               ),
                                                             ),
                                                           ],
@@ -584,12 +799,12 @@ class _MyTicketsState extends State<MyTickets> {
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
-                                                                color: Color
+                                                                color: const Color
                                                                     .fromARGB(
-                                                                        255,
-                                                                        25,
-                                                                        25,
-                                                                        26),
+                                                                    255,
+                                                                    25,
+                                                                    25,
+                                                                    26),
                                                               ),
                                                             ),
                                                           ],
@@ -614,7 +829,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                                   .contain,
                                                             ),
                                                           )
-                                                        : Text(
+                                                        : const Text(
                                                             "No barcode available"),
                                                   ),
                                                   SizedBox(
@@ -741,69 +956,85 @@ class _MyTicketsState extends State<MyTickets> {
                                                                             .Boardpoint,
                                                                         snapshot
                                                                             .data!);
+                                                                    final displayText =
+                                                                        country ??
+                                                                            "Unknown country";
+                                                                    final fixedWidth =
+                                                                        screenWidth *
+                                                                            0.16; // The maximum width the text is allowed to occupy
 
-                                                                    return GestureDetector(
-                                                                      onTap:
-                                                                          () {
-                                                                        if (country !=
-                                                                                null &&
-                                                                            country.length >
-                                                                                10) {
-                                                                          // Only show popup if >10 characters
-                                                                          final overlay =
-                                                                              Overlay.of(context);
-                                                                          final RenderBox
-                                                                              renderBox =
-                                                                              context.findRenderObject() as RenderBox;
-                                                                          final Offset
-                                                                              position =
-                                                                              renderBox.localToGlobal(Offset.zero); // Get text position
+                                                                    return Container(
+                                                                      width:
+                                                                          fixedWidth,
+                                                                      child:
+                                                                          LayoutBuilder(
+                                                                        builder:
+                                                                            (context,
+                                                                                constraints) {
+                                                                          final textStyle =
+                                                                              TextStyle(fontSize: screenWidth * 0.03);
+                                                                          final textSpan = TextSpan(
+                                                                              text: displayText,
+                                                                              style: textStyle);
+                                                                          final textPainter =
+                                                                              TextPainter(
+                                                                            text:
+                                                                                textSpan,
+                                                                            textDirection:
+                                                                                ui.TextDirection.ltr,
+                                                                          );
+                                                                          // Layout the text with the fixed max width
+                                                                          textPainter.layout(
+                                                                              maxWidth: constraints.maxWidth);
+                                                                          // Check if the text's width exceeds the allowed width
+                                                                          final isOverflowing =
+                                                                              textPainter.width >= constraints.maxWidth;
 
-                                                                          OverlayEntry
-                                                                              overlayEntry =
-                                                                              OverlayEntry(
-                                                                            builder: (context) =>
-                                                                                Positioned(
-                                                                              left: position.dx, // Align horizontally
-                                                                              top: position.dy - 30, // Position slightly above the text
-                                                                              child: Material(
-                                                                                color: Colors.transparent,
-                                                                                child: Container(
-                                                                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: Colors.black.withOpacity(0.8),
-                                                                                    borderRadius: BorderRadius.circular(8),
+                                                                          return GestureDetector(
+                                                                            onTap:
+                                                                                () {
+                                                                              if (isOverflowing) {
+                                                                                final overlay = Overlay.of(context);
+                                                                                final RenderBox renderBox = context.findRenderObject() as RenderBox;
+                                                                                final Offset position = renderBox.localToGlobal(Offset.zero);
+
+                                                                                OverlayEntry overlayEntry = OverlayEntry(
+                                                                                  builder: (context) => Positioned(
+                                                                                    left: position.dx, // Align horizontally with the text
+                                                                                    top: position.dy - 30, // Position slightly above the text
+                                                                                    child: Material(
+                                                                                      color: Colors.transparent,
+                                                                                      child: Container(
+                                                                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: Colors.black.withOpacity(0.8),
+                                                                                          borderRadius: BorderRadius.circular(8),
+                                                                                        ),
+                                                                                        child: Text(
+                                                                                          displayText,
+                                                                                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
                                                                                   ),
-                                                                                  child: Text(
-                                                                                    country,
-                                                                                    style: TextStyle(color: Colors.white, fontSize: 14),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
+                                                                                );
+
+                                                                                overlay.insert(overlayEntry);
+
+                                                                                Future.delayed(const Duration(seconds: 2), () {
+                                                                                  overlayEntry.remove();
+                                                                                });
+                                                                              }
+                                                                            },
+                                                                            child:
+                                                                                Text(
+                                                                              displayText,
+                                                                              style: textStyle,
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
                                                                           );
-
-                                                                          overlay
-                                                                              .insert(overlayEntry);
-
-                                                                          Future.delayed(
-                                                                              Duration(seconds: 2),
-                                                                              () {
-                                                                            overlayEntry.remove(); // Auto-dismiss the tooltip
-                                                                          });
-                                                                        }
-                                                                      },
-                                                                      child:
-                                                                          Text(
-                                                                        country != null && country.length > 10
-                                                                            ? "${country.substring(0, 10)}..."
-                                                                            : country ??
-                                                                                "Unknown country",
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                screenWidth * 0.03),
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
+                                                                        },
                                                                       ),
                                                                     );
                                                                   },
@@ -945,69 +1176,85 @@ class _MyTicketsState extends State<MyTickets> {
                                                                             .Offpoint,
                                                                         snapshot
                                                                             .data!);
+                                                                    final displayText =
+                                                                        country ??
+                                                                            "Unknown country";
+                                                                    final fixedWidth =
+                                                                        screenWidth *
+                                                                            0.16; // The maximum width the text is allowed to occupy
 
-                                                                    return GestureDetector(
-                                                                      onTap:
-                                                                          () {
-                                                                        if (country !=
-                                                                                null &&
-                                                                            country.length >
-                                                                                10) {
-                                                                          // Only show popup if >10 characters
-                                                                          final overlay =
-                                                                              Overlay.of(context);
-                                                                          final RenderBox
-                                                                              renderBox =
-                                                                              context.findRenderObject() as RenderBox;
-                                                                          final Offset
-                                                                              position =
-                                                                              renderBox.localToGlobal(Offset.zero); // Get text position
+                                                                    return Container(
+                                                                      width:
+                                                                          fixedWidth,
+                                                                      child:
+                                                                          LayoutBuilder(
+                                                                        builder:
+                                                                            (context,
+                                                                                constraints) {
+                                                                          final textStyle =
+                                                                              TextStyle(fontSize: screenWidth * 0.03);
+                                                                          final textSpan = TextSpan(
+                                                                              text: displayText,
+                                                                              style: textStyle);
+                                                                          final textPainter =
+                                                                              TextPainter(
+                                                                            text:
+                                                                                textSpan,
+                                                                            textDirection:
+                                                                                ui.TextDirection.ltr,
+                                                                          );
+                                                                          // Layout the text with the fixed max width
+                                                                          textPainter.layout(
+                                                                              maxWidth: constraints.maxWidth);
+                                                                          // Check if the text's width exceeds the allowed width
+                                                                          final isOverflowing =
+                                                                              textPainter.width >= constraints.maxWidth;
 
-                                                                          OverlayEntry
-                                                                              overlayEntry =
-                                                                              OverlayEntry(
-                                                                            builder: (context) =>
-                                                                                Positioned(
-                                                                              left: position.dx, // Align horizontally
-                                                                              top: position.dy - 30, // Position above the text
-                                                                              child: Material(
-                                                                                color: Colors.transparent,
-                                                                                child: Container(
-                                                                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: Colors.black.withOpacity(0.8),
-                                                                                    borderRadius: BorderRadius.circular(8),
+                                                                          return GestureDetector(
+                                                                            onTap:
+                                                                                () {
+                                                                              if (isOverflowing) {
+                                                                                final overlay = Overlay.of(context);
+                                                                                final RenderBox renderBox = context.findRenderObject() as RenderBox;
+                                                                                final Offset position = renderBox.localToGlobal(Offset.zero);
+
+                                                                                OverlayEntry overlayEntry = OverlayEntry(
+                                                                                  builder: (context) => Positioned(
+                                                                                    left: position.dx, // Align horizontally with the text
+                                                                                    top: position.dy - 30, // Position slightly above the text
+                                                                                    child: Material(
+                                                                                      color: Colors.transparent,
+                                                                                      child: Container(
+                                                                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: Colors.black.withOpacity(0.8),
+                                                                                          borderRadius: BorderRadius.circular(8),
+                                                                                        ),
+                                                                                        child: Text(
+                                                                                          displayText,
+                                                                                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
                                                                                   ),
-                                                                                  child: Text(
-                                                                                    country,
-                                                                                    style: TextStyle(color: Colors.white, fontSize: 14),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
+                                                                                );
+
+                                                                                overlay.insert(overlayEntry);
+
+                                                                                Future.delayed(const Duration(seconds: 2), () {
+                                                                                  overlayEntry.remove();
+                                                                                });
+                                                                              }
+                                                                            },
+                                                                            child:
+                                                                                Text(
+                                                                              displayText,
+                                                                              style: textStyle,
+                                                                              maxLines: 1,
+                                                                              overflow: TextOverflow.ellipsis,
                                                                             ),
                                                                           );
-
-                                                                          overlay
-                                                                              .insert(overlayEntry);
-
-                                                                          Future.delayed(
-                                                                              Duration(seconds: 2),
-                                                                              () {
-                                                                            overlayEntry.remove(); // Auto-dismiss the tooltip
-                                                                          });
-                                                                        }
-                                                                      },
-                                                                      child:
-                                                                          Text(
-                                                                        country != null && country.length > 10
-                                                                            ? "${country.substring(0, 10)}..."
-                                                                            : country ??
-                                                                                "Unknown country",
-                                                                        style: TextStyle(
-                                                                            fontSize:
-                                                                                screenWidth * 0.03),
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
+                                                                        },
                                                                       ),
                                                                     );
                                                                   },
@@ -1239,13 +1486,14 @@ class _MyTicketsState extends State<MyTickets> {
                                                                   },
                                                                 );
                                                               },
-                                                              child: Text(
+                                                              child: const Text(
                                                                   'Excess Baggage'),
                                                               style:
                                                                   ElevatedButton
                                                                       .styleFrom(
                                                                 disabledBackgroundColor:
-                                                                    Color.fromARGB(
+                                                                    const Color
+                                                                        .fromARGB(
                                                                         255,
                                                                         238,
                                                                         238,
@@ -1389,7 +1637,7 @@ class _MyTicketsState extends State<MyTickets> {
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const HistoryPage(),
-                        transitionDuration: Duration(seconds: 0),
+                        transitionDuration: const Duration(seconds: 0),
                       ),
                     );
                     break;
@@ -1402,7 +1650,7 @@ class _MyTicketsState extends State<MyTickets> {
                           selectedDate: '',
                         ),
                         transitionDuration:
-                            Duration(seconds: 0), // No animation
+                            const Duration(seconds: 0), // No animation
                       ),
                     );
                   case 2: // My Tickets
@@ -1412,7 +1660,7 @@ class _MyTicketsState extends State<MyTickets> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const MyTickets(),
                         transitionDuration:
-                            Duration(seconds: 0), // No animation
+                            const Duration(seconds: 0), // No animation
                       ),
                     );
                     break;

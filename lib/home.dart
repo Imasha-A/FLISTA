@@ -183,15 +183,17 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _flightSearchModel.originCountries = airportList.map((airport) {
         return {
-          'name': toTitleCase(airport['name']!),
-          'code': airport['code']!
+          'name': toTitleCase(airport['name']!.trim()),
+          'code': airport['code']!,
+          'country': airport['country']!,
         };
       }).toList();
 
       _flightSearchModel.destinationCountries = airportList.map((airport) {
         return {
-          'name': toTitleCase(airport['name']!),
-          'code': airport['code']!
+          'name': toTitleCase(airport['name']!.trim()),
+          'code': airport['code']!,
+          'country': airport['country']!,
         };
       }).toList();
 
@@ -267,6 +269,34 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // void _swapCountries() {
+  //   if (_flightSearchModel.selectedOriginCountry != null &&
+  //       _flightSearchModel.selectedDestinationCountry != null) {
+  //     setState(() {
+  //       // Swap origin and destination countries
+  //       final String tempCountry = _flightSearchModel.selectedOriginCountry!;
+  //       final String tempCode = _flightSearchModel.selectedOriginCountryCode!;
+  //       _flightSearchModel.selectedOriginCountry =
+  //           _flightSearchModel.selectedDestinationCountry!;
+  //       _flightSearchModel.selectedOriginCountryCode =
+  //           _flightSearchModel.selectedDestinationCountryCode!;
+  //       _flightSearchModel.selectedDestinationCountry = tempCountry;
+  //       _flightSearchModel.selectedDestinationCountryCode = tempCode;
+
+  //       // Update text field controllers
+  //       _originController.text = _flightSearchModel.selectedOriginCountryCode!;
+  //       _destinationController.text =
+  //           _flightSearchModel.selectedDestinationCountryCode!;
+  //     });
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Please select both origin and destination countries.'),
+  //       ),
+  //     );
+  //   }
+  // }
+
   void _swapCountries() {
     if (_flightSearchModel.selectedOriginCountry != null &&
         _flightSearchModel.selectedDestinationCountry != null) {
@@ -281,10 +311,16 @@ class _HomePageState extends State<HomePage> {
         _flightSearchModel.selectedDestinationCountry = tempCountry;
         _flightSearchModel.selectedDestinationCountryCode = tempCode;
 
-        // Update text field controllers
+        // Update text field controllers (you may also choose to format them as "Name (Code)" if needed)
         _originController.text = _flightSearchModel.selectedOriginCountryCode!;
         _destinationController.text =
             _flightSearchModel.selectedDestinationCountryCode!;
+
+        // Refresh filtered lists to include all countries (or at least ensure the selected ones are included)
+        _filteredOriginCountries =
+            List.from(_flightSearchModel.originCountries);
+        _filteredDestinationCountries =
+            List.from(_flightSearchModel.destinationCountries);
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -522,7 +558,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/homebgnew.png"),
             fit: BoxFit.contain,
@@ -1014,7 +1050,7 @@ class _HomePageState extends State<HomePage> {
                                                   0.35), // Adjust shadow color and opacity
                                               blurRadius:
                                                   4.0, // Adjust blur radius for the shadow size
-                                              offset: Offset(2,
+                                              offset: const Offset(2,
                                                   2), // Adjust shadow direction and distance
                                             ),
                                           ],
@@ -1046,8 +1082,9 @@ class _HomePageState extends State<HomePage> {
                               child: FloatingActionButton(
                                 onPressed: _showRatingPopup,
                                 backgroundColor:
-                                    Color.fromARGB(255, 209, 77, 20),
-                                child: Icon(Icons.info, color: Colors.white),
+                                    const Color.fromARGB(255, 209, 77, 20),
+                                child:
+                                    const Icon(Icons.info, color: Colors.white),
                               ),
                             ),
                           ),
@@ -1171,7 +1208,7 @@ class _HomePageState extends State<HomePage> {
                         FocusScope.of(context).unfocus();
                       },
                       child: Container(
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           image: DecorationImage(
                             image: AssetImage("assets/homebgnew.png"),
                             fit: BoxFit.contain,
@@ -1525,6 +1562,7 @@ class _HomePageState extends State<HomePage> {
                                                                                                     _originController.text = country['code']!;
                                                                                                     _flightSearchModel.selectedOriginCountry = country['name'];
                                                                                                     _flightSearchModel.selectedOriginCountryCode = country['code'];
+                                                                                                    _flightSearchModel.selectedOriginCountryName = country['country'];
                                                                                                     _searchQuery = '';
                                                                                                   });
                                                                                                   Navigator.pop(context);
@@ -1532,16 +1570,123 @@ class _HomePageState extends State<HomePage> {
                                                                                                 title: Column(
                                                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                                                   children: [
-                                                                                                    Text(
-                                                                                                      country['name']!,
-                                                                                                      style: const TextStyle(
-                                                                                                        color: Color.fromARGB(255, 0, 0, 0),
-                                                                                                        fontWeight: FontWeight.w400,
-                                                                                                        fontSize: 16,
+                                                                                                    GestureDetector(
+                                                                                                      onLongPressStart: (LongPressStartDetails details) {
+                                                                                                        // Use onLongPress instead
+                                                                                                        String cleanedName = country['name']!.replaceAll(RegExp(r'\s+'), ' '); // Remove extra spaces
+
+                                                                                                        TextSpan textSpan = TextSpan(
+                                                                                                          text: cleanedName,
+                                                                                                          style: const TextStyle(
+                                                                                                            color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                            fontWeight: FontWeight.w400,
+                                                                                                            fontSize: 16,
+                                                                                                          ),
+                                                                                                        );
+
+                                                                                                        TextPainter textPainter = TextPainter(
+                                                                                                          text: textSpan,
+                                                                                                          maxLines: 1,
+                                                                                                          textDirection: TextDirection.ltr,
+                                                                                                        );
+                                                                                                        textPainter.layout(maxWidth: screenWidth * 0.6);
+
+                                                                                                        print("Text Width: ${textPainter.width}, Max Width: ${screenWidth * 0.6}");
+
+                                                                                                        if (textPainter.width >= screenWidth * 0.6 - 5) {
+                                                                                                          // Added buffer margin
+                                                                                                          print("Text is truncated! Showing overlay...");
+
+                                                                                                          final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+                                                                                                          if (renderBox != null) {
+                                                                                                            final Offset position = renderBox.localToGlobal(details.globalPosition);
+                                                                                                            final overlay = Overlay.of(context);
+
+                                                                                                            OverlayEntry overlayEntry = OverlayEntry(
+                                                                                                              builder: (context) => Positioned(
+                                                                                                                left: position.dx - 180, // Adjust positioning
+                                                                                                                top: position.dy - 100,
+                                                                                                                child: Material(
+                                                                                                                  color: Colors.transparent,
+                                                                                                                  child: Container(
+                                                                                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                                                                                    decoration: BoxDecoration(
+                                                                                                                      color: Colors.black.withOpacity(0.8),
+                                                                                                                      borderRadius: BorderRadius.circular(8),
+                                                                                                                    ),
+                                                                                                                    child: Text(
+                                                                                                                      cleanedName,
+                                                                                                                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                                                                                                                    ),
+                                                                                                                  ),
+                                                                                                                ),
+                                                                                                              ),
+                                                                                                            );
+
+                                                                                                            overlay.insert(overlayEntry);
+
+                                                                                                            Future.delayed(const Duration(seconds: 2), () => overlayEntry.remove());
+                                                                                                          }
+                                                                                                        } else {
+                                                                                                          print("Text is NOT truncated. Overlay will NOT be shown.");
+                                                                                                        }
+                                                                                                      },
+                                                                                                      child: Builder(
+                                                                                                        builder: (context) {
+                                                                                                          String cleanedName = country['name']!.replaceAll(RegExp(r'\s+'), ' ');
+
+                                                                                                          TextSpan textSpan = TextSpan(
+                                                                                                            text: cleanedName,
+                                                                                                            style: const TextStyle(
+                                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                              fontWeight: FontWeight.w400,
+                                                                                                              fontSize: 16,
+                                                                                                            ),
+                                                                                                          );
+
+                                                                                                          TextPainter textPainter = TextPainter(
+                                                                                                            text: textSpan,
+                                                                                                            maxLines: 1,
+                                                                                                            textDirection: TextDirection.ltr,
+                                                                                                          );
+                                                                                                          textPainter.layout(maxWidth: screenWidth * 0.6);
+
+                                                                                                          String displayText = cleanedName;
+                                                                                                          if (textPainter.width >= screenWidth * 0.6 - 5) {
+                                                                                                            int charLimit = cleanedName.length;
+                                                                                                            for (int i = 0; i < cleanedName.length; i++) {
+                                                                                                              String truncatedText = cleanedName.substring(0, i + 1);
+                                                                                                              textPainter.text = TextSpan(
+                                                                                                                text: truncatedText,
+                                                                                                                style: const TextStyle(
+                                                                                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                                  fontWeight: FontWeight.w400,
+                                                                                                                  fontSize: 16,
+                                                                                                                ),
+                                                                                                              );
+                                                                                                              textPainter.layout(maxWidth: screenWidth * 0.6);
+                                                                                                              if (textPainter.width > screenWidth * 0.6) {
+                                                                                                                charLimit = i;
+                                                                                                                break;
+                                                                                                              }
+                                                                                                            }
+                                                                                                            displayText = '${cleanedName.substring(0, charLimit)}...';
+                                                                                                          }
+
+                                                                                                          return Text(
+                                                                                                            displayText,
+                                                                                                            style: const TextStyle(
+                                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                              fontWeight: FontWeight.w400,
+                                                                                                              fontSize: 16,
+                                                                                                            ),
+                                                                                                            overflow: TextOverflow.ellipsis,
+                                                                                                          );
+                                                                                                        },
                                                                                                       ),
                                                                                                     ),
                                                                                                     Text(
-                                                                                                      country['code']!,
+                                                                                                      '${country['code']} - ${country['country']}',
                                                                                                       style: TextStyle(
                                                                                                         color: const Color.fromARGB(255, 0, 0, 0),
                                                                                                         fontWeight: FontWeight.w700,
@@ -1549,6 +1694,17 @@ class _HomePageState extends State<HomePage> {
                                                                                                       ),
                                                                                                     ),
                                                                                                   ],
+                                                                                                ),
+                                                                                                trailing: Container(
+                                                                                                  width: screenWidth * 0.14,
+                                                                                                  height: screenHeight * 0.04,
+                                                                                                  decoration: BoxDecoration(
+                                                                                                    color: Colors.grey[300],
+                                                                                                    borderRadius: BorderRadius.circular(4),
+                                                                                                  ),
+                                                                                                  child: Center(
+                                                                                                    child: Icon(Icons.flag, color: Colors.grey[600], size: 16),
+                                                                                                  ),
                                                                                                 ),
                                                                                               ),
                                                                                               Divider(
@@ -1659,7 +1815,7 @@ class _HomePageState extends State<HomePage> {
                                                                                     ),
                                                                                   ),
                                                                                   Text(
-                                                                                    _filteredOriginCountries.firstWhere(
+                                                                                    _flightSearchModel.originCountries.firstWhere(
                                                                                       (country) => country['code'] == _originController.text,
                                                                                       orElse: () => {
                                                                                         'name': 'Unknown'
@@ -1853,6 +2009,7 @@ class _HomePageState extends State<HomePage> {
                                                                                                     _destinationController.text = country['code']!;
                                                                                                     _flightSearchModel.selectedDestinationCountry = country['name'];
                                                                                                     _flightSearchModel.selectedDestinationCountryCode = country['code'];
+                                                                                                    _flightSearchModel.selectedDestinationCountryName = country['country'];
                                                                                                     _searchQuery = '';
                                                                                                   });
                                                                                                   Navigator.pop(context);
@@ -1860,16 +2017,105 @@ class _HomePageState extends State<HomePage> {
                                                                                                 title: Column(
                                                                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                                                                   children: [
-                                                                                                    Text(
-                                                                                                      country['name']!,
-                                                                                                      style: const TextStyle(
-                                                                                                        color: Color.fromARGB(255, 0, 0, 0),
-                                                                                                        fontWeight: FontWeight.w400,
-                                                                                                        fontSize: 16,
+                                                                                                    GestureDetector(
+                                                                                                      onLongPressStart: (LongPressStartDetails details) {
+                                                                                                        String cleanedName = country['name']!.replaceAll(RegExp(r'\s+'), ' ');
+                                                                                                        TextSpan textSpan = TextSpan(
+                                                                                                          text: cleanedName,
+                                                                                                          style: const TextStyle(
+                                                                                                            color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                            fontWeight: FontWeight.w400,
+                                                                                                            fontSize: 16,
+                                                                                                          ),
+                                                                                                        );
+                                                                                                        TextPainter textPainter = TextPainter(
+                                                                                                          text: textSpan,
+                                                                                                          maxLines: 1,
+                                                                                                          textDirection: TextDirection.ltr,
+                                                                                                        );
+                                                                                                        textPainter.layout(maxWidth: screenWidth * 0.6);
+                                                                                                        if (textPainter.width >= screenWidth * 0.6 - 5) {
+                                                                                                          final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+                                                                                                          if (renderBox != null) {
+                                                                                                            final Offset position = renderBox.localToGlobal(details.globalPosition);
+                                                                                                            final overlay = Overlay.of(context);
+                                                                                                            OverlayEntry overlayEntry = OverlayEntry(
+                                                                                                              builder: (context) => Positioned(
+                                                                                                                left: position.dx - 180,
+                                                                                                                top: position.dy - 100,
+                                                                                                                child: Material(
+                                                                                                                  color: Colors.transparent,
+                                                                                                                  child: Container(
+                                                                                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                                                                                    decoration: BoxDecoration(
+                                                                                                                      color: Colors.black.withOpacity(0.8),
+                                                                                                                      borderRadius: BorderRadius.circular(8),
+                                                                                                                    ),
+                                                                                                                    child: Text(
+                                                                                                                      cleanedName,
+                                                                                                                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                                                                                                                    ),
+                                                                                                                  ),
+                                                                                                                ),
+                                                                                                              ),
+                                                                                                            );
+                                                                                                            overlay.insert(overlayEntry);
+                                                                                                            Future.delayed(const Duration(seconds: 2), () => overlayEntry.remove());
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      child: Builder(
+                                                                                                        builder: (context) {
+                                                                                                          String cleanedName = country['name']!.replaceAll(RegExp(r'\s+'), ' ');
+                                                                                                          TextSpan textSpan = TextSpan(
+                                                                                                            text: cleanedName,
+                                                                                                            style: const TextStyle(
+                                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                              fontWeight: FontWeight.w400,
+                                                                                                              fontSize: 16,
+                                                                                                            ),
+                                                                                                          );
+                                                                                                          TextPainter textPainter = TextPainter(
+                                                                                                            text: textSpan,
+                                                                                                            maxLines: 1,
+                                                                                                            textDirection: TextDirection.ltr,
+                                                                                                          );
+                                                                                                          textPainter.layout(maxWidth: screenWidth * 0.6);
+                                                                                                          String displayText = cleanedName;
+                                                                                                          if (textPainter.width >= screenWidth * 0.6 - 5) {
+                                                                                                            int charLimit = cleanedName.length;
+                                                                                                            for (int i = 0; i < cleanedName.length; i++) {
+                                                                                                              String truncatedText = cleanedName.substring(0, i + 1);
+                                                                                                              textPainter.text = TextSpan(
+                                                                                                                text: truncatedText,
+                                                                                                                style: const TextStyle(
+                                                                                                                  color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                                  fontWeight: FontWeight.w400,
+                                                                                                                  fontSize: 16,
+                                                                                                                ),
+                                                                                                              );
+                                                                                                              textPainter.layout(maxWidth: screenWidth * 0.6);
+                                                                                                              if (textPainter.width > screenWidth * 0.6) {
+                                                                                                                charLimit = i;
+                                                                                                                break;
+                                                                                                              }
+                                                                                                            }
+                                                                                                            displayText = '${cleanedName.substring(0, charLimit)}...';
+                                                                                                          }
+                                                                                                          return Text(
+                                                                                                            displayText,
+                                                                                                            style: const TextStyle(
+                                                                                                              color: Color.fromARGB(255, 0, 0, 0),
+                                                                                                              fontWeight: FontWeight.w400,
+                                                                                                              fontSize: 16,
+                                                                                                            ),
+                                                                                                            overflow: TextOverflow.ellipsis,
+                                                                                                          );
+                                                                                                        },
                                                                                                       ),
                                                                                                     ),
                                                                                                     Text(
-                                                                                                      country['code']!,
+                                                                                                      '${country['code']} - ${country['country']}',
                                                                                                       style: TextStyle(
                                                                                                         color: const Color.fromARGB(255, 0, 0, 0),
                                                                                                         fontWeight: FontWeight.w700,
@@ -1877,6 +2123,17 @@ class _HomePageState extends State<HomePage> {
                                                                                                       ),
                                                                                                     ),
                                                                                                   ],
+                                                                                                ),
+                                                                                                trailing: Container(
+                                                                                                  width: screenWidth * 0.14,
+                                                                                                  height: screenHeight * 0.04,
+                                                                                                  decoration: BoxDecoration(
+                                                                                                    color: Colors.grey[300],
+                                                                                                    borderRadius: BorderRadius.circular(4),
+                                                                                                  ),
+                                                                                                  child: Center(
+                                                                                                    child: Icon(Icons.flag, color: Colors.grey[600], size: 16),
+                                                                                                  ),
                                                                                                 ),
                                                                                               ),
                                                                                               Divider(
@@ -1986,7 +2243,7 @@ class _HomePageState extends State<HomePage> {
                                                                                     ),
                                                                                   ),
                                                                                   Text(
-                                                                                    _filteredDestinationCountries.firstWhere(
+                                                                                    _flightSearchModel.destinationCountries.firstWhere(
                                                                                       (country) => country['code'] == _destinationController.text,
                                                                                       orElse: () => {
                                                                                         'name': 'Unknown'
@@ -2057,8 +2314,9 @@ class _HomePageState extends State<HomePage> {
                                                 child: Text(
                                                   _errorMessage!,
                                                   style: TextStyle(
-                                                      color: Color.fromARGB(
-                                                          255, 209, 77, 20),
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255, 209, 77, 20),
                                                       fontSize:
                                                           screenWidth * 0.04,
                                                       fontWeight:
@@ -2120,7 +2378,7 @@ class _HomePageState extends State<HomePage> {
                                                               0.35), // Adjust shadow color and opacity
                                                       blurRadius:
                                                           4.0, // Adjust blur radius for the shadow size
-                                                      offset: Offset(2,
+                                                      offset: const Offset(2,
                                                           2), // Adjust shadow direction and distance
                                                     ),
                                                   ],
@@ -2153,9 +2411,10 @@ class _HomePageState extends State<HomePage> {
                                               screenWidth * 0.05),
                                           child: FloatingActionButton(
                                             onPressed: _showRatingPopup,
-                                            backgroundColor: Color.fromARGB(
-                                                255, 209, 77, 20),
-                                            child: Icon(Icons.info,
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 209, 77, 20),
+                                            child: const Icon(Icons.info,
                                                 color: Colors.white),
                                           ),
                                         ),
@@ -2329,329 +2588,341 @@ class _HomePageState extends State<HomePage> {
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Dialog(
-              backgroundColor: Color(0xFF024D75),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(screenWidth * 0.05),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFF337BA9),
-                          Color(0xFF337BA9),
-                          Color(0xFF024D75),
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(screenWidth * 0.05),
-                        topRight: Radius.circular(screenWidth * 0.05),
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: screenHeight * 0.005,
-                      horizontal: screenWidth * 0.005,
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: IconButton(
-                            icon: Container(
-                              padding: EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(148, 255, 255, 255),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(height: screenHeight * 0.02),
-                            Center(
-                              child: Image.asset(
-                                'assets/Star${selectedRating == 0 ? 4 : selectedRating}.png',
-                                width: screenWidth * 0.3,
-                                height: screenHeight * 0.1,
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.01),
-                            Text(
-                              "Rate Flista App",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: screenHeight * 0.025,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              "Support us by giving some feedback",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: screenHeight * 0.02,
-                                fontWeight: FontWeight.w300,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(5, (index) {
-                                return IconButton(
-                                  icon: Icon(
-                                    index < selectedRating
-                                        ? Icons.star_rounded
-                                        : Icons.star_border_rounded,
-                                    color: index < selectedRating
-                                        ? const Color.fromARGB(
-                                            255, 255, 178, 13)
-                                        : Colors.white,
-                                    size: screenWidth * 0.086,
-                                  ),
-                                  onPressed: isSubmitting
-                                      ? null
-                                      : () async {
-                                          setState(() {
-                                            selectedRating = (index == 0 &&
-                                                    selectedRating == 1)
-                                                ? 0
-                                                : index + 1;
-                                          });
-                                          if (selectedRating > 0) {
-                                            setState(() {
-                                              isSubmitting = true;
-                                            });
-                                            try {
-                                              APIService apiService =
-                                                  APIService();
-                                              await apiService.submitRating(
-                                                  _userId,
-                                                  selectedRating,
-                                                  reviewController.text);
-                                            } catch (error) {
-                                              print(
-                                                  "Failed to submit rating: $error");
-                                            } finally {
-                                              setState(() {
-                                                isSubmitting = false;
-                                              });
-                                            }
-                                          }
-                                        },
-                                );
-                              }),
-                            ),
-                            SizedBox(height: screenHeight * 0.02),
-                            // "Leave a Review" button
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    FocusNode focusNode = FocusNode();
-                                    WidgetsBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      FocusScope.of(context)
-                                          .requestFocus(focusNode);
-                                    });
-
-                                    return AlertDialog(
-                                      backgroundColor: Color(0xFF337BA9),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            screenWidth * 0.05),
-                                      ),
-                                      title: Text(
-                                        "Leave a Review",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: screenWidth * 0.05,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      content: TextField(
-                                        focusNode: focusNode,
-                                        controller: reviewController,
-                                        maxLines: 3,
-                                        style: TextStyle(color: Colors.white),
-                                        decoration: InputDecoration(
-                                          hintText: "Write your review here...",
-                                          hintStyle:
-                                              TextStyle(color: Colors.white60),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                            borderRadius: BorderRadius.circular(
-                                                screenWidth * 0.03),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.white),
-                                            borderRadius: BorderRadius.circular(
-                                                screenWidth * 0.03),
-                                          ),
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text(
-                                            "Cancel",
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            setState(() {
-                                              isSubmitting = true;
-                                            });
-                                            try {
-                                              APIService apiService =
-                                                  APIService();
-                                              await apiService.submitRating(
-                                                  _userId,
-                                                  selectedRating,
-                                                  reviewController.text);
-                                            } catch (error) {
-                                              print(
-                                                  "Failed to submit review: $error");
-                                            } finally {
-                                              setState(() {
-                                                isSubmitting = false;
-                                              });
-                                            }
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text(
-                                            "Submit",
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Text(
-                                "Leave a Review",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth * 0.04,
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: screenHeight * 0.02),
+            return MediaQuery.removeViewInsets(
+              context: context,
+              removeBottom: true,
+              child: Dialog(
+                backgroundColor: Color(0xFF024D75),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(screenWidth * 0.05),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0xFF337BA9),
+                            Color(0xFF337BA9),
+                            Color(0xFF024D75),
                           ],
+                          stops: [0.0, 0.5, 1.0],
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(screenWidth * 0.04),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: screenHeight * 0.02,
-                      horizontal: screenWidth * 0.099,
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          "V $appVersion",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: screenHeight * 0.0173,
-                            color: Color.fromARGB(134, 82, 81, 81),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(screenWidth * 0.05),
+                          topRight: Radius.circular(screenWidth * 0.05),
+                        ),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenHeight * 0.005,
+                        horizontal: screenWidth * 0.005,
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 5,
+                            right: 5,
+                            child: IconButton(
+                              icon: Container(
+                                padding: EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(148, 255, 255, 255),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
                           ),
-                        ),
-                        SizedBox(height: screenHeight * 0.005),
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              TextSpan(
-                                text: "Need help? ",
-                                style: TextStyle(
-                                  fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(134, 70, 69, 69),
-                                  fontWeight: FontWeight.w800,
+                              SizedBox(height: screenHeight * 0.02),
+                              Center(
+                                child: Image.asset(
+                                  'assets/Star${selectedRating == 0 ? 4 : selectedRating}.png',
+                                  width: screenWidth * 0.3,
+                                  height: screenHeight * 0.1,
                                 ),
                               ),
-                              TextSpan(
-                                text: "Contact IT Service Desk",
+                              SizedBox(height: screenHeight * 0.01),
+                              Text(
+                                "Rate Flista App",
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(134, 82, 81, 81),
+                                  fontSize: screenHeight * 0.025,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
                                 ),
                               ),
+                              Text(
+                                "Support us by giving some feedback",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: screenHeight * 0.02,
+                                  fontWeight: FontWeight.w300,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(5, (index) {
+                                  return IconButton(
+                                    icon: Icon(
+                                      index < selectedRating
+                                          ? Icons.star_rounded
+                                          : Icons.star_border_rounded,
+                                      color: index < selectedRating
+                                          ? const Color.fromARGB(
+                                              255, 255, 178, 13)
+                                          : Colors.white,
+                                      size: screenWidth * 0.086,
+                                    ),
+                                    onPressed: isSubmitting
+                                        ? null
+                                        : () async {
+                                            setState(() {
+                                              selectedRating = (index == 0 &&
+                                                      selectedRating == 1)
+                                                  ? 0
+                                                  : index + 1;
+                                            });
+                                            if (selectedRating > 0) {
+                                              setState(() {
+                                                isSubmitting = true;
+                                              });
+                                              try {
+                                                APIService apiService =
+                                                    APIService();
+                                                await apiService.submitRating(
+                                                    _userId,
+                                                    selectedRating,
+                                                    reviewController.text);
+                                              } catch (error) {
+                                                print(
+                                                    "Failed to submit rating: $error");
+                                              } finally {
+                                                setState(() {
+                                                  isSubmitting = false;
+                                                });
+                                              }
+                                            }
+                                          },
+                                  );
+                                }),
+                              ),
+                              SizedBox(height: screenHeight * 0.02),
+                              // "Leave a Review" button
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      FocusNode focusNode = FocusNode();
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        FocusScope.of(context)
+                                            .requestFocus(focusNode);
+                                      });
+                                      return MediaQuery.removeViewInsets(
+                                        context: context,
+                                        removeBottom: true,
+                                        child: AlertDialog(
+                                          backgroundColor: Color(0xFF337BA9),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                screenWidth * 0.05),
+                                          ),
+                                          title: Text(
+                                            "Leave a Review",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: screenWidth * 0.05,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          content: TextField(
+                                            focusNode: focusNode,
+                                            controller: reviewController,
+                                            maxLines: 3,
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  "Write your review here...",
+                                              hintStyle: TextStyle(
+                                                  color: Colors.white60),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.white),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        screenWidth * 0.03),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.white),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        screenWidth * 0.03),
+                                              ),
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                "Cancel",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                setState(() {
+                                                  isSubmitting = true;
+                                                });
+                                                try {
+                                                  APIService apiService =
+                                                      APIService();
+                                                  await apiService.submitRating(
+                                                      _userId,
+                                                      selectedRating,
+                                                      reviewController.text);
+                                                } catch (error) {
+                                                  print(
+                                                      "Failed to submit review: $error");
+                                                } finally {
+                                                  setState(() {
+                                                    isSubmitting = false;
+                                                  });
+                                                }
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                "Submit",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  "Leave a Review",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: screenWidth * 0.04,
+                                    fontWeight: FontWeight.w500,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: screenHeight * 0.02),
                             ],
                           ),
-                        ),
-                        SizedBox(height: screenHeight * 0.005),
-                        RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "(Ext: ",
-                                style: TextStyle(
-                                  fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(134, 82, 81, 81),
-                                ),
-                              ),
-                              TextSpan(
-                                text: "3000 ",
-                                style: TextStyle(
-                                  fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(134, 70, 69, 69),
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              TextSpan(
-                                text: ") | 24x7 Support",
-                                style: TextStyle(
-                                  fontSize: screenHeight * 0.0173,
-                                  color: Color.fromARGB(134, 82, 81, 81),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.017),
-                        Image.asset(
-                          'assets/itsystems.png',
-                          width: screenWidth * 0.55,
-                          height: screenHeight * 0.06,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(screenWidth * 0.04),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenHeight * 0.02,
+                        horizontal: screenWidth * 0.099,
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "V $appVersion",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: screenHeight * 0.0173,
+                              color: Color.fromARGB(134, 82, 81, 81),
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.005),
+                          RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "Need help? ",
+                                  style: TextStyle(
+                                    fontSize: screenHeight * 0.0173,
+                                    color: Color.fromARGB(134, 70, 69, 69),
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "Contact IT Service Desk",
+                                  style: TextStyle(
+                                    fontSize: screenHeight * 0.0173,
+                                    color: Color.fromARGB(134, 82, 81, 81),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.005),
+                          RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "(Ext: ",
+                                  style: TextStyle(
+                                    fontSize: screenHeight * 0.0173,
+                                    color: Color.fromARGB(134, 82, 81, 81),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: "3000 ",
+                                  style: TextStyle(
+                                    fontSize: screenHeight * 0.0173,
+                                    color: Color.fromARGB(134, 70, 69, 69),
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ") | 24x7 Support",
+                                  style: TextStyle(
+                                    fontSize: screenHeight * 0.0173,
+                                    color: Color.fromARGB(134, 82, 81, 81),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.017),
+                          Image.asset(
+                            'assets/itsystems.png',
+                            width: screenWidth * 0.55,
+                            height: screenHeight * 0.06,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
