@@ -27,23 +27,32 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
+      backgroundColor:
+          const Color.fromARGB(255, 56, 56, 56), // Light grey background
       body: Stack(
         children: [
-          Positioned.fill(
+          /// Centered & Smaller Main Image
+          Center(
             child: Image.asset(
-              'assets/seats.png',
-              fit: BoxFit.cover,
+              'assets/logo.png',
+              height: screenHeight * 0.3, // Adjust size as needed
+              width: screenWidth * 0.5,
+              fit: BoxFit.contain,
             ),
           ),
+
+          /// SriLankan Logo at the Bottom
           Positioned(
-            bottom: -20,
-            left: 15,
+            bottom: 20, // Adjusted to keep it properly visible
+            left: 0,
             right: 0,
             child: Center(
               child: Image.asset(
                 'assets/Srilankan-white.png',
-                height: 70,
+                height: 30,
                 width: 150,
                 fit: BoxFit.contain,
               ),

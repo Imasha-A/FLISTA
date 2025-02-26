@@ -52,7 +52,8 @@ class _HomePageState extends State<HomePage> {
 
   String _searchQuery = "";
   String appVersion = "Loading...";
-
+  int selectedRating = 0;
+  String comment = '';
   @override
   void initState() {
     super.initState();
@@ -67,11 +68,16 @@ class _HomePageState extends State<HomePage> {
     _filteredDestinationCountries = _flightSearchModel.destinationCountries;
     _getSelectedCountries();
     _loadUserName();
+
     _getAppVersion();
     _saveUserNameToPreferences();
+
     _loadUserId().then((_) {
       _saveUserIdToPreferences(); // Save userId to SharedPreferences after loading it
     });
+
+    loadRating();
+
     _fetchAirportList();
     _originFocusNode.addListener(() {
       if (!_originFocusNode.hasFocus) {
@@ -93,6 +99,19 @@ class _HomePageState extends State<HomePage> {
         _hideDestinationSuggestions();
       }
     });
+  }
+
+  Future<void> saveRating(int rating, String review) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('selectedRating', rating);
+    await prefs.setString('comment', review);
+  }
+
+// Function to load rating and comment
+  Future<void> loadRating() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedRating = prefs.getInt('selectedRating') ?? 0;
+    comment = prefs.getString('comment') ?? '';
   }
 
   void _getAppVersion() async {
@@ -185,6 +204,7 @@ class _HomePageState extends State<HomePage> {
         return {
           'name': toTitleCase(airport['name']!.trim()),
           'code': airport['code']!,
+          'city': airport['city']!,
           'country': airport['country']!,
         };
       }).toList();
@@ -193,6 +213,7 @@ class _HomePageState extends State<HomePage> {
         return {
           'name': toTitleCase(airport['name']!.trim()),
           'code': airport['code']!,
+          'city': airport['city']!,
           'country': airport['country']!,
         };
       }).toList();
@@ -215,6 +236,12 @@ class _HomePageState extends State<HomePage> {
               (country['name']!.toLowerCase().contains(query.toLowerCase()) ||
                   country['code']!
                       .toLowerCase()
+                      .contains(query.toLowerCase()) ||
+                  country['city']!
+                      .toLowerCase()
+                      .contains(query.toLowerCase()) ||
+                  country['country']!
+                      .toLowerCase()
                       .contains(query.toLowerCase())) &&
               country['code'] !=
                   _flightSearchModel.selectedDestinationCountryCode)
@@ -234,6 +261,12 @@ class _HomePageState extends State<HomePage> {
           .where((country) =>
               (country['name']!.toLowerCase().contains(query.toLowerCase()) ||
                   country['code']!
+                      .toLowerCase()
+                      .contains(query.toLowerCase()) ||
+                  country['city']!
+                      .toLowerCase()
+                      .contains(query.toLowerCase()) ||
+                  country['country']!
                       .toLowerCase()
                       .contains(query.toLowerCase())) &&
               country['code'] != _flightSearchModel.selectedOriginCountryCode)
@@ -1518,7 +1551,7 @@ class _HomePageState extends State<HomePage> {
                                                                                         setModalState(() {
                                                                                           // Updates modal UI dynamically
                                                                                           _searchQuery = value.toLowerCase();
-                                                                                          _filteredOriginCountries = _flightSearchModel.originCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
+                                                                                          _filteredOriginCountries = _flightSearchModel.originCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery) || country['city']!.toLowerCase().contains(_searchQuery) || country['country']!.toLowerCase().contains(_searchQuery)).toList();
                                                                                         });
                                                                                       },
                                                                                       decoration: InputDecoration(
@@ -1552,7 +1585,7 @@ class _HomePageState extends State<HomePage> {
                                                                                     Expanded(
                                                                                       child: ListView(
                                                                                         shrinkWrap: true,
-                                                                                        children: _filteredOriginCountries.where((country) => country['code'] != _flightSearchModel.selectedOriginCountryCode && country['code'] != _destinationController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                        children: _filteredOriginCountries.where((country) => country['code'] != _flightSearchModel.selectedOriginCountryCode && country['code'] != _destinationController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery) || country['city']!.toLowerCase().contains(_searchQuery) || country['country']!.toLowerCase().contains(_searchQuery))).map((country) {
                                                                                           return Column(
                                                                                             crossAxisAlignment: CrossAxisAlignment.start,
                                                                                             children: [
@@ -1705,6 +1738,26 @@ class _HomePageState extends State<HomePage> {
                                                                                                   child: Center(
                                                                                                     child: Icon(Icons.flag, color: Colors.grey[600], size: 16),
                                                                                                   ),
+//                                                                                                   Center(
+//   child: (country['country'] != null && country['country'].toString().isNotEmpty)
+//       ? Row(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Image.network(
+//               'https://www.srilankan.com/images/flags/flista_${country['country']}.png',
+//               width: 16,
+//               height: 16,
+//               errorBuilder: (context, error, stackTrace) => Icon(Icons.flag, color: Colors.grey[600], size: 16),
+//             ),
+//             SizedBox(width: 4),
+//             Text(
+//               '(${country['country']})',
+//               style: TextStyle(color: Colors.grey[600], fontSize: 14),
+//             ),
+//           ],
+//         )
+//       : Icon(Icons.flag, color: Colors.grey[600], size: 16),
+// )
                                                                                                 ),
                                                                                               ),
                                                                                               Divider(
@@ -1965,7 +2018,7 @@ class _HomePageState extends State<HomePage> {
                                                                                         setModalState(() {
                                                                                           // Update modal UI dynamically
                                                                                           _searchQuery = value.toLowerCase();
-                                                                                          _filteredDestinationCountries = _flightSearchModel.destinationCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery)).toList();
+                                                                                          _filteredDestinationCountries = _flightSearchModel.destinationCountries.where((country) => country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery) || country['city']!.toLowerCase().contains(_searchQuery) || country['country']!.toLowerCase().contains(_searchQuery)).toList();
                                                                                         });
                                                                                       },
                                                                                       decoration: InputDecoration(
@@ -1999,7 +2052,7 @@ class _HomePageState extends State<HomePage> {
                                                                                     Expanded(
                                                                                       child: ListView(
                                                                                         shrinkWrap: true,
-                                                                                        children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery))).map((country) {
+                                                                                        children: _filteredDestinationCountries.where((country) => country['code'] != _flightSearchModel.selectedDestinationCountryCode && country['code'] != _originController.text && (country['name']!.toLowerCase().contains(_searchQuery) || country['code']!.toLowerCase().contains(_searchQuery) || country['city']!.toLowerCase().contains(_searchQuery) || country['country']!.toLowerCase().contains(_searchQuery))).map((country) {
                                                                                           return Column(
                                                                                             crossAxisAlignment: CrossAxisAlignment.start,
                                                                                             children: [
@@ -2575,8 +2628,6 @@ class _HomePageState extends State<HomePage> {
             }));
   }
 
-  int selectedRating = 0; // Move this outside the method to retain state
-  String comment = '';
   void _showRatingPopup() {
     showDialog(
       context: context,
@@ -2697,6 +2748,11 @@ class _HomePageState extends State<HomePage> {
                                                   ? 0
                                                   : index + 1;
                                             });
+
+                                            // Save rating persistently
+                                            await saveRating(selectedRating,
+                                                reviewController.text);
+
                                             if (selectedRating > 0) {
                                               setState(() {
                                                 isSubmitting = true;
@@ -2728,12 +2784,6 @@ class _HomePageState extends State<HomePage> {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
-                                      FocusNode focusNode = FocusNode();
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                        FocusScope.of(context)
-                                            .requestFocus(focusNode);
-                                      });
                                       return MediaQuery.removeViewInsets(
                                         context: context,
                                         removeBottom: true,
@@ -2753,7 +2803,6 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                           ),
                                           content: TextField(
-                                            focusNode: focusNode,
                                             controller: reviewController,
                                             maxLines: 3,
                                             style:
@@ -2831,6 +2880,8 @@ class _HomePageState extends State<HomePage> {
                                     fontSize: screenWidth * 0.04,
                                     fontWeight: FontWeight.w500,
                                     decoration: TextDecoration.underline,
+                                    decorationColor:
+                                        Color.fromARGB(255, 255, 255, 255),
                                   ),
                                 ),
                               ),

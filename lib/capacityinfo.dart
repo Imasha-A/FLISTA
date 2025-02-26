@@ -9,7 +9,7 @@ import '../models/flightloadmodel.dart';
 import 'dart:core';
 import './history.dart';
 import 'home.dart';
-import './mypriority.dart';
+import 'extra.dart';
 
 class CapacityInfoPage extends StatefulWidget {
   final String selectedDate;
@@ -127,7 +127,11 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
           if (fullName == _userName ||
               staff.staffID == _userId ||
               _userId == 'IN1913' ||
-              _userId == 'IN1927') {
+              _userId == 'IN1927' ||
+              _userId == '23799' ||
+              _userId == '23933' ||
+              _userId == '16763' ||
+              _userId == '12988') {
             setState(() {
               areButtonsEnabled = true; // Enable buttons for matching staff
             });
@@ -356,7 +360,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/homebgnew.png"), // Change to your image
-          fit: BoxFit.contain,
+          fit: BoxFit.fitWidth,
         ),
       ),
       child: Scaffold(

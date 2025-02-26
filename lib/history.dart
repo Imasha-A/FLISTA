@@ -117,7 +117,7 @@ class _HistoryPageState extends State<HistoryPage> {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage("assets/homebgnew.png"), // Change to your image
-            fit: BoxFit.contain,
+            fit: BoxFit.fitWidth,
           ),
         ),
         child: Scaffold(

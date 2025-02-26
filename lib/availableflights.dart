@@ -175,7 +175,7 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/homebgnew.png"), // Change to your image
-          fit: BoxFit.contain,
+          fit: BoxFit.fitWidth,
         ),
       ),
       child: Scaffold(

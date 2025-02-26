@@ -191,7 +191,7 @@ class _PriorityState extends State<PriorityPage> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/homebgnew.png"), // Change to your image
-          fit: BoxFit.contain,
+          fit: BoxFit.fitWidth,
         ),
       ),
       child: Scaffold(
