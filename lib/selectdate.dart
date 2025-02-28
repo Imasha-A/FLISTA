@@ -23,11 +23,17 @@ class SelectDatePage extends StatefulWidget {
 
 class _SelectDatePageState extends State<SelectDatePage> {
   late String selectedDate;
+  bool _animate = false;
 
   @override
   void initState() {
     super.initState();
     selectedDate = widget.selectedDate;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _animate = true;
+      });
+    });
   }
 
   String _originCountry = '      CMB';
@@ -186,12 +192,43 @@ class _SelectDatePageState extends State<SelectDatePage> {
                       children: [
                         SizedBox(height: screenHeight * 0.08),
                         SizedBox(
-                          height: screenHeight *
-                              0.054, // Adjust the height as needed
-                          width: screenWidth * 0.72,
-                          child: const Image(
-                            image: AssetImage('assets/airplane-route.png'),
-                            fit: BoxFit.fill,
+                          height: screenHeight * 0.04, // Parent height
+                          width: screenWidth * 0.72, // Parent width
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // The line image (background) with reduced size
+                              SizedBox(
+                                height: screenHeight *
+                                    0.013, // Reduced height for the line image
+                                width: screenWidth *
+                                    0.72, // You can adjust this width if needed
+                                child: const Image(
+                                  image: AssetImage(
+                                      'assets/airplane-route-line.png'),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                              // The plane image (animated) with reduced size
+                              AnimatedAlign(
+                                alignment: _animate
+                                    ? Alignment.center
+                                    : Alignment.centerLeft,
+                                duration: const Duration(seconds: 3),
+                                curve: Curves.easeInOut,
+                                child: SizedBox(
+                                  height: screenHeight *
+                                      0.07, // Smaller height for the plane image
+                                  width: screenWidth *
+                                      0.14, // Adjust the width as needed
+                                  child: const Image(
+                                    image: AssetImage(
+                                        'assets/airplane-route-plane.png'),
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(
@@ -357,7 +394,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      const Color.fromARGB(198, 255, 255, 255),
+                                      const Color.fromARGB(255, 255, 255, 255),
                                   shadowColor:
                                       const Color.fromARGB(255, 33, 144, 213),
                                   side: const BorderSide(
@@ -367,7 +404,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     borderRadius: BorderRadius.circular(9.0),
                                   ),
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.06,
+                                      horizontal: screenWidth * 0.082,
                                       vertical: screenHeight * 0.017),
                                 ),
                                 child: Column(
@@ -416,7 +453,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      const Color.fromARGB(198, 255, 255, 255),
+                                      const Color.fromARGB(255, 255, 255, 255),
                                   shadowColor:
                                       const Color.fromARGB(255, 33, 144, 213),
                                   side: const BorderSide(
@@ -426,7 +463,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     borderRadius: BorderRadius.circular(9.0),
                                   ),
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.06,
+                                      horizontal: screenWidth * 0.08,
                                       vertical: screenHeight * 0.017),
                                 ),
                                 child: Column(
@@ -478,7 +515,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color.fromARGB(198, 255, 255, 255),
+                                  const Color.fromARGB(255, 255, 255, 255),
                               shadowColor:
                                   const Color.fromARGB(255, 33, 144, 213),
                               side: const BorderSide(

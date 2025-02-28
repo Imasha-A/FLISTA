@@ -5,7 +5,6 @@ import 'package:flista_new/history.dart';
 import 'package:flista_new/home.dart';
 import 'package:flista_new/main.dart';
 import 'package:flista_new/models/staffmodel.dart';
-import 'package:flista_new/models/staffpnrmodal.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +12,7 @@ import 'package:flista_new/models/ticketInformationmodel.dart';
 import 'package:flista_new/models/flightmodel.dart';
 import '../services/api_service.dart';
 import 'dart:ui' as ui;
+import 'package:location/location.dart';
 
 class MyTickets extends StatefulWidget {
   const MyTickets({super.key});
@@ -35,8 +35,13 @@ class _MyTicketsState extends State<MyTickets> {
   String selectedValue = 'all';
   String standardBaggageAllowance = '';
   String segmentTattooNumber = '';
-  String excessBaggageInfo = ''; // Or a more appropriate default type if needed
+  String excessBaggageInfo = '';
+  double? latitude = 0.0;
+  double? longitude = 0.0;
 
+  Location location = Location();
+  LocationData? _locationData;
+  String? _error;
   @override
   void initState() {
     super.initState();
@@ -275,6 +280,69 @@ class _MyTicketsState extends State<MyTickets> {
       }
     } catch (e) {
       print("Base64 Decoding Failed: $e");
+    }
+  }
+
+  Future<void> sendData(
+      double latitude, double longitude, String _userId) async {
+    String result = await _apiService.sendLocationData(
+        latitude, longitude, _userId, "Stand-by");
+    print(result); // Prints "success" or "fail"
+  } //success
+
+  Future<void> _getLocation() async {
+    try {
+      bool serviceEnabled;
+      PermissionStatus permissionGranted;
+
+      // Check if location services are enabled
+      serviceEnabled = await location.serviceEnabled();
+      print("Location services enabled: $serviceEnabled");
+
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        print("Requested location service. Enabled: $serviceEnabled");
+
+        if (!serviceEnabled) {
+          setState(() => _error = "Location services are disabled.");
+          print("Error: Location services are disabled.");
+          return;
+        }
+      }
+
+      // Request location permission
+      permissionGranted = await location.hasPermission();
+      print("Initial permission status: $permissionGranted");
+
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        print("Requested permission. New status: $permissionGranted");
+
+        if (permissionGranted != PermissionStatus.granted) {
+          setState(() => _error = "Location permission denied.");
+          print("Error: Location permission denied.");
+          return;
+        }
+      }
+
+      // Get current location
+      _locationData = await location.getLocation();
+      print("Location data received: $_locationData");
+
+      // Access latitude and longitude
+      latitude = _locationData?.latitude;
+      longitude = _locationData?.longitude;
+
+      setState(() {
+        _error = null; // Clear error if successful
+      });
+
+      print("Latitude: $latitude, Longitude: $longitude");
+
+      await sendData(latitude!, longitude!, _userId);
+    } catch (e) {
+      setState(() => _error = "Error: $e");
+      print("Exception caught: $e");
     }
   }
 
@@ -1418,124 +1486,157 @@ class _MyTicketsState extends State<MyTickets> {
                                                       SizedBox(
                                                           height: screenHeight *
                                                               0.025),
-
-                                                      if (excessBaggageInfo
-                                                          .isNotEmpty)
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                            left: screenWidth *
-                                                                0.04,
-                                                            right: screenWidth *
-                                                                0.04,
-                                                            top: 0,
-                                                            bottom: 0,
-                                                          ),
-                                                          child: Center(
-                                                            child:
-                                                                ElevatedButton(
-                                                              onPressed: () {
-                                                                // Show a popup with the excess baggage info
-                                                                showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (BuildContext
-                                                                          context) {
-                                                                    return AlertDialog(
-                                                                      title:
-                                                                          Text(
-                                                                        "Excess Baggage Info",
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontWeight:
-                                                                              FontWeight.bold,
-                                                                          color: const Color
-                                                                              .fromRGBO(
-                                                                              2,
-                                                                              77,
-                                                                              117,
-                                                                              1),
-                                                                          fontSize:
-                                                                              screenWidth * 0.06,
-                                                                        ),
-                                                                      ),
-                                                                      content:
-                                                                          Text(
-                                                                        excessBaggageInfo
-                                                                            .replaceAll(RegExp(r', |\|'),
-                                                                                '\n')
-                                                                            .trim(), // Trim leading/trailing spaces
-                                                                        style:
-                                                                            TextStyle(
-                                                                          color: const Color
-                                                                              .fromRGBO(
-                                                                              2,
-                                                                              77,
-                                                                              117,
-                                                                              1),
-                                                                          fontSize:
-                                                                              screenWidth * 0.043,
-                                                                        ),
-                                                                      ),
-                                                                      actions: [
-                                                                        TextButton(
-                                                                          onPressed: () =>
-                                                                              Navigator.pop(context),
-                                                                          child:
+                                                      Row(
+                                                        children: [
+                                                          if (excessBaggageInfo
+                                                              .isNotEmpty)
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .only(
+                                                                left:
+                                                                    screenWidth *
+                                                                        0.04,
+                                                                right:
+                                                                    screenWidth *
+                                                                        0.04,
+                                                                top: 0,
+                                                                bottom: 0,
+                                                              ),
+                                                              child: Center(
+                                                                child:
+                                                                    ElevatedButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // Show a popup with the excess baggage info
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return AlertDialog(
+                                                                          title:
                                                                               Text(
-                                                                            "Close",
+                                                                            "Excess Baggage Info",
                                                                             style:
                                                                                 TextStyle(
-                                                                              fontWeight: FontWeight.w700,
+                                                                              fontWeight: FontWeight.bold,
                                                                               color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                              fontSize: screenWidth * 0.042,
+                                                                              fontSize: screenWidth * 0.06,
                                                                             ),
                                                                           ),
-                                                                        ),
-                                                                      ],
+                                                                          content:
+                                                                              Text(
+                                                                            excessBaggageInfo.replaceAll(RegExp(r', |\|'), '\n').trim(), // Trim leading/trailing spaces
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                              fontSize: screenWidth * 0.043,
+                                                                            ),
+                                                                          ),
+                                                                          actions: [
+                                                                            TextButton(
+                                                                              onPressed: () => Navigator.pop(context),
+                                                                              child: Text(
+                                                                                "Close",
+                                                                                style: TextStyle(
+                                                                                  fontWeight: FontWeight.w700,
+                                                                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                  fontSize: screenWidth * 0.042,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        );
+                                                                      },
                                                                     );
                                                                   },
-                                                                );
-                                                              },
-                                                              child: const Text(
-                                                                  'Excess Baggage'),
+                                                                  child: const Text(
+                                                                      'Excess Baggage'),
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    disabledBackgroundColor:
+                                                                        const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            238,
+                                                                            238,
+                                                                            243),
+                                                                    elevation:
+                                                                        0,
+                                                                    foregroundColor:
+                                                                        const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            107,
+                                                                            109,
+                                                                            118),
+                                                                    backgroundColor:
+                                                                        const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            255,
+                                                                            255,
+                                                                            255),
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            screenWidth *
+                                                                                0.1,
+                                                                        vertical:
+                                                                            screenHeight *
+                                                                                0.005),
+                                                                    textStyle: TextStyle(
+                                                                        fontSize:
+                                                                            screenWidth *
+                                                                                0.036),
+                                                                    shape:
+                                                                        RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              5),
+                                                                      side:
+                                                                          const BorderSide(
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            144,
+                                                                            140,
+                                                                            159),
+                                                                        width:
+                                                                            1,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          if (excessBaggageInfo
+                                                              .isEmpty)
+                                                            SizedBox(
+                                                              width:
+                                                                  screenWidth *
+                                                                      0.55,
+                                                            ),
+                                                          SizedBox(
+                                                            width: screenWidth *
+                                                                0.28, // Customize width
+                                                            height: screenHeight *
+                                                                0.045, // Customize height
+                                                            child:
+                                                                ElevatedButton(
                                                               style:
                                                                   ElevatedButton
                                                                       .styleFrom(
-                                                                disabledBackgroundColor:
-                                                                    const Color
-                                                                        .fromARGB(
-                                                                        255,
-                                                                        238,
-                                                                        238,
-                                                                        243),
-                                                                elevation: 0,
-                                                                foregroundColor:
-                                                                    const Color
-                                                                        .fromARGB(
-                                                                        255,
-                                                                        107,
-                                                                        109,
-                                                                        118),
                                                                 backgroundColor:
                                                                     const Color
                                                                         .fromARGB(
                                                                         255,
-                                                                        255,
-                                                                        255,
-                                                                        255),
-                                                                padding: EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        screenWidth *
-                                                                            0.25,
-                                                                    vertical:
-                                                                        screenHeight *
-                                                                            0.005),
-                                                                textStyle: TextStyle(
-                                                                    fontSize:
-                                                                        screenWidth *
-                                                                            0.037),
+                                                                        55,
+                                                                        55,
+                                                                        55),
+                                                                foregroundColor:
+                                                                    Colors
+                                                                        .white,
                                                                 shape:
                                                                     RoundedRectangleBorder(
                                                                   borderRadius:
@@ -1547,16 +1648,30 @@ class _MyTicketsState extends State<MyTickets> {
                                                                     color: Color
                                                                         .fromARGB(
                                                                             255,
-                                                                            144,
-                                                                            140,
-                                                                            159),
+                                                                            55,
+                                                                            55,
+                                                                            55),
                                                                     width: 1,
                                                                   ),
                                                                 ),
                                                               ),
+                                                              onPressed:
+                                                                  () async {
+                                                                try {
+                                                                  
+                                                                  _getLocation();
+                                                                } catch (e) {
+                                                                  print(
+                                                                      "Error: $e");
+                                                                }
+                                                              },
+                                                              child: Text(
+                                                                  "Standby"),
                                                             ),
                                                           ),
-                                                        ),
+                                                        ],
+                                                      ),
+
                                                       SizedBox(
                                                           height: screenHeight *
                                                               0.02),
@@ -1572,48 +1687,58 @@ class _MyTicketsState extends State<MyTickets> {
                               }).toList(),
                             )
                           else
-                            Align(
-                              alignment: Alignment.center,
-                              child: Column(
-                                children: [
-                                  SizedBox(height: screenHeight * 0.15),
-                                  Image.asset(
-                                    'assets/noticket.png',
-                                    width: screenWidth * 0.4,
-                                    height: screenHeight * 0.2,
-                                    fit: BoxFit.fill,
+                            FutureBuilder(
+                              future: Future.delayed(Duration(
+                                  seconds: 6)), // Adjust delay as needed
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return SizedBox(); // Show nothing while waiting
+                                }
+                                return Align(
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: screenHeight * 0.15),
+                                      Image.asset(
+                                        'assets/noticket.png',
+                                        width: screenWidth * 0.4,
+                                        height: screenHeight * 0.2,
+                                        fit: BoxFit.fill,
+                                      ),
+                                      Text(
+                                        'Sorry..',
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.065,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 93, 93, 93),
+                                        ),
+                                      ),
+                                      Text(
+                                        'You do not have any',
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.06,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 93, 93, 93),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        'booking information',
+                                        style: TextStyle(
+                                          fontSize: screenWidth * 0.06,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromARGB(
+                                              255, 93, 93, 93),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    'Sorry..',
-                                    style: TextStyle(
-                                      fontSize: screenWidth * 0.065,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          const Color.fromARGB(255, 93, 93, 93),
-                                    ),
-                                  ),
-                                  Text(
-                                    'You do not have any',
-                                    style: TextStyle(
-                                      fontSize: screenWidth * 0.06,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          const Color.fromARGB(255, 93, 93, 93),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    'booking information',
-                                    style: TextStyle(
-                                      fontSize: screenWidth * 0.06,
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          const Color.fromARGB(255, 93, 93, 93),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
                         ],
                       ),

@@ -433,4 +433,32 @@ class APIService {
       throw Exception('Error fetching data: $e');
     }
   }
+
+  Future<String> sendLocationData(
+      double latitude, double longitude, String id, String message) async {
+    final url = Uri.parse(""); // ADD API
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "latitude": latitude,
+          "longitude": longitude,
+          "id": id,
+          "message": message,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data[
+            'status']; // Assuming API returns {"status": "success"} or {"status": "fail"}
+      } else {
+        return "fail";
+      }
+    } catch (e) {
+      return "nothing right now"; // Handle exceptions
+    }
+  }
 }

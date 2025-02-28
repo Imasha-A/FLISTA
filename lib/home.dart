@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flista_new/mytickets.dart';
 import 'package:flutter/material.dart';
@@ -1934,9 +1936,9 @@ class _HomePageState extends State<HomePage> {
                                                                               255,
                                                                               255),
                                                                           fontSize:
-                                                                              screenWidth * 0.045,
+                                                                              screenWidth * 0.048,
                                                                           fontWeight:
-                                                                              FontWeight.w300,
+                                                                              FontWeight.w600,
                                                                         ),
                                                                         textAlign:
                                                                             TextAlign.center,
@@ -2464,9 +2466,9 @@ class _HomePageState extends State<HomePage> {
                                                                               255,
                                                                               255),
                                                                           fontSize:
-                                                                              screenWidth * 0.045,
+                                                                              screenWidth * 0.048,
                                                                           fontWeight:
-                                                                              FontWeight.w300,
+                                                                              FontWeight.w600,
                                                                         ),
                                                                         textAlign:
                                                                             TextAlign.center,
@@ -2798,6 +2800,7 @@ class _HomePageState extends State<HomePage> {
         final screenHeight = MediaQuery.of(context).size.height;
         final screenWidth = MediaQuery.of(context).size.width;
         bool isSubmitting = false;
+        String? popupMessage; // New state for the popup message
         TextEditingController reviewController = TextEditingController();
 
         return StatefulBuilder(
@@ -2813,6 +2816,7 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Top container with gradient header
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -2888,57 +2892,105 @@ class _HomePageState extends State<HomePage> {
                                   color: Colors.white,
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(5, (index) {
-                                  return IconButton(
-                                    icon: Icon(
-                                      index < selectedRating
-                                          ? Icons.star_rounded
-                                          : Icons.star_border_rounded,
-                                      color: index < selectedRating
-                                          ? const Color.fromARGB(
-                                              255, 255, 178, 13)
-                                          : Colors.white,
-                                      size: screenWidth * 0.086,
-                                    ),
-                                    onPressed: isSubmitting
-                                        ? null
-                                        : () async {
-                                            setState(() {
-                                              selectedRating = (index == 0 &&
-                                                      selectedRating == 1)
-                                                  ? 0
-                                                  : index + 1;
-                                            });
-
-                                            // Save rating persistently
-                                            await saveRating(selectedRating,
-                                                reviewController.text);
-
-                                            if (selectedRating > 0) {
-                                              setState(() {
-                                                isSubmitting = true;
-                                              });
-                                              try {
-                                                APIService apiService =
-                                                    APIService();
-                                                await apiService.submitRating(
-                                                    _userId,
-                                                    selectedRating,
-                                                    reviewController.text);
-                                              } catch (error) {
-                                                print(
-                                                    "Failed to submit rating: $error");
-                                              } finally {
+                              // Wrap the stars row in a Stack so we can overlay the popup message above it
+                              Stack(
+                                clipBehavior: Clip.none,
+                                alignment: Alignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(5, (index) {
+                                      return IconButton(
+                                        icon: Icon(
+                                          index < selectedRating
+                                              ? Icons.star_rounded
+                                              : Icons.star_border_rounded,
+                                          color: index < selectedRating
+                                              ? const Color.fromARGB(
+                                                  255, 255, 178, 13)
+                                              : Colors.white,
+                                          size: screenWidth * 0.086,
+                                        ),
+                                        onPressed: isSubmitting
+                                            ? null
+                                            : () async {
                                                 setState(() {
-                                                  isSubmitting = false;
+                                                  selectedRating = (index ==
+                                                              0 &&
+                                                          selectedRating == 1)
+                                                      ? 0
+                                                      : index + 1;
                                                 });
-                                              }
-                                            }
-                                          },
-                                  );
-                                }),
+
+                                                // Save rating persistently
+                                                await saveRating(selectedRating,
+                                                    reviewController.text);
+
+                                                if (selectedRating > 0) {
+                                                  setState(() {
+                                                    isSubmitting = true;
+                                                  });
+                                                  try {
+                                                    APIService apiService =
+                                                        APIService();
+                                                    await apiService
+                                                        .submitRating(
+                                                            _userId,
+                                                            selectedRating,
+                                                            reviewController
+                                                                .text);
+                                                    setState(() {
+                                                      popupMessage =
+                                                          "Rating submitted successfully!";
+                                                    });
+                                                  } catch (error) {
+                                                    setState(() {
+                                                      popupMessage =
+                                                          "Failed to submit rating!";
+                                                    });
+                                                    print(
+                                                        "Failed to submit rating: $error");
+                                                  } finally {
+                                                    // Clear the popup after 2 seconds
+                                                    Timer(Duration(seconds: 1),
+                                                        () {
+                                                      setState(() {
+                                                        popupMessage = null;
+                                                      });
+                                                    });
+                                                    setState(() {
+                                                      isSubmitting = false;
+                                                    });
+                                                  }
+                                                }
+                                              },
+                                      );
+                                    }),
+                                  ),
+                                  // Positioned popup message above the stars
+                                  if (popupMessage != null)
+                                    Positioned(
+                                      top: screenHeight *
+                                          0.05, // adjust as needed
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(
+                                              160, 158, 156, 162),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          popupMessage!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: screenHeight * 0.015,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                               SizedBox(height: screenHeight * 0.02),
                               // "Leave a Review" button
@@ -3054,6 +3106,7 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
+                    // Bottom container with version info and IT support info
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,

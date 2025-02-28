@@ -46,6 +46,8 @@ dependencies:
   dropdown_search: ^5.0.6
   modal_bottom_sheet: ^3.0.0
   package_info_plus: ^8.2.0
+  pull_to_refresh: ^2.0.0
+  location: ^7.0.1
   
 
 
@@ -119,6 +121,8 @@ flutter:
      - assets/splash.png
      - assets/line.png
      - assets/flistalogin.png
+     - assets/airplane-route-line.png
+     - assets/airplane-route-plane.png
 
 
 

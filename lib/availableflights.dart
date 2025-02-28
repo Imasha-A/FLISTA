@@ -239,12 +239,37 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                           height: screenHeight * 0.08,
                         ),
                         SizedBox(
-                          height: screenHeight *
-                              0.054, // Adjust the height as needed
-                          width: screenWidth * 0.72,
-                          child: const Image(
-                            image: AssetImage('assets/airplane-route.png'),
-                            fit: BoxFit.fill,
+                          height: screenHeight * 0.04, // Parent height
+                          width: screenWidth * 0.72, // Parent width
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // The line image (background) with reduced size
+                              SizedBox(
+                                height: screenHeight *
+                                    0.013, // Reduced height for the line image
+                                width: screenWidth *
+                                    0.72, // You can adjust this width if needed
+                                child: const Image(
+                                  image: AssetImage(
+                                      'assets/airplane-route-line.png'),
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                              // The plane image (animated) with reduced size
+
+                              SizedBox(
+                                height: screenHeight *
+                                    0.07, // Smaller height for the plane image
+                                width: screenWidth *
+                                    0.3, // Adjust the width as needed
+                                child: const Image(
+                                  image: AssetImage(
+                                      'assets/airplane-route-plane.png'),
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(

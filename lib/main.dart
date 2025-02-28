@@ -477,7 +477,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             style: TextStyle(
                               fontSize: textFieldFontSize,
                               color: Colors
-                                  .white, // This makes the text color white
+                                  .white, // Imasha and Ayani are the bestest
                             ),
                           ),
                         ),
