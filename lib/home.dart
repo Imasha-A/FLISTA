@@ -56,6 +56,9 @@ class _HomePageState extends State<HomePage> {
   String appVersion = "Loading...";
   int selectedRating = 0;
   String comment = '';
+
+  static List<Map<String, String>>? _cachedAirportList;
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +83,22 @@ class _HomePageState extends State<HomePage> {
 
     loadRating();
     _fetchAirportList();
+
+    if (_cachedAirportList == null) {
+      _fetchAirportList();
+    } else {
+      _useCachedData();
+    }
+
+    _originFocusNode.addListener(() {
+      if (!_originFocusNode.hasFocus) {
+        _validateOriginInput();
+      } else if (_originController.text.isNotEmpty) {
+        _showOriginSuggestions();
+      } else {
+        _hideOriginSuggestions();
+      }
+    });
 
     _originFocusNode.addListener(() {
       if (!_originFocusNode.hasFocus) {
@@ -197,12 +216,49 @@ class _HomePageState extends State<HomePage> {
         .join(' '); // Join words back into a sentence
   }
 
+  // Future<void> _fetchAirportList() async {
+  //   APIService apiService = APIService();
+  //   List<Map<String, String>> airportList = await apiService.fetchAirportList();
+
+  //   setState(() {
+  //     _flightSearchModel.originCountries = airportList.map((airport) {
+  //       return {
+  //         'name': toTitleCase(airport['name']!.trim()),
+  //         'code': airport['code']!,
+  //         'city': airport['city']!,
+  //         'country': airport['country']!,
+  //       };
+  //     }).toList();
+
+  //     _flightSearchModel.destinationCountries = airportList.map((airport) {
+  //       return {
+  //         'name': toTitleCase(airport['name']!.trim()),
+  //         'code': airport['code']!,
+  //         'city': airport['city']!,
+  //         'country': airport['country']!,
+  //       };
+  //     }).toList();
+
+  //     _filteredOriginCountries = _flightSearchModel.originCountries;
+  //     print(_filteredOriginCountries);
+  //     _filteredDestinationCountries = _flightSearchModel.destinationCountries;
+  //     _isLoading = false;
+  //   });
+  // }
+
   Future<void> _fetchAirportList() async {
     APIService apiService = APIService();
     List<Map<String, String>> airportList = await apiService.fetchAirportList();
 
     setState(() {
-      _flightSearchModel.originCountries = airportList.map((airport) {
+      _cachedAirportList = airportList; // Cache the fetched list
+      _useCachedData();
+    });
+  }
+
+  void _useCachedData() {
+    setState(() {
+      _flightSearchModel.originCountries = _cachedAirportList!.map((airport) {
         return {
           'name': toTitleCase(airport['name']!.trim()),
           'code': airport['code']!,
@@ -211,17 +267,9 @@ class _HomePageState extends State<HomePage> {
         };
       }).toList();
 
-      _flightSearchModel.destinationCountries = airportList.map((airport) {
-        return {
-          'name': toTitleCase(airport['name']!.trim()),
-          'code': airport['code']!,
-          'city': airport['city']!,
-          'country': airport['country']!,
-        };
-      }).toList();
-
+      _flightSearchModel.destinationCountries =
+          List.from(_flightSearchModel.originCountries);
       _filteredOriginCountries = _flightSearchModel.originCountries;
-      print(_filteredOriginCountries);
       _filteredDestinationCountries = _flightSearchModel.destinationCountries;
       _isLoading = false;
     });
@@ -1762,13 +1810,13 @@ class _HomePageState extends State<HomePage> {
                                                                                                     print("Formatted Country Code: $formattedCountry");
 
                                                                                                     return Container(
-                                                                                                      width: screenWidth * 0.14,
+                                                                                                      width: screenWidth * 0.12,
                                                                                                       height: screenHeight * 0.04,
                                                                                                       decoration: BoxDecoration(
                                                                                                         boxShadow: [
                                                                                                           BoxShadow(
-                                                                                                            color: Colors.black.withOpacity(0.2),
-                                                                                                            blurRadius: 4,
+                                                                                                            color: const Color.fromARGB(255, 176, 176, 176).withOpacity(0.1),
+                                                                                                            blurRadius: 1,
                                                                                                             spreadRadius: 1,
                                                                                                             offset: Offset(2, 2),
                                                                                                           ),
@@ -1776,9 +1824,10 @@ class _HomePageState extends State<HomePage> {
                                                                                                       ),
                                                                                                       child: Image.network(
                                                                                                         'https://www.srilankan.com/images/flags/flista_$formattedCountry.png',
-                                                                                                        width: screenWidth * 0.14,
+                                                                                                        width: screenWidth * 0.05,
                                                                                                         height: screenHeight * 0.04,
                                                                                                         fit: BoxFit.contain,
+
                                                                                                         // Use frameBuilder to display a loader until the image frame is ready.
                                                                                                         frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
                                                                                                           if (wasSynchronouslyLoaded) {
@@ -1788,29 +1837,30 @@ class _HomePageState extends State<HomePage> {
                                                                                                           if (frame == null) {
                                                                                                             // While the image is loading, show a loader.
                                                                                                             return Container(
-                                                                                                              width: screenWidth * 0.07,
-                                                                                                              height: screenHeight * 0.01,
+                                                                                                              width: screenWidth * 0.0001,
+                                                                                                              height: screenHeight * 0.00005,
                                                                                                               alignment: Alignment.center,
                                                                                                               child: CircularProgressIndicator(
-                                                                                                                strokeWidth: 3,
-                                                                                                                color: const Color.fromARGB(255, 61, 66, 93),
+                                                                                                                strokeWidth: 2,
+                                                                                                                color: const Color.fromARGB(255, 138, 138, 139),
                                                                                                               ),
                                                                                                             );
                                                                                                           }
                                                                                                           // Once a frame is available, show the image.
                                                                                                           return child;
                                                                                                         },
+
                                                                                                         errorBuilder: (context, error, stackTrace) => Container(
-                                                                                                          width: screenWidth * 0.14,
+                                                                                                          width: screenWidth * 0.05,
                                                                                                           height: screenHeight * 0.04,
                                                                                                           decoration: BoxDecoration(
                                                                                                             color: const Color.fromARGB(255, 209, 209, 210),
                                                                                                             boxShadow: [
                                                                                                               BoxShadow(
-                                                                                                                color: const Color.fromARGB(255, 148, 147, 147).withOpacity(0.2),
-                                                                                                                blurRadius: 2,
+                                                                                                                color: const Color.fromARGB(255, 215, 215, 215).withOpacity(0.2),
+                                                                                                                blurRadius: 1,
                                                                                                                 spreadRadius: 1,
-                                                                                                                offset: Offset(2, 1),
+                                                                                                                offset: Offset(1, 1),
                                                                                                               ),
                                                                                                             ],
                                                                                                           ),
@@ -2293,13 +2343,13 @@ class _HomePageState extends State<HomePage> {
                                                                                                     print("Formatted Country Code: $formattedCountry");
 
                                                                                                     return Container(
-                                                                                                      width: screenWidth * 0.14,
+                                                                                                      width: screenWidth * 0.12,
                                                                                                       height: screenHeight * 0.04,
                                                                                                       decoration: BoxDecoration(
                                                                                                         boxShadow: [
                                                                                                           BoxShadow(
-                                                                                                            color: Colors.black.withOpacity(0.2),
-                                                                                                            blurRadius: 4,
+                                                                                                            color: const Color.fromARGB(255, 176, 176, 176).withOpacity(0.1),
+                                                                                                            blurRadius: 1,
                                                                                                             spreadRadius: 1,
                                                                                                             offset: Offset(2, 2),
                                                                                                           ),
@@ -2307,7 +2357,7 @@ class _HomePageState extends State<HomePage> {
                                                                                                       ),
                                                                                                       child: Image.network(
                                                                                                         'https://www.srilankan.com/images/flags/flista_$formattedCountry.png',
-                                                                                                        width: screenWidth * 0.14,
+                                                                                                        width: screenWidth * 0.05,
                                                                                                         height: screenHeight * 0.04,
                                                                                                         fit: BoxFit.contain,
                                                                                                         // Use frameBuilder to display a loader until the image frame is ready.
@@ -2319,12 +2369,12 @@ class _HomePageState extends State<HomePage> {
                                                                                                           if (frame == null) {
                                                                                                             // While the image is loading, show a loader.
                                                                                                             return Container(
-                                                                                                              width: screenWidth * 0.07,
-                                                                                                              height: screenHeight * 0.01,
+                                                                                                              width: screenWidth * 0.0001,
+                                                                                                              height: screenHeight * 0.00005,
                                                                                                               alignment: Alignment.center,
                                                                                                               child: CircularProgressIndicator(
-                                                                                                                strokeWidth: 3,
-                                                                                                                color: const Color.fromARGB(255, 61, 66, 93),
+                                                                                                                strokeWidth: 2,
+                                                                                                                color: const Color.fromARGB(255, 138, 138, 139),
                                                                                                               ),
                                                                                                             );
                                                                                                           }
@@ -2332,16 +2382,16 @@ class _HomePageState extends State<HomePage> {
                                                                                                           return child;
                                                                                                         },
                                                                                                         errorBuilder: (context, error, stackTrace) => Container(
-                                                                                                          width: screenWidth * 0.14,
+                                                                                                          width: screenWidth * 0.05,
                                                                                                           height: screenHeight * 0.04,
                                                                                                           decoration: BoxDecoration(
                                                                                                             color: const Color.fromARGB(255, 209, 209, 210),
                                                                                                             boxShadow: [
                                                                                                               BoxShadow(
-                                                                                                                color: const Color.fromARGB(255, 148, 147, 147).withOpacity(0.2),
-                                                                                                                blurRadius: 2,
+                                                                                                                color: const Color.fromARGB(255, 215, 215, 215).withOpacity(0.2),
+                                                                                                                blurRadius: 1,
                                                                                                                 spreadRadius: 1,
-                                                                                                                offset: Offset(2, 1),
+                                                                                                                offset: Offset(1, 1),
                                                                                                               ),
                                                                                                             ],
                                                                                                           ),

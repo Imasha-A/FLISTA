@@ -634,10 +634,8 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                           _changeUL(false);
                                                         },
                                                         child: Container(
-                                                          width: screenWidth *
-                                                              0.16, // Increase the tap area
-                                                          height: screenHeigth *
-                                                              0.06,
+                                                          width: screenWidth * 0.12, // Increase the tap area
+                                                          height: screenHeigth * 0.06,
                                                           alignment:
                                                               Alignment.center,
                                                           child: Icon(
@@ -672,7 +670,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                         },
                                                         child: Container(
                                                           width: screenWidth *
-                                                              0.16, // Increase tap area
+                                                              0.12, // Increase tap area
                                                           height: screenHeigth *
                                                               0.06,
                                                           alignment:
