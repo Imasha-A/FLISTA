@@ -634,8 +634,10 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                           _changeUL(false);
                                                         },
                                                         child: Container(
-                                                          width: screenWidth * 0.12, // Increase the tap area
-                                                          height: screenHeigth * 0.06,
+                                                          width: screenWidth *
+                                                              0.12, // Increase the tap area
+                                                          height: screenHeigth *
+                                                              0.06,
                                                           alignment:
                                                               Alignment.center,
                                                           child: Icon(
@@ -726,7 +728,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                width: screenWidth * 0.1,
+                                                width: screenWidth * 0.095,
                                               ),
                                               Text(
                                                 'EY', // Economy Class
@@ -737,7 +739,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                width: screenWidth * 0.043,
+                                                width: screenWidth * 0.045,
                                               ),
                                             ],
                                           ),
@@ -785,7 +787,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                               ),
                                               Transform.translate(
                                                 offset: Offset(
-                                                    screenWidth * 0.165,
+                                                    screenWidth * 0.158,
                                                     -0.5), //-12.55
                                                 child: Container(
                                                   height: screenHeigth * 0.035,

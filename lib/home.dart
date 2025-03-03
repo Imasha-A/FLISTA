@@ -1810,15 +1810,15 @@ class _HomePageState extends State<HomePage> {
                                                                                                     print("Formatted Country Code: $formattedCountry");
 
                                                                                                     return Container(
-                                                                                                      width: screenWidth * 0.12,
+                                                                                                      width: screenWidth * 0.135,
                                                                                                       height: screenHeight * 0.04,
                                                                                                       decoration: BoxDecoration(
                                                                                                         boxShadow: [
                                                                                                           BoxShadow(
-                                                                                                            color: const Color.fromARGB(255, 176, 176, 176).withOpacity(0.1),
-                                                                                                            blurRadius: 1,
-                                                                                                            spreadRadius: 1,
-                                                                                                            offset: Offset(2, 2),
+                                                                                                            color: const Color.fromARGB(255, 147, 147, 147).withOpacity(0.1),
+                                                                                                            blurRadius: 0.01,
+                                                                                                            spreadRadius: 0.001,
+                                                                                                            offset: Offset(0, 0),
                                                                                                           ),
                                                                                                         ],
                                                                                                       ),
@@ -2343,22 +2343,22 @@ class _HomePageState extends State<HomePage> {
                                                                                                     print("Formatted Country Code: $formattedCountry");
 
                                                                                                     return Container(
-                                                                                                      width: screenWidth * 0.12,
+                                                                                                      width: screenWidth * 0.135,
                                                                                                       height: screenHeight * 0.04,
                                                                                                       decoration: BoxDecoration(
                                                                                                         boxShadow: [
                                                                                                           BoxShadow(
-                                                                                                            color: const Color.fromARGB(255, 176, 176, 176).withOpacity(0.1),
-                                                                                                            blurRadius: 1,
-                                                                                                            spreadRadius: 1,
-                                                                                                            offset: Offset(2, 2),
+                                                                                                            color: const Color.fromARGB(255, 147, 147, 147).withOpacity(0.1),
+                                                                                                            blurRadius: 0.01,
+                                                                                                            spreadRadius: 0.001,
+                                                                                                            offset: Offset(0, 0),
                                                                                                           ),
                                                                                                         ],
                                                                                                       ),
                                                                                                       child: Image.network(
                                                                                                         'https://www.srilankan.com/images/flags/flista_$formattedCountry.png',
-                                                                                                        width: screenWidth * 0.05,
-                                                                                                        height: screenHeight * 0.04,
+                                                                                                        width: screenWidth * 0.12,
+                                                                                                        height: screenHeight * 0.038,
                                                                                                         fit: BoxFit.contain,
                                                                                                         // Use frameBuilder to display a loader until the image frame is ready.
                                                                                                         frameBuilder: (BuildContext context, Widget child, int? frame, bool wasSynchronouslyLoaded) {
@@ -2374,7 +2374,7 @@ class _HomePageState extends State<HomePage> {
                                                                                                               alignment: Alignment.center,
                                                                                                               child: CircularProgressIndicator(
                                                                                                                 strokeWidth: 2,
-                                                                                                                color: const Color.fromARGB(255, 138, 138, 139),
+                                                                                                                color: const Color.fromARGB(255, 173, 173, 173),
                                                                                                               ),
                                                                                                             );
                                                                                                           }
