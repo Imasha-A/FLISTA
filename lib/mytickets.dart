@@ -13,6 +13,7 @@ import 'package:flista_new/models/flightmodel.dart';
 import '../services/api_service.dart';
 import 'dart:ui' as ui;
 import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart' as ph;
 
 class MyTickets extends StatefulWidget {
   const MyTickets({super.key});
@@ -38,6 +39,9 @@ class _MyTicketsState extends State<MyTickets> {
   String excessBaggageInfo = '';
   double? latitude = 0.0;
   double? longitude = 0.0;
+  bool _hasRequestedPermissionBefore = false;
+  // Track standby status separately for each segment
+  Map<String, bool> _standbyStatusMap = {};
 
   Location location = Location();
   LocationData? _locationData;
@@ -45,6 +49,7 @@ class _MyTicketsState extends State<MyTickets> {
   @override
   void initState() {
     super.initState();
+    _loadStandbyStatus(); // Load persisted standby status
     _loadUserName();
     _loadUserId();
     airportDataFuture = APIService.getOriginsAndDestinations();
@@ -283,14 +288,120 @@ class _MyTicketsState extends State<MyTickets> {
     }
   }
 
+  // New function to load the standby status from SharedPreferences
+  Future<void> _loadStandbyStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _standbyStatusMap = Map<String, bool>.from(
+          jsonDecode(prefs.getString('standbyStatus') ?? '{}'));
+    });
+  }
+
   Future<void> sendData(
-      double latitude, double longitude, String _userId) async {
-    String result = await _apiService.sendLocationData(
-        latitude, longitude, _userId, "Stand-by");
-    print(result); // Prints "success" or "fail"
+      double latitude,
+      double longitude,
+      String _userId,
+      String boardPoint,
+      String offPoint,
+      String segmentTattooNumber,
+      String pnr,
+      String ticketNumber) async {
+    String result = "success";
+    //String result = await _apiService.sendLocationData(latitude, longitude, _userId, "Stand-by");
+    print(result);
+
+    if (result == "success") {
+      String key =
+          "$ticketNumber-$segmentTattooNumber"; // Unique key per segment & ticket
+
+      setState(() {
+        _standbyStatusMap[key] = true; // Store status uniquely
+      });
+
+      // Save the successful standby state for this segment in SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('standbyStatus', jsonEncode(_standbyStatusMap));
+
+      double screenWidth = MediaQuery.of(context).size.width;
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Standby Successful",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color.fromRGBO(2, 77, 117, 1),
+                fontSize: screenWidth * 0.06,
+              ),
+            ),
+            content: Text(
+              "Your standby request was successful.",
+              style: TextStyle(
+                color: Color.fromRGBO(2, 77, 117, 1),
+                fontSize: screenWidth * 0.045,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: const Color.fromRGBO(2, 77, 117, 1),
+                    fontSize: screenWidth * 0.042,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      double screenWidth = MediaQuery.of(context).size.width;
+      // Show failure dialog (Styled)
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Standby Failed",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: const Color.fromRGBO(2, 77, 117, 1),
+                fontSize: screenWidth * 0.06,
+              ),
+            ),
+            content: Text(
+              "Your standby request failed. Please try again.",
+              style: TextStyle(
+                color: const Color.fromRGBO(2, 77, 117, 1),
+                fontSize: screenWidth * 0.045,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: const Color.fromRGBO(2, 77, 117, 1),
+                    fontSize: screenWidth * 0.042,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   } //success
 
-  Future<void> _getLocation() async {
+  Future<void> _getLocation(String boardPoint, String offPoint,
+      String segmentTattooNumber, String pnr, String TicketNumber) async {
     try {
       bool serviceEnabled;
       PermissionStatus permissionGranted;
@@ -310,40 +421,112 @@ class _MyTicketsState extends State<MyTickets> {
         }
       }
 
-      // Request location permission
+      // Check location permission
       permissionGranted = await location.hasPermission();
       print("Initial permission status: $permissionGranted");
 
-      if (permissionGranted == PermissionStatus.denied) {
-        permissionGranted = await location.requestPermission();
-        print("Requested permission. New status: $permissionGranted");
-
+      if (!_hasRequestedPermissionBefore) {
+        // First time: use the system prompt
+        if (permissionGranted == PermissionStatus.denied) {
+          permissionGranted = await location.requestPermission();
+          print(
+              "Requested permission via system prompt. New status: $permissionGranted");
+          _hasRequestedPermissionBefore = true;
+        }
+      } else {
+        // Subsequent attempts: show custom dialog if permission isn't granted
         if (permissionGranted != PermissionStatus.granted) {
-          setState(() => _error = "Location permission denied.");
-          print("Error: Location permission denied.");
-          return;
+          bool shouldOpenSettings = await showPermissionDialog();
+          if (shouldOpenSettings) {
+            await ph.openAppSettings();
+            // Re-check permission after returning from settings
+            permissionGranted = await location.hasPermission();
+            if (permissionGranted != PermissionStatus.granted) {
+              setState(() => _error = "Location permission denied.");
+              print("Error: Location permission still denied after settings.");
+              return;
+            }
+          } else {
+            setState(() => _error = "Location permission denied.");
+            print("User declined to open settings. Permission denied.");
+            return;
+          }
         }
       }
 
-      // Get current location
-      _locationData = await location.getLocation();
-      print("Location data received: $_locationData");
+      // If permission is granted, get location data
+      if (permissionGranted == PermissionStatus.granted) {
+        _locationData = await location.getLocation();
+        print("Location data received: $_locationData");
 
-      // Access latitude and longitude
-      latitude = _locationData?.latitude;
-      longitude = _locationData?.longitude;
+        // Access latitude and longitude
+        latitude = _locationData?.latitude;
+        longitude = _locationData?.longitude;
 
-      setState(() {
-        _error = null; // Clear error if successful
-      });
+        setState(() {
+          _error = null; // Clear error if successful
+        });
 
-      print("Latitude: $latitude, Longitude: $longitude");
+        print("Latitude: $latitude, Longitude: $longitude");
 
-      await sendData(latitude!, longitude!, _userId);
+        await sendData(latitude!, longitude!, _userId, boardPoint, offPoint,
+            segmentTattooNumber, pnr, TicketNumber);
+      }
     } catch (e) {
       setState(() => _error = "Error: $e");
       print("Exception caught: $e");
     }
+  }
+
+  Future<bool> showPermissionDialog() async {
+    bool? response = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        double screenWidth = MediaQuery.of(context).size.width;
+        return AlertDialog(
+          title: Text(
+            "Location Permission Required",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: const Color.fromRGBO(2, 77, 117, 1),
+              fontSize: screenWidth * 0.06,
+            ),
+          ),
+          content: Text(
+            "Do you want to grant location access?",
+            style: TextStyle(
+              color: const Color.fromRGBO(2, 77, 117, 1),
+              fontSize: screenWidth * 0.045,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                "No",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: const Color.fromRGBO(2, 77, 117, 1),
+                  fontSize: screenWidth * 0.042,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                "Yes",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: const Color.fromRGBO(2, 77, 117, 1),
+                  fontSize: screenWidth * 0.042,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    return response ?? false;
   }
 
   String calculateDuration(
@@ -1625,48 +1808,180 @@ class _MyTicketsState extends State<MyTickets> {
                                                             child:
                                                                 ElevatedButton(
                                                               style:
-                                                                  ElevatedButton
-                                                                      .styleFrom(
+                                                                  ButtonStyle(
                                                                 backgroundColor:
-                                                                    const Color
-                                                                        .fromARGB(
-                                                                        255,
-                                                                        55,
-                                                                        55,
-                                                                        55),
-                                                                foregroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              5),
-                                                                  side:
-                                                                      const BorderSide(
-                                                                    color: Color
-                                                                        .fromARGB(
+                                                                    MaterialStateProperty
+                                                                        .resolveWith<
+                                                                            Color>(
+                                                                  (Set<MaterialState>
+                                                                      states) {
+                                                                    // Use per-segment tracking instead of a global boolean
+                                                                    return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                            true
+                                                                        ? Colors
+                                                                            .green
+                                                                        : const Color
+                                                                            .fromARGB(
                                                                             255,
                                                                             55,
                                                                             55,
-                                                                            55),
-                                                                    width: 1,
+                                                                            55);
+                                                                  },
+                                                                ),
+                                                                // Force text (foreground) color to remain white in all states.
+                                                                foregroundColor:
+                                                                    MaterialStateProperty
+                                                                        .resolveWith<
+                                                                            Color>(
+                                                                  (Set<MaterialState>
+                                                                      states) {
+                                                                    return Colors
+                                                                        .white;
+                                                                  },
+                                                                ),
+                                                                padding:
+                                                                    MaterialStateProperty
+                                                                        .all(
+                                                                  EdgeInsets
+                                                                      .symmetric(
+                                                                    horizontal: _standbyStatusMap[
+                                                                                "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                            true
+                                                                        ? screenWidth *
+                                                                            0.03
+                                                                        : screenWidth *
+                                                                            0.05,
+                                                                    vertical:
+                                                                        screenHeight *
+                                                                            0.005,
+                                                                  ),
+                                                                ),
+                                                                shape:
+                                                                    MaterialStateProperty
+                                                                        .all(
+                                                                  RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(5),
+                                                                    side:
+                                                                        BorderSide(
+                                                                      color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                              true
+                                                                          ? Colors
+                                                                              .green
+                                                                          : const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              55,
+                                                                              55,
+                                                                              55),
+                                                                      width: 1,
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               ),
-                                                              onPressed:
-                                                                  () async {
-                                                                try {
-                                                                  
-                                                                  _getLocation();
-                                                                } catch (e) {
-                                                                  print(
-                                                                      "Error: $e");
-                                                                }
-                                                              },
-                                                              child: Text(
-                                                                  "Standby"),
+                                                              // Disable the button after successful standby for this specific segment.
+                                                              onPressed: _standbyStatusMap[
+                                                                          "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                      true
+                                                                  ? null // Disable button if standby was already successful for this segment
+                                                                  : () async {
+                                                                      bool
+                                                                          confirmStandby =
+                                                                          await showDialog<bool>(
+                                                                                context: context,
+                                                                                builder: (BuildContext context) {
+                                                                                  return AlertDialog(
+                                                                                    title: Text(
+                                                                                      "Confirm Standby",
+                                                                                      style: TextStyle(
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                        fontSize: screenWidth * 0.06,
+                                                                                      ),
+                                                                                    ),
+                                                                                    content: Text(
+                                                                                      "Are you sure you want to confirm standby?",
+                                                                                      style: TextStyle(
+                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                        fontSize: screenWidth * 0.045,
+                                                                                      ),
+                                                                                    ),
+                                                                                    actions: [
+                                                                                      TextButton(
+                                                                                        onPressed: () {
+                                                                                          Navigator.of(context).pop(false); // User chose "No"
+                                                                                        },
+                                                                                        child: Text(
+                                                                                          "No",
+                                                                                          style: TextStyle(
+                                                                                            fontWeight: FontWeight.w700,
+                                                                                            color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                            fontSize: screenWidth * 0.042,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      TextButton(
+                                                                                        onPressed: () {
+                                                                                          Navigator.of(context).pop(true); // User chose "Yes"
+                                                                                        },
+                                                                                        child: Text(
+                                                                                          "Yes",
+                                                                                          style: TextStyle(
+                                                                                            fontWeight: FontWeight.w700,
+                                                                                            color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                            fontSize: screenWidth * 0.042,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  );
+                                                                                },
+                                                                              ) ??
+                                                                              false; // Default to false if dialog returns null
+
+                                                                      // If user confirmed standby, call _getLocation() with segmentTattooNumber
+                                                                      if (confirmStandby) {
+                                                                        _getLocation(
+                                                                            flight.Boardpoint,
+                                                                            flight.Offpoint,
+                                                                            flight.SegmentTattooNumber,
+                                                                            ticket.PNRNumber,
+                                                                            ticket.TicketNumber);
+                                                                      }
+                                                                    },
+                                                              child: Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min, // Keeps row content compact
+                                                                mainAxisAlignment: _standbyStatusMap[
+                                                                            "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                        true
+                                                                    ? MainAxisAlignment
+                                                                        .start
+                                                                    : MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  Text(
+                                                                      "Standby"),
+                                                                  if (_standbyStatusMap[
+                                                                          "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                      true)
+                                                                    SizedBox(
+                                                                        width: screenWidth *
+                                                                            0.02), // Adds spacing without using Padding
+                                                                  if (_standbyStatusMap[
+                                                                          "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                      true)
+                                                                    Icon(
+                                                                        Icons
+                                                                            .check,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        size:
+                                                                            16),
+                                                                ],
+                                                              ),
                                                             ),
                                                           ),
                                                         ],
