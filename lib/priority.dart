@@ -368,7 +368,7 @@ class _PriorityState extends State<PriorityPage> {
                           children: [
                             SizedBox(height: screenHeigth * 0.02),
                             SizedBox(
-                              height: screenHeigth * 0.17,
+                              height: screenHeigth * 0.12,
                               width: screenWidth * 0.8,
                               child: Transform.translate(
                                 offset: const Offset(0.4, -15.0),
@@ -382,10 +382,6 @@ class _PriorityState extends State<PriorityPage> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(9.0),
                                     ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: screenWidth * 0.1,
-                                        vertical: screenHeigth * 0.001),
-                                    // Adjusted padding
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -408,7 +404,7 @@ class _PriorityState extends State<PriorityPage> {
                                       ),
                                       SizedBox(height: screenHeigth * 0.002),
                                       Text(
-                                        ' on $selectedDate', // Use selectedDate variable here
+                                        '$selectedDate', // Use selectedDate variable here
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: screenWidth * .04,
@@ -416,7 +412,7 @@ class _PriorityState extends State<PriorityPage> {
                                       ),
                                       SizedBox(height: screenHeigth * 0.002),
                                       Text(
-                                        ' ${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                        '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: screenWidth * .04,
@@ -489,7 +485,7 @@ class _PriorityState extends State<PriorityPage> {
                                         children: [
                                           SizedBox(
                                             width: screenWidth * 2,
-                                            height: screenHeigth * 0.175,
+                                            height: screenHeigth * 0.115,
                                             child: ElevatedButton(
                                               onPressed: () {
                                                 // Handle button press
@@ -503,8 +499,9 @@ class _PriorityState extends State<PriorityPage> {
                                                       BorderRadius.circular(
                                                           9.0),
                                                 ),
-                                                padding:
-                                                    const EdgeInsets.all(17.0),
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal:
+                                                        screenWidth * 0.045),
                                               ),
                                               child: Row(
                                                 crossAxisAlignment:

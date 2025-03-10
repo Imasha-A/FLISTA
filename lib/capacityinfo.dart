@@ -588,9 +588,11 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                               // Handle checking availability
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color.fromARGB(75, 53, 87, 151),
+                                              backgroundColor: Color.fromARGB(
+                                                  75, 53, 87, 151),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(20.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(20.0),
                                               ),
                                               // padding: EdgeInsets.symmetric(
                                               //   horizontal: screenWidth * 0.05,
@@ -599,8 +601,10 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                               padding: EdgeInsets.zero,
                                             ),
                                             child: Column(
-                                              mainAxisSize: MainAxisSize.min, // Avoid extra space
-                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize
+                                                  .min, // Avoid extra space
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
                                               children: [
                                                 // UL Number (Shifted closer)
                                                 Transform.translate(
@@ -609,19 +613,26 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                     'UL $selectedUL',
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: screenWidth * 0.06,
-                                                      height: 1.0, // Remove extra spacing
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize:
+                                                          screenWidth * 0.06,
+                                                      height:
+                                                          1.0, // Remove extra spacing
                                                     ),
                                                   ),
                                                 ),
 
                                                 // Row for Arrows and Date
                                                 Transform.translate(
-                                                  offset: Offset(0, -2), // Moves Date row upwards
+                                                  offset: Offset(0,
+                                                      -2), // Moves Date row upwards
                                                   child: Row(
-                                                    mainAxisSize: MainAxisSize.min, // Avoid extra space
-                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    mainAxisSize: MainAxisSize
+                                                        .min, // Avoid extra space
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       // Left Arrow (Move to Previous Date)
                                                       GestureDetector(
@@ -629,33 +640,49 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                           _changeUL(false);
                                                         },
                                                         child: Container(
-                                                          width: screenWidth * 0.12, // Increased tap area
-                                                          height: screenHeigth * 0.06,
-                                                          alignment: Alignment.center,
+                                                          width: screenWidth *
+                                                              0.12, // Increased tap area
+                                                          height: screenHeigth *
+                                                              0.06,
+                                                          alignment:
+                                                              Alignment.center,
                                                           child: Icon(
-                                                            Icons.arrow_back_ios_rounded,
+                                                            Icons
+                                                                .arrow_back_ios_rounded,
                                                             color: Colors.white,
-                                                            size: screenWidth * 0.075, // Increased icon size
+                                                            size: screenWidth *
+                                                                0.075, // Increased icon size
                                                           ),
                                                         ),
                                                       ),
 
-                                                      SizedBox(width: screenWidth * 0.09), // Increased spacing
+                                                      SizedBox(
+                                                          width: screenWidth *
+                                                              0.09), // Increased spacing
 
                                                       // Selected Date (Reduced padding)
                                                       Padding(
-                                                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01), // Reduced horizontal padding
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal:
+                                                                    screenWidth *
+                                                                        0.01), // Reduced horizontal padding
                                                         child: Text(
                                                           '$selectedDate',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: screenWidth * .04,
-                                                            height: 1.0, // Remove extra spacing
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    .04,
+                                                            height:
+                                                                1.0, // Remove extra spacing
                                                           ),
                                                         ),
                                                       ),
 
-                                                      SizedBox(width: screenWidth * 0.09), // Increased spacing
+                                                      SizedBox(
+                                                          width: screenWidth *
+                                                              0.09), // Increased spacing
 
                                                       // Right Arrow (Move to Next Date)
                                                       GestureDetector(
@@ -663,13 +690,18 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                           _changeUL(true);
                                                         },
                                                         child: Container(
-                                                          width: screenWidth * 0.12, // Increased tap area
-                                                          height: screenHeigth * 0.06,
-                                                          alignment: Alignment.center,
+                                                          width: screenWidth *
+                                                              0.12, // Increased tap area
+                                                          height: screenHeigth *
+                                                              0.06,
+                                                          alignment:
+                                                              Alignment.center,
                                                           child: Icon(
-                                                            Icons.arrow_forward_ios_rounded,
+                                                            Icons
+                                                                .arrow_forward_ios_rounded,
                                                             color: Colors.white,
-                                                            size: screenWidth * 0.075, // Increased icon size
+                                                            size: screenWidth *
+                                                                0.075, // Increased icon size
                                                           ),
                                                         ),
                                                       ),
@@ -679,13 +711,16 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
 
                                                 // Scheduled Time (Shifted closer)
                                                 Transform.translate(
-                                                  offset: Offset(0, -12), // Moves scheduled time upwards
+                                                  offset: Offset(0,
+                                                      -12), // Moves scheduled time upwards
                                                   child: Text(
                                                     '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontSize: screenWidth * .04,
-                                                      height: 1.0, // Remove extra spacing
+                                                      fontSize:
+                                                          screenWidth * .04,
+                                                      height: screenWidth *
+                                                          0.002, // Remove extra spacing
                                                     ),
                                                   ),
                                                 ),
@@ -694,7 +729,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ),
                                       ),
-                                      
                                       Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
