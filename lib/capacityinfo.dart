@@ -539,7 +539,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                             child: Container(
                               padding: const EdgeInsets.all(16.0),
                               margin: const EdgeInsets.all(14.0),
-                              height: screenHeigth * 0.7,
+                              height: screenHeigth * 0.62,
                               width: screenWidth * 0.95,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -577,9 +577,9 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
 
                                   Column(
                                     children: [
-                                      SizedBox(height: screenHeigth * 0.02),
+                                      SizedBox(height: screenHeigth * 0.03),
                                       SizedBox(
-                                        height: screenHeigth * 0.17,
+                                        height: screenHeigth * 0.106,
                                         width: screenWidth * .8,
                                         child: Transform.translate(
                                           offset: const Offset(0.4, -15.0),
@@ -588,129 +588,113 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                               // Handle checking availability
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color.fromARGB(
-                                                  75, 53, 87, 151),
+                                              backgroundColor: Color.fromARGB(75, 53, 87, 151),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(9.0),
+                                                borderRadius: BorderRadius.circular(20.0),
                                               ),
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: screenWidth * 0.1,
-                                                  vertical:
-                                                      screenHeigth * 0.001),
+                                              // padding: EdgeInsets.symmetric(
+                                              //   horizontal: screenWidth * 0.05,
+                                              //   vertical: screenHeigth * 0.018, // Further reduced vertical padding
+                                              // ),
+                                              padding: EdgeInsets.zero,
                                             ),
                                             child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min, // Avoid extra space
+                                              crossAxisAlignment: CrossAxisAlignment.center,
                                               children: [
-                                                // UL Number Row (Without Arrows)
-                                                Text(
-                                                  'UL $selectedUL',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize:
-                                                        screenWidth * 0.06,
+                                                // UL Number (Shifted closer)
+                                                Transform.translate(
+                                                  offset: Offset(0, 11),
+                                                  child: Text(
+                                                    'UL $selectedUL',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: screenWidth * 0.06,
+                                                      height: 1.0, // Remove extra spacing
+                                                    ),
                                                   ),
                                                 ),
 
-                                                SizedBox(
-                                                    height:
-                                                        screenHeigth * 0.002),
-
-                                                // New Row with Date and Arrows
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    // Left Arrow (Move to Previous Date)
-                                                    Transform.translate(
-                                                      offset: Offset(
-                                                          screenWidth * -0.03,
-                                                          0.0),
-                                                      child: GestureDetector(
+                                                // Row for Arrows and Date
+                                                Transform.translate(
+                                                  offset: Offset(0, -2), // Moves Date row upwards
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min, // Avoid extra space
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      // Left Arrow (Move to Previous Date)
+                                                      GestureDetector(
                                                         onTap: () {
                                                           _changeUL(false);
                                                         },
                                                         child: Container(
-                                                          width: screenWidth *
-                                                              0.12, // Increase the tap area
-                                                          height: screenHeigth *
-                                                              0.06,
-                                                          alignment:
-                                                              Alignment.center,
+                                                          width: screenWidth * 0.12, // Increased tap area
+                                                          height: screenHeigth * 0.06,
+                                                          alignment: Alignment.center,
                                                           child: Icon(
-                                                            Icons
-                                                                .arrow_back_ios_rounded,
+                                                            Icons.arrow_back_ios_rounded,
                                                             color: Colors.white,
-                                                            size: screenWidth *
-                                                                0.08, // Increased icon size
+                                                            size: screenWidth * 0.075, // Increased icon size
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
 
-                                                    // Selected Date in the Middle
-                                                    Text(
-                                                      '$selectedDate', // Use selectedDate variable here
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize:
-                                                            screenWidth * .04,
+                                                      SizedBox(width: screenWidth * 0.09), // Increased spacing
+
+                                                      // Selected Date (Reduced padding)
+                                                      Padding(
+                                                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01), // Reduced horizontal padding
+                                                        child: Text(
+                                                          '$selectedDate',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: screenWidth * .04,
+                                                            height: 1.0, // Remove extra spacing
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
 
-                                                    // Right Arrow (Move to Next Date)
-                                                    Transform.translate(
-                                                      offset: Offset(
-                                                          screenWidth * 0.03,
-                                                          0.0),
-                                                      child: GestureDetector(
+                                                      SizedBox(width: screenWidth * 0.09), // Increased spacing
+
+                                                      // Right Arrow (Move to Next Date)
+                                                      GestureDetector(
                                                         onTap: () {
                                                           _changeUL(true);
                                                         },
                                                         child: Container(
-                                                          width: screenWidth *
-                                                              0.12, // Increase tap area
-                                                          height: screenHeigth *
-                                                              0.06,
-                                                          alignment:
-                                                              Alignment.center,
+                                                          width: screenWidth * 0.12, // Increased tap area
+                                                          height: screenHeigth * 0.06,
+                                                          alignment: Alignment.center,
                                                           child: Icon(
-                                                            Icons
-                                                                .arrow_forward_ios_rounded,
+                                                            Icons.arrow_forward_ios_rounded,
                                                             color: Colors.white,
-                                                            size: screenWidth *
-                                                                0.08, // Increased icon size
+                                                            size: screenWidth * 0.075, // Increased icon size
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-
-                                                SizedBox(
-                                                    height:
-                                                        screenHeigth * 0.002),
-
-                                                // Scheduled Time (Remains Below Date)
-                                                Text(
-                                                  '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: screenWidth * .04,
+                                                    ],
                                                   ),
                                                 ),
 
-                                                SizedBox(
-                                                    height:
-                                                        screenHeigth * 0.001),
+                                                // Scheduled Time (Shifted closer)
+                                                Transform.translate(
+                                                  offset: Offset(0, -12), // Moves scheduled time upwards
+                                                  child: Text(
+                                                    '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: screenWidth * .04,
+                                                      height: 1.0, // Remove extra spacing
+                                                    ),
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
                                         ),
                                       ),
+                                      
                                       Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -728,7 +712,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                width: screenWidth * 0.095,
+                                                width: screenWidth * 0.1,
                                               ),
                                               Text(
                                                 'EY', // Economy Class
@@ -739,7 +723,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                width: screenWidth * 0.045,
+                                                width: screenWidth * 0.043,
                                               ),
                                             ],
                                           ),
@@ -787,7 +771,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                               ),
                                               Transform.translate(
                                                 offset: Offset(
-                                                    screenWidth * 0.158,
+                                                    screenWidth * 0.165,
                                                     -0.5), //-12.55
                                                 child: Container(
                                                   height: screenHeigth * 0.035,
@@ -1342,9 +1326,9 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                               98,
                                                               39), // Color when disabled
                                                       fontWeight:
-                                                          FontWeight.bold,
+                                                          FontWeight.w900,
                                                       fontSize:
-                                                          screenWidth * 0.037,
+                                                          screenWidth * 0.04,
                                                     ),
                                                   ),
                                                 ),
