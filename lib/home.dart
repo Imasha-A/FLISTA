@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flista_new/mytickets.dart';
+import 'package:flista_new/yaana.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'selectdate.dart';
 import '../models/flightsearchmodel.dart';
 import './history.dart';
@@ -28,7 +30,7 @@ class _HomePageState extends State<HomePage> {
   late String _userName = 'User Name';
   late String _userId = '123456';
   String? _errorMessage;
-
+  late WebViewController _webViewController;
   bool _isLoading = true;
   List<Map<String, String>> _filteredOriginCountries = [];
   List<Map<String, String>> _filteredDestinationCountries = [];
@@ -71,6 +73,24 @@ class _HomePageState extends State<HomePage> {
         _flightSearchModel.selectedDestinationCountry ?? '';
     _filteredOriginCountries = _flightSearchModel.originCountries;
     _filteredDestinationCountries = _flightSearchModel.destinationCountries;
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            print('Page started loading: $url');
+          },
+          onPageFinished: (String url) {
+            print('Page finished loading: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            print('Error loading page: ${error.description}');
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(
+          'https://ulmobservicestest.srilankan.com/crewweb/yana.html'));
     _getSelectedCountries();
     _loadUserName();
 
@@ -2676,15 +2696,71 @@ class _HomePageState extends State<HomePage> {
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: screenHeight * 0.12),
+                                SizedBox(height: screenHeight * 0.07),
                                 Align(
                                   alignment: Alignment.bottomRight,
                                   child: Padding(
-                                    padding: EdgeInsets.all(screenWidth * 0.05),
-                                    child: FloatingActionButton(
+                                    padding: EdgeInsets.fromLTRB(
+                                        screenWidth * 0.05,
+                                        screenHeight * 0.008,
+                                        screenWidth * 0.05,
+                                        screenHeight * 0.008),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          barrierColor: Colors.transparent,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+                                              backgroundColor: Colors
+                                                  .transparent, // Makes the dialog's background transparent
+                                              insetPadding: EdgeInsets.all(8),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color.fromARGB(
+                                                      0,
+                                                      189,
+                                                      0,
+                                                      0), // Adjust the opacity as needed
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                width: screenWidth * .98,
+                                                height: screenHeight * .8,
+                                                child: ChatbotScreen(
+                                                    webViewController:
+                                                        _webViewController),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        padding: const EdgeInsets.all(12),
+                                        shape: const CircleBorder(),
+                                      ),
+                                      child: const Icon(Icons.message,
+                                          color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                        screenWidth * 0.05,
+                                        screenHeight * 0.008,
+                                        screenWidth * 0.05,
+                                        screenHeight * 0.008),
+                                    child: ElevatedButton(
                                       onPressed: _showRatingPopup,
-                                      backgroundColor: const Color.fromARGB(
-                                          255, 209, 77, 20),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 209, 77, 20),
+                                        padding: const EdgeInsets.all(12),
+                                        shape: const CircleBorder(),
+                                      ),
                                       child: const Icon(Icons.info,
                                           color: Colors.white),
                                     ),

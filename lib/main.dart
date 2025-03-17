@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3), () {
+    Timer(Duration(seconds: 1), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => MyLoginPage()),
@@ -30,15 +30,13 @@ class _SplashScreenState extends State<SplashScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor:
-          const Color.fromARGB(255, 56, 56, 56), // Light grey background
+      backgroundColor: const Color.fromARGB(255, 56, 56, 56),
       body: Stack(
         children: [
-          /// Centered & Smaller Main Image
           Center(
             child: Image.asset(
               'assets/logo.png',
-              height: screenHeight * 0.3, // Adjust size as needed
+              height: screenHeight * 0.3,
               width: screenWidth * 0.5,
               fit: BoxFit.contain,
             ),
@@ -46,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
           /// SriLankan Logo at the Bottom
           Positioned(
-            bottom: 20, // Adjusted to keep it properly visible
+            bottom: 20,
             left: 0,
             right: 0,
             child: Center(

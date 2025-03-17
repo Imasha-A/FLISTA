@@ -39,6 +39,7 @@ class _MyTicketsState extends State<MyTickets> {
   String excessBaggageInfo = '';
   double? latitude = 0.0;
   double? longitude = 0.0;
+  double? accuracy = 0.0;
   bool _hasRequestedPermissionBefore = false;
   // Track standby status separately for each segment
   Map<String, bool> _standbyStatusMap = {};
@@ -71,9 +72,8 @@ class _MyTicketsState extends State<MyTickets> {
 
   //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
   Future<String> _fetchPNR() async {
-    String pnr = '67YGXB';
+    String pnr = '6ZYY5E';
     return pnr;
-    //5VU8HD
   }
 
   // Future<String> _fetchPNR() async {
@@ -300,13 +300,16 @@ class _MyTicketsState extends State<MyTickets> {
   Future<void> sendData(
       double latitude,
       double longitude,
+      double accuracy,
       String _userId,
       String boardPoint,
       String offPoint,
       String segmentTattooNumber,
       String pnr,
-      String ticketNumber) async {
+      String ticketNumber,
+      String TicketNumber) async {
     String result = "success";
+
     //String result = await _apiService.sendLocationData(latitude, longitude, _userId, "Stand-by");
     print(result);
 
@@ -459,18 +462,23 @@ class _MyTicketsState extends State<MyTickets> {
         _locationData = await location.getLocation();
         print("Location data received: $_locationData");
 
-        // Access latitude and longitude
+        // Access latitude, longitude, and accuracy
         latitude = _locationData?.latitude;
         longitude = _locationData?.longitude;
+        accuracy = _locationData?.accuracy; // Get accuracy
+
+        // Get current date-time
+        String requestTime = DateTime.now().toIso8601String(); // Get timestamp
 
         setState(() {
           _error = null; // Clear error if successful
         });
 
-        print("Latitude: $latitude, Longitude: $longitude");
+        print(
+            "Latitude: $latitude, Longitude: $longitude, Accuracy: $accuracy, Timestamp: $requestTime");
 
-        await sendData(latitude!, longitude!, _userId, boardPoint, offPoint,
-            segmentTattooNumber, pnr, TicketNumber);
+        await sendData(latitude!, longitude!, accuracy!, requestTime, _userId,
+            boardPoint, offPoint, segmentTattooNumber, pnr, TicketNumber);
       }
     } catch (e) {
       setState(() => _error = "Error: $e");
@@ -1365,7 +1373,8 @@ class _MyTicketsState extends State<MyTickets> {
                                                                         screenHeight *
                                                                             0.01),
                                                                 Text(
-                                                                  "UL255",
+                                                                  flight
+                                                                      .flightNumber,
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           screenWidth *

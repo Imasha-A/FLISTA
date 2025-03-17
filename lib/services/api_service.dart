@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import '../models/flightloadmodel.dart';
 import 'dart:core';
 import '../models/staffmodel.dart';
-
 class APIService {
   static const String baseUrl =
       'https://ulmobservices.srilankan.com/ULRESTAPP/api';

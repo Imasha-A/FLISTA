@@ -31,6 +31,12 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<key>NSLocationAlwaysUsageDescription</key>
+	<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+</dict>
+
 
 <array>
     <string>UIInterfaceOrientationPortrait</string>
