@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../models/flightloadmodel.dart';
 import 'dart:core';
 import '../models/staffmodel.dart';
+
 class APIService {
   static const String baseUrl =
       'https://ulmobservices.srilankan.com/ULRESTAPP/api';
@@ -286,10 +287,14 @@ class APIService {
       Uri.parse(
           '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'),
     );
+
+    print('$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'
+);
     print('\n\nResponse body: ${response.body}');
 
+    // Check if the response status code indicates success
     if (response.statusCode == 200) {
-   
+      // If successful, parse the response body as a List<dynamic>
       List<dynamic> data = json.decode(response.body);
 
       // Map the dynamic list to a list of StaffMember objects
@@ -432,8 +437,12 @@ class APIService {
     }
   }
 
-  Future<String> sendLocationData(
-      double latitude, double longitude, String id, String message) async {
+  Future<Map<String, dynamic>> sendLocationData(
+      double latitude, double longitude, String id, boardPoint, String offPoint, String uniqueCustomerID, String surname, 
+      String flightNum, String departureDate, String paxType, String prodIdentificationRefCode, String prodIdentificationPrimeID, 
+      String requestTime, double accuracy, String givenName, String gender, String Title) async {
+
+  
     final url = Uri.parse(""); // ADD API
 
     try {
@@ -441,22 +450,82 @@ class APIService {
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
+          "id": id,
           "latitude": latitude,
           "longitude": longitude,
-          "id": id,
-          "message": message,
+          "accuracy": accuracy,
+          "requestTime": requestTime,
+          "surname": surname,
+          "paxType": paxType,
+          "uniqueCustomerID": uniqueCustomerID,
+          "flightNum": flightNum,
+          "departureDate": departureDate,
+          "prodIdentificationRefCode": prodIdentificationRefCode,
+          "prodIdentificationPrimeID": prodIdentificationPrimeID,
+          "boardPoint": boardPoint,
+          "offPoint": offPoint,
+          "givenName": givenName,
+          "gender": gender,
+          "Title": Title,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data[
-            'status']; // Assuming API returns {"status": "success"} or {"status": "fail"}
+        return {
+        "ResponseCode": data['ResponseCode'] ?? "fail",
+        "ResponseMessage": data['ResponseMessage'] ?? "Unknown error occurred."
+      };
       } else {
-        return "fail";
+        return {
+          "ResponseCode": "fail",
+          "ResponseMessage": "Failed to connect to server."
+        };
       }
     } catch (e) {
-      return "nothing right now"; // Handle exceptions
+       return {
+        "ResponseCode": "fail",
+        "ResponseMessage": "Network error: $e"
+      }; // Handle exceptions
+    }
+  }
+
+
+  Future<StaffMember?> getStaffMember(String flightDate, String boardPoint, String flightNo, String ticketNumber) async {
+    final url = Uri.parse(
+        '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo');
+
+        print("Fetching staff member from URL: $url");
+
+    try {
+      final response = await http.get(url);
+      print("Response Status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        print("Decoded API Data: $data");
+
+        var matchingEntry = data.firstWhere(
+          (item) => item['TicketNumber'] == ticketNumber,
+          orElse: () => null,
+        );
+
+        if (matchingEntry != null) {
+          print(" Matching Entry Found: $matchingEntry");
+          return StaffMember.fromJson(matchingEntry);
+        } else {
+          print(" No matching entry for ticket: $ticketNumber");
+          return null; // No match found for the ticket number
+        }
+      } else if (response.statusCode == 500) {
+        print("Server Error (500) - Likely no staff data for this flight.");
+        return null;  // Prevents app crash
+      } else {
+        throw Exception('Failed to fetch staff list: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Error fetching staff member: $error');
+      return null;
     }
   }
 }

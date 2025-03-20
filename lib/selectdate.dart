@@ -1,5 +1,6 @@
 import 'package:flista_new/home.dart';
 import 'package:flista_new/mytickets.dart';
+import 'package:flista_new/yaana.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'availableflights.dart';
@@ -630,76 +631,33 @@ class _SelectDatePageState extends State<SelectDatePage> {
                       ),
                     );
                     break;
-                  case 3: // Logout
-                    bool? confirmLogout = await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text(
-                            "Confirm Logout",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: const Color.fromRGBO(2, 77, 117, 1),
-                              fontSize: screenWidth * 0.06,
-                            ),
-                          ),
-                          content: Text(
-                            "Are you sure you want to log out?",
-                            style: TextStyle(
-                              color: const Color.fromRGBO(2, 77, 117, 1),
-                              fontSize: screenWidth * 0.045,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .pop(false); // User chose "No"
-                              },
-                              child: Text(
-                                "No",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color.fromRGBO(2, 77, 117, 1),
-                                  fontSize: screenWidth * 0.042,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .pop(true); // User chose "Yes"
-                              },
-                              child: Text(
-                                "Yes",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color.fromRGBO(2, 77, 117, 1),
-                                  fontSize: screenWidth * 0.042,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                  case 3: // Yaaana
 
-                    if (confirmLogout == true) {
-                      _logout(); // Call the logout function
-                    }
-                    break;
-                }
-              },
-              items: [
-                _buildCustomBottomNavigationBarItem(
-                    Icons.history, 'History', false),
-                _buildCustomBottomNavigationBarItem(
-                    Icons.home_outlined, 'Home', false),
-                _buildCustomBottomNavigationBarItem(
-                    Icons.airplane_ticket_outlined, 'My Tickets', false),
-                _buildCustomBottomNavigationBarItem(
-                    Icons.logout, 'Logout', false),
-              ],
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        Yaana(),
+                                    transitionDuration: const Duration(
+                                        seconds: 0), // No animation
+                                  ),
+                                );
+                                break;
+                            }
+                          },
+                          items: [
+                            _buildCustomBottomNavigationBarItem(
+                                Icons.history, 'History', false),
+                            _buildCustomBottomNavigationBarItem(
+                                Icons.home, 'Home', false),
+                            _buildCustomBottomNavigationBarItem(
+                                Icons.airplane_ticket_outlined,
+                                'My Tickets',
+                                false),
+                            _buildCustomBottomNavigationBarItem(
+                                Icons.person, 'Yaana', false),
+                          ],
             ),
           ),
         ),
