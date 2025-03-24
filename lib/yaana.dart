@@ -4,61 +4,50 @@ import 'package:flista_new/mytickets.dart';
 import 'package:flista_new/history.dart';
 import 'package:flista_new/home.dart';
 
-class ChatbotScreen extends StatelessWidget {
-  final WebViewController webViewController;
-
-  const ChatbotScreen({super.key, required this.webViewController});
-
-  @override
-  Widget build(BuildContext context) {
-    return WebViewWidget(controller: webViewController);
-  }
-}
-
 class Yaana extends StatefulWidget {
   const Yaana({super.key});
 
   @override
   State<Yaana> createState() => _YaanaState();
-
-  static final WebViewController _webViewController = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..setBackgroundColor(Colors.transparent)
-    ..setNavigationDelegate(
-      NavigationDelegate(
-        onPageStarted: (String url) {
-          debugPrint('Page started loading: $url');
-          _YaanaState.isLoading = true;
-        },
-        onPageFinished: (String url) {
-          debugPrint('Page finished loading: $url');
-          _YaanaState.isLoading = false;
-        },
-        onWebResourceError: (WebResourceError error) {
-          debugPrint('Error loading page: ${error.description}');
-        },
-      ),
-    );
-
-  static bool _isLoaded = false;
 }
 
 class _YaanaState extends State<Yaana> {
-  static bool isLoading = true;
+  late WebViewController _webViewController;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    if (!Yaana._isLoaded) {
-      setState(() => isLoading = true);
-      Yaana._webViewController
-          .loadRequest(
-            Uri.parse(
-                'https://ulmobservicestest.srilankan.com/crewweb/yana.html'),
-          )
-          .then((_) => setState(() => isLoading = false));
-      Yaana._isLoaded = true;
-    }
+
+    _webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.transparent)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            debugPrint('Page started loading: $url');
+            setState(() => isLoading = true);
+          },
+          onPageFinished: (String url) {
+            debugPrint('Page finished loading: $url');
+            setState(() => isLoading = false);
+          },
+          onWebResourceError: (WebResourceError error) {
+            debugPrint('Error loading page: ${error.description}');
+            setState(() => isLoading = false);
+          },
+        ),
+      );
+
+    _loadChatbot();
+  }
+
+  void _loadChatbot() async {
+    setState(() => isLoading = true);
+    await _webViewController.loadRequest(
+      Uri.parse('https://ulmobservicestest.srilankan.com/crewweb/yana.html'),
+    );
+    setState(() => isLoading = false);
   }
 
   @override
@@ -80,11 +69,10 @@ class _YaanaState extends State<Yaana> {
         ),
         body: Stack(
           children: [
-            ChatbotScreen(webViewController: Yaana._webViewController),
+            WebViewWidget(controller: _webViewController),
             if (isLoading)
-              Container(
-                color: Colors.black.withOpacity(0.3),
-                child: const Center(
+              const Positioned.fill(
+                child: Center(
                   child: CircularProgressIndicator(),
                 ),
               ),
@@ -96,6 +84,8 @@ class _YaanaState extends State<Yaana> {
   }
 
   Widget _buildAppBar(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
@@ -111,15 +101,51 @@ class _YaanaState extends State<Yaana> {
           ),
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(22.0)),
         ),
-        child: Center(
-          child: Text(
-            'Yaana',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: MediaQuery.of(context).size.width * 0.055,
-              fontWeight: FontWeight.bold,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(22.0),
+                ),
+                child: Image(
+                  image:
+                      AssetImage('assets/istockphoto-155362201-612x612 1.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-          ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.05,
+                  top: MediaQuery.of(context).size.height * 0.06,
+                ),
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Yaana',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.width * 0.055,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.01),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -164,32 +190,37 @@ class _YaanaState extends State<Yaana> {
   void _navigateToPage(BuildContext context, int index) {
     switch (index) {
       case 0:
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const HistoryPage(),
-                transitionDuration: Duration.zero));
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HistoryPage(),
+            transitionDuration: Duration(seconds: 0), // No animation
+          ),
+        );
         break;
       case 1:
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const HomePage(selectedDate: ''),
-                transitionDuration: Duration.zero));
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomePage(selectedDate: ''),
+            transitionDuration: Duration(seconds: 0), // No animation
+          ),
+        );
         break;
       case 2:
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const MyTickets(),
-                transitionDuration: Duration.zero));
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MyTickets(),
+            transitionDuration: Duration(seconds: 0), // No animation
+          ),
+        );
         break;
       case 3:
-        Navigator.push(
-            context,
-            PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const Yaana(),
-                transitionDuration: Duration.zero));
+        // Stay on the same page, do nothing
         break;
     }
   }
