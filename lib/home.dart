@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flista_new/mytickets.dart';
 import 'package:flista_new/yaana.dart';
@@ -14,6 +14,7 @@ import 'main.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
   final String selectedDate;
@@ -447,7 +448,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
-      IconData icon, String label, bool isHighlighted) {
+      String iconPath, String label, bool isHighlighted) {
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -460,12 +461,20 @@ class _HomePageState extends State<HomePage> {
                     color: const Color.fromARGB(255, 234, 248, 249),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Icon(
-                    icon,
-                    color: const Color.fromRGBO(2, 77, 117, 1),
+                  child: Image.asset(
+                    iconPath,
+                    height: 28, // Adjust size if needed
+                    width: 28,
+                    fit: BoxFit.contain,
+                    color: const Color.fromRGBO(2, 77, 117, 1), // Optional tint
                   ),
                 )
-              : Icon(icon),
+              : Image.asset(
+                  iconPath,
+                  height: 30,
+                  width: 30,
+                  fit: BoxFit.contain,
+                ),
         ],
       ),
       label: label,
@@ -1306,15 +1315,13 @@ class _HomePageState extends State<HomePage> {
                       },
                       items: [
                         _buildCustomBottomNavigationBarItem(
-                            Icons.history, 'History', false),
+                            'assets/history.svg', 'History', false),
                         _buildCustomBottomNavigationBarItem(
-                            Icons.home, 'Home', true),
+                            'assets/home.svg', 'Home', true),
                         _buildCustomBottomNavigationBarItem(
-                            Icons.airplane_ticket_outlined,
-                            'My Tickets',
-                            false),
+                            'assets/ticket.svg', 'My Tickets', false),
                         _buildCustomBottomNavigationBarItem(
-                            Icons.logout, 'Yaana', false),
+                            'assets/chatbot.svg', 'Yaana', false),
                       ],
                     ),
                   ),
@@ -2806,7 +2813,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: BottomNavigationBar(
                           type: BottomNavigationBarType.fixed,
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: const Color.fromRGBO(2, 77, 117, 1),
                           elevation: 1,
                           currentIndex: 1,
                           selectedItemColor:
@@ -2869,15 +2876,13 @@ class _HomePageState extends State<HomePage> {
                           },
                           items: [
                             _buildCustomBottomNavigationBarItem(
-                                Icons.history, 'History', false),
+                                'assets/history.png', 'History', false),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.home, 'Home', true),
+                                'assets/home.png', 'Home', true),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.airplane_ticket_outlined,
-                                'My Tickets',
-                                false),
+                                'assets/ticket.png', 'My Tickets', false),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.person, 'Yaana', false),
+                                'assets/chatbot.png', 'Yaana', false),
                           ],
                         ),
                       ),

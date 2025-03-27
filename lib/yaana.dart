@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flista_new/mytickets.dart';
 import 'package:flista_new/history.dart';
@@ -45,7 +46,7 @@ class _YaanaState extends State<Yaana> {
   void _loadChatbot() async {
     setState(() => isLoading = true);
     await _webViewController.loadRequest(
-      Uri.parse('https://ulmobservicestest.srilankan.com/crewweb/yana.html'),
+      Uri.parse('https://ulmobservices.srilankan.com/FLISTA/yana.html'),
     );
     setState(() => isLoading = false);
   }
@@ -176,11 +177,14 @@ class _YaanaState extends State<Yaana> {
             _navigateToPage(context, index);
           },
           items: [
-            _buildBottomNavItem(Icons.history, 'History', false),
-            _buildBottomNavItem(Icons.home, 'Home', false),
-            _buildBottomNavItem(
-                Icons.airplane_ticket_outlined, 'My Tickets', false),
-            _buildBottomNavItem(Icons.person, 'Yaana', true),
+            _buildCustomBottomNavigationBarItem(
+                'assets/history.png', 'History', false),
+            _buildCustomBottomNavigationBarItem(
+                'assets/home.png', 'Home', false),
+            _buildCustomBottomNavigationBarItem(
+                'assets/ticket.png', 'My Tickets', false),
+            _buildCustomBottomNavigationBarItem(
+                'assets/chatbot.png', 'Yaana', true),
           ],
         ),
       ),
@@ -225,8 +229,8 @@ class _YaanaState extends State<Yaana> {
     }
   }
 
-  BottomNavigationBarItem _buildBottomNavItem(
-      IconData icon, String label, bool isHighlighted) {
+  BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
+      String iconPath, String label, bool isHighlighted) {
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -239,9 +243,20 @@ class _YaanaState extends State<Yaana> {
                     color: const Color.fromARGB(255, 234, 248, 249),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Icon(icon, color: const Color.fromRGBO(2, 77, 117, 1)),
+                  child: Image.asset(
+                    iconPath,
+                    height: 28, // Adjust size if needed
+                    width: 28,
+                    fit: BoxFit.contain,
+                    color: const Color.fromRGBO(2, 77, 117, 1), // Optional tint
+                  ),
                 )
-              : Icon(icon),
+              : Image.asset(
+                  iconPath,
+                  height: 30,
+                  width: 30,
+                  fit: BoxFit.contain,
+                ),
         ],
       ),
       label: label,

@@ -2166,17 +2166,15 @@ Future<bool> showPermissionDialog() async {
                                 break;
                             }
                           },
-                          items: [
+                           items: [
                             _buildCustomBottomNavigationBarItem(
-                                Icons.history, 'History', false),
+                                'assets/history.png', 'History', false),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.home, 'Home', false),
+                                'assets/home.png', 'Home', false),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.airplane_ticket_outlined,
-                                'My Tickets',
-                                true),
+                                'assets/ticket.png', 'My Tickets', true),
                             _buildCustomBottomNavigationBarItem(
-                                Icons.person, 'Yaana', false),
+                                'assets/chatbot.png', 'Yaana', false),
                           ],
             ),
           ),
@@ -2185,8 +2183,8 @@ Future<bool> showPermissionDialog() async {
     );
   }
 
-  BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
-      IconData icon, String label, bool isHighlighted) {
+ BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
+      String iconPath, String label, bool isHighlighted) {
     return BottomNavigationBarItem(
       icon: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -2199,18 +2197,25 @@ Future<bool> showPermissionDialog() async {
                     color: const Color.fromARGB(255, 234, 248, 249),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Icon(
-                    icon,
-                    color: const Color.fromRGBO(2, 77, 117, 1),
+                  child: Image.asset(
+                    iconPath,
+                    height: 28, // Adjust size if needed
+                    width: 28,
+                    fit: BoxFit.contain,
+                    color: const Color.fromRGBO(2, 77, 117, 1), // Optional tint
                   ),
                 )
-              : Icon(icon),
+              : Image.asset(
+                  iconPath,
+                  height: 30,
+                  width: 30,
+                  fit: BoxFit.contain,
+                ),
         ],
       ),
       label: label,
     );
   }
-
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
