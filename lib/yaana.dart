@@ -58,7 +58,7 @@ class _YaanaState extends State<Yaana> {
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/homebgnew.png"),
+          image: AssetImage("assets/chatbotbg.png"),
           fit: BoxFit.fitWidth,
         ),
       ),

@@ -11,7 +11,7 @@ import '../models/flightloadmodel.dart';
 import 'dart:core';
 import './history.dart';
 import 'home.dart';
-import 'extra.dart';
+
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class CapacityInfoPage extends StatefulWidget {
@@ -212,20 +212,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
       context,
       MaterialPageRoute(
           builder: (context) => PriorityPage(
-              selectedDate: selectedDate,
-              selectedUL: selectedUL,
-              scheduledTime: widget.scheduledTime,
-              originCountryCode: widget.originCountryCode,
-              destinationCountryCode: widget.destinationCountryCode,
-              ulList: ulList)),
-    );
-  }
-
-  void _navigateToMyPriorityPage(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => MyPriorityPage(
               selectedDate: selectedDate,
               selectedUL: selectedUL,
               scheduledTime: widget.scheduledTime,
