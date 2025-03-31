@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flista_new/models/flightmodel.dart';
 import 'package:flista_new/models/staffpnrmodal.dart';
 import 'package:flista_new/models/ticketInformationmodel.dart';
@@ -288,8 +289,8 @@ class APIService {
           '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'),
     );
 
-    print('$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo'
-);
+    print(
+        '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo');
     print('\n\nResponse body: ${response.body}');
 
     // Check if the response status code indicates success
@@ -438,15 +439,28 @@ class APIService {
   }
 
   Future<Map<String, dynamic>> sendLocationData(
-      double latitude, double longitude, String id, boardPoint, String offPoint, String uniqueCustomerID, String surname, 
-      String flightNum, String departureDate, String paxType, String prodIdentificationRefCode, String prodIdentificationPrimeID, 
-      String requestTime, double accuracy, String givenName, String gender, String Title) async {
-
-  
-    final url = Uri.parse(""); // ADD API
+      double latitude,
+      double longitude,
+      String id,
+      String boardPoint, // Explicitly specifying type
+      String offPoint,
+      String uniqueCustomerID,
+      String surname,
+      String flightNum,
+      String departureDate,
+      String paxType,
+      String prodIdentificationRefCode,
+      String prodIdentificationPrimeID,
+      String requestTime,
+      double accuracy,
+      String givenName,
+      String gender,
+      String title) async {
+    final Uri url = Uri.parse(
+        "https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/AmadeusFlistaAccessGateway/ExecuteStaffStandbyFlista");
 
     try {
-      final response = await http.post(
+      final http.Response response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
@@ -466,36 +480,54 @@ class APIService {
           "offPoint": offPoint,
           "givenName": givenName,
           "gender": gender,
-          "Title": Title,
+          "Title": title, // Fixed inconsistent capitalization
         }),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return {
-        "ResponseCode": data['ResponseCode'] ?? "fail",
-        "ResponseMessage": data['ResponseMessage'] ?? "Unknown error occurred."
-      };
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        try {
+          final Map<String, dynamic> data = jsonDecode(response.body);
+          return {
+            "ResponseCode": data['ResponseCode'] ?? "fail",
+            "ResponseMessage":
+                data['ResponseMessage'] ?? "Unknown error occurred."
+          };
+        } catch (e) {
+          return {
+            "ResponseCode": "fail",
+            "ResponseMessage": "Invalid response format."
+          };
+        }
       } else {
         return {
           "ResponseCode": "fail",
-          "ResponseMessage": "Failed to connect to server."
+          "ResponseMessage": "Server returned status ${response.statusCode}."
         };
       }
-    } catch (e) {
-       return {
+    } on SocketException {
+      return {
         "ResponseCode": "fail",
-        "ResponseMessage": "Network error: $e"
-      }; // Handle exceptions
+        "ResponseMessage": "Network error: No internet connection."
+      };
+    } on FormatException {
+      return {
+        "ResponseCode": "fail",
+        "ResponseMessage": "Invalid response format from server."
+      };
+    } catch (e) {
+      return {
+        "ResponseCode": "fail",
+        "ResponseMessage": "Unexpected error: $e"
+      };
     }
   }
 
-
-  Future<StaffMember?> getStaffMember(String flightDate, String boardPoint, String flightNo, String ticketNumber) async {
+  Future<StaffMember?> getStaffMember(String flightDate, String boardPoint,
+      String flightNo, String ticketNumber) async {
     final url = Uri.parse(
         '$baseUrl2/FLIGHTINFO/STAFFALLV2?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo');
 
-        print("Fetching staff member from URL: $url");
+    print("Fetching staff member from URL: $url");
 
     try {
       final response = await http.get(url);
@@ -519,7 +551,7 @@ class APIService {
         }
       } else if (response.statusCode == 500) {
         print("Server Error (500) - Likely no staff data for this flight.");
-        return null;  // Prevents app crash
+        return null; // Prevents app crash
       } else {
         throw Exception('Failed to fetch staff list: ${response.reasonPhrase}');
       }

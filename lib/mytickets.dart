@@ -5,6 +5,7 @@ import 'package:flista_new/history.dart';
 import 'package:flista_new/home.dart';
 import 'package:flista_new/main.dart';
 import 'package:flista_new/models/staffmodel.dart';
+import 'package:flista_new/models/staffpnrmodal.dart';
 import 'package:flista_new/yaana.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -45,13 +46,11 @@ class _MyTicketsState extends State<MyTickets> {
   String? requestTime = "";
   bool _hasRequestedPermissionBefore = false;
   // Track standby status separately for each segment
-  Map<String, bool> _standbyStatusMap = {}; 
+  Map<String, bool> _standbyStatusMap = {};
 
   Location location = Location();
   LocationData? _locationData;
   String? _error;
-
-
 
   @override
   void initState() {
@@ -66,7 +65,6 @@ class _MyTicketsState extends State<MyTickets> {
     });
     _loadData();
     _loadUserId();
-
   }
 
   Future<void> _loadUserIdFromPreferences() async {
@@ -77,32 +75,32 @@ class _MyTicketsState extends State<MyTickets> {
     });
   }
 
-  //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
-  Future<String> _fetchPNR() async {
-    String pnr = '5M7ECE';
-    return pnr;
-    
-  }
-
+  // //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
   // Future<String> _fetchPNR() async {
-  //   try {
-  //     if (_userId.isEmpty) {
-  //       await _loadUserIdFromPreferences(); // Ensure _userId is loaded
-  //     }
+  //   String pnr = '6NYX9Z';
+  //   return pnr;
 
-  //     List<StaffPNRModal> pnrList = await _apiService.viewStaffPNR(_userId);
-
-  //     if (pnrList.isNotEmpty) {
-  //       String pnr = pnrList.first.pnr;
-  //       print("Fetched PNR: $pnr");
-  //       return pnr; // Successfully fetched PNR
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching PNR: $e");
-  //   }
-
-  //   return "No PNR found"; // Return a default message without throwing an exception
   // }
+
+  Future<String> _fetchPNR() async {
+    try {
+      if (_userId.isEmpty) {
+        await _loadUserIdFromPreferences(); // Ensure _userId is loaded
+      }
+
+      List<StaffPNRModal> pnrList = await _apiService.viewStaffPNR(_userId);
+
+      if (pnrList.isNotEmpty) {
+        String pnr = pnrList.first.pnr;
+        print("Fetched PNR: $pnr");
+        return pnr; // Successfully fetched PNR
+      }
+    } catch (e) {
+      print("Error fetching PNR: $e");
+    }
+
+    return "No PNR found"; // Return a default message without throwing an exception
+  }
 
   String? getCityFromCode(String code, List<Map<String, dynamic>> airportData) {
     final match = airportData.firstWhere(
@@ -196,7 +194,6 @@ class _MyTicketsState extends State<MyTickets> {
 
       // **Trigger fetching UniqueCustomerID for each ticket**
       await fetchUniqueCustomerIDs();
-
     } catch (e) {
       print('Error fetching ticket information: $e');
     }
@@ -305,21 +302,46 @@ class _MyTicketsState extends State<MyTickets> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _standbyStatusMap = Map<String, bool>.from(
-        jsonDecode(prefs.getString('standbyStatus') ?? '{}')
-      );
+          jsonDecode(prefs.getString('standbyStatus') ?? '{}'));
     });
   }
 
-
-  Future<void> sendData(double latitude, double longitude, String _userId, String boardPoint, String offPoint, String uniqueCustomerID, 
-    String surname, String flightNum, String departureDate, String paxType, String prodIdentificationRefCode, String prodIdentificationPrimeID, 
-    String requestTime, double accuracy, String givenName, String gender, String Title) async {
-
-    //String result = "success";
-    //print("$latitude, $longitude, $_userId, $boardPoint, $offPoint, $segmentTattooNumber, $pnr, $ticketNumber, $uniqueCustomerID, $requestTime, $accuracy");
-
-    Map<String, dynamic> result = await _apiService.sendLocationData(latitude, longitude, _userId, boardPoint, offPoint, uniqueCustomerID, 
-    surname, flightNum, departureDate, paxType, prodIdentificationRefCode, prodIdentificationPrimeID, requestTime, accuracy, givenName, gender, Title);
+  Future<void> sendData(
+      double latitude,
+      double longitude,
+      String _userId,
+      String boardPoint,
+      String offPoint,
+      String uniqueCustomerID,
+      String surname,
+      String flightNum,
+      String departureDate,
+      String paxType,
+      String prodIdentificationRefCode,
+      String prodIdentificationPrimeID,
+      String requestTime,
+      double accuracy,
+      String givenName,
+      String gender,
+      String Title) async {
+    Map<String, dynamic> result = await _apiService.sendLocationData(
+        latitude,
+        longitude,
+        _userId,
+        boardPoint,
+        offPoint,
+        uniqueCustomerID,
+        surname,
+        flightNum,
+        departureDate,
+        paxType,
+        prodIdentificationRefCode,
+        prodIdentificationPrimeID,
+        requestTime,
+        accuracy,
+        givenName,
+        gender,
+        Title);
 
     String responseCode = result["ResponseCode"];
     String responseMessage = result["ResponseMessage"];
@@ -328,7 +350,8 @@ class _MyTicketsState extends State<MyTickets> {
     print("API Response Message: $responseMessage");
 
     if (responseCode == "1") {
-      String key = "$ticketNumber-$segmentTattooNumber"; // Unique key per segment & ticket
+      String key =
+          "$ticketNumber-$segmentTattooNumber"; // Unique key per segment & ticket
 
       setState(() {
         _standbyStatusMap[key] = true; // Store status uniquely
@@ -376,10 +399,10 @@ class _MyTicketsState extends State<MyTickets> {
           );
         },
       );
-    } else { 
+    } else {
       double screenWidth = MediaQuery.of(context).size.width;
 
-      //show failure message 
+      //show failure message
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -418,8 +441,19 @@ class _MyTicketsState extends State<MyTickets> {
     }
   } //success
 
-  Future<void> _getLocation(String boardPoint, String offPoint, String uniqueCustomerID, String surname, String flightNum, 
-  String departureDate, String paxType, String prodIdentificationRefCode, String prodIdentificationPrimeID, String givenName, String gender, String Title) async {
+  Future<void> _getLocation(
+      String boardPoint,
+      String offPoint,
+      String uniqueCustomerID,
+      String surname,
+      String flightNum,
+      String departureDate,
+      String paxType,
+      String prodIdentificationRefCode,
+      String prodIdentificationPrimeID,
+      String givenName,
+      String gender,
+      String Title) async {
     try {
       bool serviceEnabled;
       PermissionStatus permissionGranted;
@@ -440,168 +474,189 @@ class _MyTicketsState extends State<MyTickets> {
       }
 
       // Check location permission
-    permissionGranted = await location.hasPermission();
-    print("Initial permission status: $permissionGranted");
+      permissionGranted = await location.hasPermission();
+      print("Initial permission status: $permissionGranted");
 
-    if (!_hasRequestedPermissionBefore) {
-      // First time: use the system prompt
-      if (permissionGranted == PermissionStatus.denied) {
-        permissionGranted = await location.requestPermission();
-        print("Requested permission via system prompt. New status: $permissionGranted");
-        _hasRequestedPermissionBefore = true;
-      }
-    } else {
-      // Subsequent attempts: show custom dialog if permission isn't granted
-      if (permissionGranted != PermissionStatus.granted) {
-        bool shouldOpenSettings = await showPermissionDialog();
-        if (shouldOpenSettings) {
-          await ph.openAppSettings();
-          // Re-check permission after returning from settings
-          permissionGranted = await location.hasPermission();
-          if (permissionGranted != PermissionStatus.granted) {
+      if (!_hasRequestedPermissionBefore) {
+        // First time: use the system prompt
+        if (permissionGranted == PermissionStatus.denied) {
+          permissionGranted = await location.requestPermission();
+          print(
+              "Requested permission via system prompt. New status: $permissionGranted");
+          _hasRequestedPermissionBefore = true;
+        }
+      } else {
+        // Subsequent attempts: show custom dialog if permission isn't granted
+        if (permissionGranted != PermissionStatus.granted) {
+          bool shouldOpenSettings = await showPermissionDialog();
+          if (shouldOpenSettings) {
+            await ph.openAppSettings();
+            // Re-check permission after returning from settings
+            permissionGranted = await location.hasPermission();
+            if (permissionGranted != PermissionStatus.granted) {
+              setState(() => _error = "Location permission denied.");
+              print("Error: Location permission still denied after settings.");
+              return;
+            }
+          } else {
             setState(() => _error = "Location permission denied.");
-            print("Error: Location permission still denied after settings.");
+            print("User declined to open settings. Permission denied.");
             return;
           }
-        } else {
-          setState(() => _error = "Location permission denied.");
-          print("User declined to open settings. Permission denied.");
-          return;
         }
       }
+
+      // If permission is granted, get location data
+      if (permissionGranted == PermissionStatus.granted) {
+        _locationData = await location.getLocation();
+        print("Location data received: $_locationData");
+
+        // Access latitude and longitude
+        latitude = _locationData?.latitude;
+        longitude = _locationData?.longitude;
+        accuracy = _locationData?.accuracy;
+        requestTime = DateTime.now().toIso8601String();
+
+        setState(() {
+          _error = null; // Clear error if successful
+        });
+
+        print("Latitude: $latitude, Longitude: $longitude");
+
+        await sendData(
+            latitude!,
+            longitude!,
+            _userId,
+            boardPoint,
+            offPoint,
+            uniqueCustomerID,
+            surname,
+            flightNum,
+            departureDate,
+            paxType,
+            prodIdentificationRefCode,
+            prodIdentificationPrimeID,
+            requestTime!,
+            accuracy!,
+            givenName,
+            gender,
+            Title);
+      }
+    } catch (e) {
+      setState(() => _error = "Error: $e");
+      print("Exception caught: $e");
     }
-
-    // If permission is granted, get location data
-    if (permissionGranted == PermissionStatus.granted) {
-      _locationData = await location.getLocation();
-      print("Location data received: $_locationData");
-
-      // Access latitude and longitude
-      latitude = _locationData?.latitude;
-      longitude = _locationData?.longitude;
-      accuracy = _locationData?.accuracy;
-      requestTime =  DateTime.now().toIso8601String();
-
-      setState(() {
-        _error = null; // Clear error if successful
-      });
-
-      
-
-      print("Latitude: $latitude, Longitude: $longitude");
-
-      await sendData(latitude!, longitude!, _userId, boardPoint, offPoint, uniqueCustomerID, surname, flightNum, departureDate, paxType, prodIdentificationRefCode, prodIdentificationPrimeID, requestTime!, accuracy!, givenName, gender, Title);
-    }
-  } catch (e) {
-    setState(() => _error = "Error: $e");
-    print("Exception caught: $e");
   }
-}
 
-
-Future<bool> showPermissionDialog() async {
-  bool? response = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      double screenWidth = MediaQuery.of(context).size.width;
-      return AlertDialog(
-        title: Text(
-          "Location Permission Required",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: const Color.fromRGBO(2, 77, 117, 1),
-            fontSize: screenWidth * 0.06,
-          ),
-        ),
-        content: Text(
-          "Do you want to grant location access?",
-          style: TextStyle(
-          color: const Color.fromRGBO(2, 77, 117, 1),
-            fontSize: screenWidth * 0.045,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              "No",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: const Color.fromRGBO(2, 77, 117, 1),
-                fontSize: screenWidth * 0.042,
-              ),
+  Future<bool> showPermissionDialog() async {
+    bool? response = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        double screenWidth = MediaQuery.of(context).size.width;
+        return AlertDialog(
+          title: Text(
+            "Location Permission Required",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: const Color.fromRGBO(2, 77, 117, 1),
+              fontSize: screenWidth * 0.06,
             ),
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              "Yes",
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: const Color.fromRGBO(2, 77, 117, 1),
-                fontSize: screenWidth * 0.042,
-              ),
+          content: Text(
+            "Do you want to grant location access?",
+            style: TextStyle(
+              color: const Color.fromRGBO(2, 77, 117, 1),
+              fontSize: screenWidth * 0.045,
             ),
           ),
-        ],
-      );
-    },
-  );
-  return response ?? false;
-}
-
- String convertDateFormat(String date) {
-  if (date.length == 6) {
-    return "20" + date.substring(4, 6) + date.substring(2, 4) + date.substring(0, 2);
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                "No",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: const Color.fromRGBO(2, 77, 117, 1),
+                  fontSize: screenWidth * 0.042,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                "Yes",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: const Color.fromRGBO(2, 77, 117, 1),
+                  fontSize: screenWidth * 0.042,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    return response ?? false;
   }
-  return date; // Return as is if the format is incorrect
-} 
+
+  String convertDateFormat(String date) {
+    if (date.length == 6) {
+      return "20" +
+          date.substring(4, 6) +
+          date.substring(2, 4) +
+          date.substring(0, 2);
+    }
+    return date; // Return as is if the format is incorrect
+  }
 
   Future<void> fetchUniqueCustomerIDs() async {
-     print("Fetching unique customer IDs...");
-  if (allFlightInfo.isNotEmpty && allTicketInfo.isNotEmpty) {
-    for (var ticket in allTicketInfo) {
-      for (var flight in allFlightInfo) {
-        print("Processing ticket: ${ticket.TicketNumber} for flight: ${flight.flightNumber}");
-       
-        // Convert date to YYYYMMDD format
-        String formattedDate = convertDateFormat(flight.depDate);
-        
-        // Remove "UL" from flight number
-        String formattedFlightNum = flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), '');
-        
-        // Remove dashes from ticket number
-        String formattedTicketNum = ticket.TicketNumber.replaceAll('-', '');
+    print("Fetching unique customer IDs...");
+    if (allFlightInfo.isNotEmpty && allTicketInfo.isNotEmpty) {
+      for (var ticket in allTicketInfo) {
+        for (var flight in allFlightInfo) {
+          print(
+              "Processing ticket: ${ticket.TicketNumber} for flight: ${flight.flightNumber}");
 
-        print("Formatted Date: $formattedDate");
-        print("Formatted Flight Number: $formattedFlightNum");
-        print("Formatted Ticket Number: $formattedTicketNum");
+          // Convert date to YYYYMMDD format
+          String formattedDate = convertDateFormat(flight.depDate);
 
-        // Fetch the full StaffMember object
-        StaffMember? staffMember = await _apiService.getStaffMember(
-          formattedDate,
-          flight.Boardpoint, 
-          formattedFlightNum,
-          formattedTicketNum,
-        );
+          // Remove "UL" from flight number
+          String formattedFlightNum =
+              flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), '');
 
-        if (staffMember != null) {
-          print('Ticket: $formattedTicketNum, Unique Customer ID: ${staffMember.uniqueCustomerID}');
-          print('Staff Member: ${staffMember.firstName} ${staffMember.lastName}');
-          print('Pax Type: ${staffMember.paxType}');
-          print('Prod Identification Ref Code: ${staffMember.prodIdentificationRefCode}');
-          print('Prod Identification Prime ID: ${staffMember.prodIdentificationPrimeID}');
-        } else {
-          print('No matching staff member found for ticket: $formattedTicketNum');
+          // Remove dashes from ticket number
+          String formattedTicketNum = ticket.TicketNumber.replaceAll('-', '');
+
+          print("Formatted Date: $formattedDate");
+          print("Formatted Flight Number: $formattedFlightNum");
+          print("Formatted Ticket Number: $formattedTicketNum");
+
+          // Fetch the full StaffMember object
+          StaffMember? staffMember = await _apiService.getStaffMember(
+            formattedDate,
+            flight.Boardpoint,
+            formattedFlightNum,
+            formattedTicketNum,
+          );
+
+          if (staffMember != null) {
+            print(
+                'Ticket: $formattedTicketNum, Unique Customer ID: ${staffMember.uniqueCustomerID}');
+            print(
+                'Staff Member: ${staffMember.firstName} ${staffMember.lastName}');
+            print('Pax Type: ${staffMember.paxType}');
+            print(
+                'Prod Identification Ref Code: ${staffMember.prodIdentificationRefCode}');
+            print(
+                'Prod Identification Prime ID: ${staffMember.prodIdentificationPrimeID}');
+          } else {
+            print(
+                'No matching staff member found for ticket: $formattedTicketNum');
+          }
         }
       }
     }
   }
-}
-
-
-
-
 
   String calculateDuration(
       String depDate, String depTime, String arrDate, String arrTime) {
@@ -630,8 +685,6 @@ Future<bool> showPermissionDialog() async {
     final minutes = duration.inMinutes.remainder(60);
     return "${hours}h ${minutes}m";
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -1441,7 +1494,8 @@ Future<bool> showPermissionDialog() async {
                                                                         screenHeight *
                                                                             0.01),
                                                                 Text(
-                                                                  flight.flightNumber,
+                                                                  flight
+                                                                      .flightNumber,
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           screenWidth *
@@ -1679,7 +1733,6 @@ Future<bool> showPermissionDialog() async {
                                                                 ],
                                                               ),
                                                             ),
-                                                            
                                                             Expanded(
                                                               child: Column(
                                                                 crossAxisAlignment:
@@ -1878,143 +1931,217 @@ Future<bool> showPermissionDialog() async {
                                                                       0.55,
                                                             ),
                                                           SizedBox(
-                                                            width: screenWidth * 0.28, // Customize width
-                                                            height: screenHeight * 0.045, // Customize height
-                                                            child: ElevatedButton(
-                                                              style: ButtonStyle(
-                                                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                                                  (Set<MaterialState> states) {
+                                                            width: screenWidth *
+                                                                0.28, // Customize width
+                                                            height: screenHeight *
+                                                                0.045, // Customize height
+                                                            child:
+                                                                ElevatedButton(
+                                                              style:
+                                                                  ButtonStyle(
+                                                                backgroundColor:
+                                                                    MaterialStateProperty
+                                                                        .resolveWith<
+                                                                            Color>(
+                                                                  (Set<MaterialState>
+                                                                      states) {
                                                                     // Use per-segment tracking instead of a global boolean
-                                                                    return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                        ? Colors.green
-                                                                        : const Color.fromARGB(255, 55, 55, 55);
+                                                                    return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                            true
+                                                                        ? Colors
+                                                                            .green
+                                                                        : const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            55,
+                                                                            55,
+                                                                            55);
                                                                   },
                                                                 ),
                                                                 // Force text (foreground) color to remain white in all states.
-                                                                foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                                                                  (Set<MaterialState> states) {
-                                                                    return Colors.white;
+                                                                foregroundColor:
+                                                                    MaterialStateProperty
+                                                                        .resolveWith<
+                                                                            Color>(
+                                                                  (Set<MaterialState>
+                                                                      states) {
+                                                                    return Colors
+                                                                        .white;
                                                                   },
                                                                 ),
-                                                                padding: MaterialStateProperty.all(
-                                                                  EdgeInsets.symmetric(
-                                                                    horizontal: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                        ? screenWidth * 0.03 
-                                                                        : screenWidth * 0.05,
-                                                                    vertical: screenHeight * 0.005,
+                                                                padding:
+                                                                    MaterialStateProperty
+                                                                        .all(
+                                                                  EdgeInsets
+                                                                      .symmetric(
+                                                                    horizontal: _standbyStatusMap[
+                                                                                "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                            true
+                                                                        ? screenWidth *
+                                                                            0.03
+                                                                        : screenWidth *
+                                                                            0.05,
+                                                                    vertical:
+                                                                        screenHeight *
+                                                                            0.005,
                                                                   ),
                                                                 ),
-                                                                shape: MaterialStateProperty.all(
+                                                                shape:
+                                                                    MaterialStateProperty
+                                                                        .all(
                                                                   RoundedRectangleBorder(
-                                                                    borderRadius: BorderRadius.circular(5),
-                                                                    side: BorderSide(
-                                                                      color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                          ? Colors.green
-                                                                          : const Color.fromARGB(255, 55, 55, 55),
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(5),
+                                                                    side:
+                                                                        BorderSide(
+                                                                      color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                              true
+                                                                          ? Colors
+                                                                              .green
+                                                                          : const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              55,
+                                                                              55,
+                                                                              55),
                                                                       width: 1,
                                                                     ),
                                                                   ),
                                                                 ),
                                                               ),
                                                               // Disable the button after successful standby for this specific segment.
-                                                              onPressed: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                  ? null  // Disable button if standby was already successful for this segment
+                                                              onPressed: _standbyStatusMap[
+                                                                          "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                      true
+                                                                  ? null // Disable button if standby was already successful for this segment
                                                                   : () async {
-                                                                      bool confirmStandby = await showDialog<bool>(
-                                                                        context: context,
-                                                                        builder: (BuildContext context) {
-                                                                          return AlertDialog(
-                                                                            title: Text(
-                                                                              "Confirm Standby",
-                                                                              style: TextStyle(
-                                                                                fontWeight: FontWeight.bold,
-                                                                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                fontSize: screenWidth * 0.06,
-                                                                              ),
-                                                                            ),
-                                                                            content: Text(
-                                                                              "Are you sure you want to confirm standby?",
-                                                                              style: TextStyle(
-                                                                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                fontSize: screenWidth * 0.045,
-                                                                              ),
-                                                                            ),
-                                                                            actions: [
-                                                                              TextButton(
-                                                                                onPressed: () {
-                                                                                  Navigator.of(context).pop(false); // User chose "No"
+                                                                      bool
+                                                                          confirmStandby =
+                                                                          await showDialog<bool>(
+                                                                                context: context,
+                                                                                builder: (BuildContext context) {
+                                                                                  return AlertDialog(
+                                                                                    title: Text(
+                                                                                      "Confirm Standby",
+                                                                                      style: TextStyle(
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                        fontSize: screenWidth * 0.06,
+                                                                                      ),
+                                                                                    ),
+                                                                                    content: Text(
+                                                                                      "Are you sure you want to confirm standby?",
+                                                                                      style: TextStyle(
+                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                        fontSize: screenWidth * 0.045,
+                                                                                      ),
+                                                                                    ),
+                                                                                    actions: [
+                                                                                      TextButton(
+                                                                                        onPressed: () {
+                                                                                          Navigator.of(context).pop(false); // User chose "No"
+                                                                                        },
+                                                                                        child: Text(
+                                                                                          "No",
+                                                                                          style: TextStyle(
+                                                                                            fontWeight: FontWeight.w700,
+                                                                                            color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                            fontSize: screenWidth * 0.042,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                      TextButton(
+                                                                                        onPressed: () {
+                                                                                          Navigator.of(context).pop(true); // User chose "Yes"
+                                                                                        },
+                                                                                        child: Text(
+                                                                                          "Yes",
+                                                                                          style: TextStyle(
+                                                                                            fontWeight: FontWeight.w700,
+                                                                                            color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                            fontSize: screenWidth * 0.042,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  );
                                                                                 },
-                                                                                child: Text(
-                                                                                  "No",
-                                                                                  style: TextStyle(
-                                                                                    fontWeight: FontWeight.w700,
-                                                                                    color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                    fontSize: screenWidth * 0.042,
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                              TextButton(
-                                                                                onPressed: () {
-                                                                                  Navigator.of(context).pop(true); // User chose "Yes"
-                                                                                },
-                                                                                child: Text(
-                                                                                  "Yes",
-                                                                                  style: TextStyle(
-                                                                                    fontWeight: FontWeight.w700,
-                                                                                    color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                    fontSize: screenWidth * 0.042,
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                            ],
-                                                                          );
-                                                                        },
-                                                                      ) ?? false; // Default to false if dialog returns null
-
+                                                                              ) ??
+                                                                              false; // Default to false if dialog returns null
 
                                                                       if (confirmStandby) {
-                                                                        String formattedDate = convertDateFormat(flight.depDate);
+                                                                        String
+                                                                            formattedDate =
+                                                                            convertDateFormat(flight.depDate);
                                                                         // Fetch StaffMember before calling _getLocation()
-                                                                        StaffMember? staff = await _apiService.getStaffMember(
-                                                                          formattedDate, 
-                                                                          flight.Boardpoint, 
-                                                                          flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), ''), // Ensure correct format
-                                                                          ticket.TicketNumber.replaceAll('-', ''), // Remove dashes
+                                                                        StaffMember?
+                                                                            staff =
+                                                                            await _apiService.getStaffMember(
+                                                                          formattedDate,
+                                                                          flight
+                                                                              .Boardpoint,
+                                                                          flight.flightNumber.replaceAll(
+                                                                              RegExp(r'[^0-9]'),
+                                                                              ''), // Ensure correct format
+                                                                          ticket.TicketNumber.replaceAll(
+                                                                              '-',
+                                                                              ''), // Remove dashes
                                                                         );
-                                                                    
-                                                                    
-                                                                      if (staff != null) {
-                                                                        // Now `staff.uniqueCustomerID` is valid, pass it to _getLocation()
-                                                                        _getLocation(
-                                                                          flight.Boardpoint, 
-                                                                          flight.Offpoint,
-                                                                          staff.uniqueCustomerID,
-                                                                          staff.surname,
-                                                                          flight.flightNumber,
-                                                                          flight.depDate,
-                                                                          staff.paxType,
-                                                                          staff.prodIdentificationRefCode,
-                                                                          staff.prodIdentificationPrimeID,
-                                                                          staff.givenName,
-                                                                          staff.gender,
-                                                                          staff.Title,
-                                                                        );
-                                                                      } else {
-                                                                        print('No staff member found for ticket: ${ticket.TicketNumber}');
+
+                                                                        if (staff !=
+                                                                            null) {
+                                                                          // Now `staff.uniqueCustomerID` is valid, pass it to _getLocation()
+                                                                          _getLocation(
+                                                                            flight.Boardpoint,
+                                                                            flight.Offpoint,
+                                                                            staff.uniqueCustomerID,
+                                                                            staff.surname,
+                                                                            flight.flightNumber,
+                                                                            flight.depDate,
+                                                                            staff.paxType,
+                                                                            staff.prodIdentificationRefCode,
+                                                                            staff.prodIdentificationPrimeID,
+                                                                            staff.givenName,
+                                                                            staff.gender,
+                                                                            staff.Title,
+                                                                          );
+                                                                        } else {
+                                                                          print(
+                                                                              'No staff member found for ticket: ${ticket.TicketNumber}');
+                                                                        }
                                                                       }
-                                                                    }
-                                                                  },
+                                                                    },
                                                               child: Row(
-                                                                mainAxisSize: MainAxisSize.min, // Keeps row content compact
-                                                                mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                    ? MainAxisAlignment.start
-                                                                    : MainAxisAlignment.center,
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min, // Keeps row content compact
+                                                                mainAxisAlignment: _standbyStatusMap[
+                                                                            "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                        true
+                                                                    ? MainAxisAlignment
+                                                                        .start
+                                                                    : MainAxisAlignment
+                                                                        .center,
                                                                 children: [
-                                                                  Text("Standby"),
-                                                                  if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
-                                                                    SizedBox(width: screenWidth * 0.02), // Adds spacing without using Padding
-                                                                  if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
-                                                                    Icon(Icons.check, color: Colors.white, size: 16),
+                                                                  Text(
+                                                                      "Standby"),
+                                                                  if (_standbyStatusMap[
+                                                                          "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                      true)
+                                                                    SizedBox(
+                                                                        width: screenWidth *
+                                                                            0.02), // Adds spacing without using Padding
+                                                                  if (_standbyStatusMap[
+                                                                          "${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] ==
+                                                                      true)
+                                                                    Icon(
+                                                                        Icons
+                                                                            .check,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        size:
+                                                                            16),
                                                                 ],
                                                               ),
                                                             ),
@@ -2153,29 +2280,28 @@ Future<bool> showPermissionDialog() async {
                     break;
                   case 3: // Yaaana
 
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        Yaana(),
-                                    transitionDuration: const Duration(
-                                        seconds: 0), // No animation
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                           items: [
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/history.png', 'History', false),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/home.png', 'Home', false),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/ticket.png', 'My Tickets', true),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/chatbot.png', 'Yaana', false),
-                          ],
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            Yaana(),
+                        transitionDuration:
+                            const Duration(seconds: 0), // No animation
+                      ),
+                    );
+                    break;
+                }
+              },
+              items: [
+                _buildCustomBottomNavigationBarItem(
+                    'assets/history.png', 'History', false),
+                _buildCustomBottomNavigationBarItem(
+                    'assets/home.png', 'Home', false),
+                _buildCustomBottomNavigationBarItem(
+                    'assets/ticket.png', 'My Tickets', true),
+                _buildCustomBottomNavigationBarItem(
+                    'assets/chatbot.png', 'Yaana', false),
+              ],
             ),
           ),
         ),
@@ -2183,7 +2309,7 @@ Future<bool> showPermissionDialog() async {
     );
   }
 
- BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
+  BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       String iconPath, String label, bool isHighlighted) {
     return BottomNavigationBarItem(
       icon: Column(
@@ -2216,6 +2342,7 @@ Future<bool> showPermissionDialog() async {
       label: label,
     );
   }
+
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
