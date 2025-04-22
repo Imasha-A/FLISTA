@@ -413,8 +413,6 @@ class APIService {
     }
   }
 
-
-
   Future<Map<String, dynamic>> sendLocationData(
       double latitude,
       double longitude,
@@ -499,58 +497,90 @@ class APIService {
     }
   }
 
+  // Future<List<FlistaPermission>> getFlistaModulePermissions() async {
+  //   final url = Uri.parse(
+  //       'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaModulePermissions');
+
+  //   final response = await http.post(
+  //     url,
+  //     headers: {
+  //       'Cookie':
+  //           'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+  //       'Content-Type': 'application/json',
+  //     },
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     final List<dynamic> jsonList = jsonDecode(response.body);
+  //     return jsonList.map((json) => FlistaPermission.fromJson(json)).toList();
+  //   } else {
+  //     print('Request failed with status: ${response.statusCode}');
+  //     return [];
+  //   }
+  // }
 
   Future<List<FlistaPermission>> getFlistaModulePermissions() async {
-  final url = Uri.parse('https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaModulePermissions');
+    final url = Uri.parse(
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaModulePermissions');
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Cookie': 'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
-      'Content-Type': 'application/json',
-    },
-  );
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Cookie':
+              'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({}), // <- Add this line
+      );
 
-  if (response.statusCode == 200) {
-    final List<dynamic> jsonList = jsonDecode(response.body);
-    return jsonList.map((json) => FlistaPermission.fromJson(json)).toList();
-  } else {
-    print('Request failed with status: ${response.statusCode}');
-    return [];
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonList = jsonDecode(response.body);
+        return jsonList.map((json) => FlistaPermission.fromJson(json)).toList();
+      } else {
+        print('Request failed with status: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      return [];
+    }
   }
-}
 
-Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
-    String boardPoint, String flightNo, String staffID) async {
-  try {
-    final response = await http.get(
-      Uri.parse(
-          '$baseUrl/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID'),
-    );
-    print('$baseUrl/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID');
+  Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
+      String boardPoint, String flightNo, String staffID) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$baseUrl/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID'),
+      );
+      print(
+          '$baseUrl/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID');
 
-    if (response.statusCode == 200) {
-      final body = response.body;
-      if (body.isNotEmpty) {
-        final decoded = json.decode(body);
-        print('Raw responseList: $decoded');
+      if (response.statusCode == 200) {
+        final body = response.body;
+        if (body.isNotEmpty) {
+          final decoded = json.decode(body);
+          print('Raw responseList: $decoded');
 
-        if (decoded is List) {
-          return decoded.map<CheckinSummery>((e) => CheckinSummery.fromJson(e)).toList();
+          if (decoded is List) {
+            return decoded
+                .map<CheckinSummery>((e) => CheckinSummery.fromJson(e))
+                .toList();
+          } else {
+            print('Decoded response is not a list.');
+          }
         } else {
-          print('Decoded response is not a list.');
+          print('Empty response body');
         }
       } else {
-        print('Empty response body');
+        print('HTTP Error: ${response.statusCode}');
       }
-    } else {
-      print('HTTP Error: ${response.statusCode}');
+    } catch (e) {
+      print('Error fetching data: $e');
     }
-  } catch (e) {
-    print('Error fetching data: $e');
+    return [];
   }
-  return [];
-}
 
   static Future<List<Map<String, dynamic>>> getOriginsAndDestinations() async {
     const String url =
@@ -569,21 +599,24 @@ Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
       throw Exception('Error fetching data: $e');
     }
   }
+
 // Retrieves the setting for the ticket button from the settings API.
   Future<bool> getTicketButtonEnabled() async {
-    final url = Uri.parse('https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
- 
+    final url = Uri.parse(
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
+
     final response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Cookie': 'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+        'Cookie':
+            'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
       },
       body: {
         'SETTING_CODE': 'IS_TICKET_BUTTON_ENABLED',
       },
     );
- 
+
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       return data['VALUESS'] == 'TRUE';
@@ -591,6 +624,7 @@ Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
       throw Exception('Failed to load settings');
     }
   }
+
   Future<StaffMember?> getStaffMember(String flightDate, String boardPoint,
       String flightNo, String ticketNumber) async {
     final url = Uri.parse(
@@ -630,4 +664,3 @@ Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
     }
   }
 }
-

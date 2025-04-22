@@ -95,6 +95,10 @@ bool isPriorityButtonEnabled = false;
       .where((p) => p.moduleId == 'CHECKIN_SUMMARY'&& p.isActive=="TRUE")
       .map((p) => p.staffId)
       .toList();
+
+      print('CheckIn Access: $giveCheckInAccess');
+print('Priority Access: $givePriorityAccess');
+
 }
 
  void fetchPriorityPermissions() async {
