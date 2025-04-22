@@ -15,6 +15,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:io';
 
 class HomePage extends StatefulWidget {
   final String selectedDate;
@@ -26,8 +27,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late String selectedDate;
-  late String originCountryCode;
-  late String destinationCountryCode;
+  String originCountryCode = '';
+  String destinationCountryCode = '';
+
   late String _userName = 'User Name';
   late String _userId = '123456';
   String? _errorMessage;
@@ -68,8 +70,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    //selectedDate = widget.selectedDate;
     selectedDate = widget.selectedDate;
-    majorVersion = getAndroidVersion();
+    if (Platform.isAndroid) {
+      majorVersion = getAndroidVersion();
+    } else {
+      majorVersion = Future.value(9);
+    }
+
     originCountryCode = '';
     destinationCountryCode = '';
     _originController.text = _flightSearchModel.selectedOriginCountry ?? '';
@@ -264,10 +272,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _useCachedData() {
+    if (_cachedAirportList == null) return; // Add null check
     setState(() {
       _flightSearchModel.originCountries = _cachedAirportList!.map((airport) {
         return {
-          'name': toTitleCase(airport['name']!.trim()),
+          'name':
+              toTitleCase(airport['name']?.trim() ?? 'Unknown'), // Null checks
           'code': airport['code']!,
           'city': airport['city']!,
           'country': airport['country']!,
@@ -358,34 +368,6 @@ class _HomePageState extends State<HomePage> {
       _hideDestinationSuggestions();
     });
   }
-
-  // void _swapCountries() {
-  //   if (_flightSearchModel.selectedOriginCountry != null &&
-  //       _flightSearchModel.selectedDestinationCountry != null) {
-  //     setState(() {
-  //       // Swap origin and destination countries
-  //       final String tempCountry = _flightSearchModel.selectedOriginCountry!;
-  //       final String tempCode = _flightSearchModel.selectedOriginCountryCode!;
-  //       _flightSearchModel.selectedOriginCountry =
-  //           _flightSearchModel.selectedDestinationCountry!;
-  //       _flightSearchModel.selectedOriginCountryCode =
-  //           _flightSearchModel.selectedDestinationCountryCode!;
-  //       _flightSearchModel.selectedDestinationCountry = tempCountry;
-  //       _flightSearchModel.selectedDestinationCountryCode = tempCode;
-
-  //       // Update text field controllers
-  //       _originController.text = _flightSearchModel.selectedOriginCountryCode!;
-  //       _destinationController.text =
-  //           _flightSearchModel.selectedDestinationCountryCode!;
-  //     });
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('Please select both origin and destination countries.'),
-  //       ),
-  //     );
-  //   }
-  // }
 
   void _swapCountries() {
     if (_flightSearchModel.selectedOriginCountry != null &&
@@ -508,17 +490,19 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadUserName() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? displayName = prefs.getString('displayName');
+    //String? displayName = prefs.getString('displayName');
     setState(() {
-      _userName = displayName ?? 'User Name';
+      //_userName = displayName ?? 'User Name';
+      _userName = prefs.getString('displayName') ?? 'User Name'; // Null check
     });
   }
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('userId');
+    //String? userId = prefs.getString('userId');
     setState(() {
-      _userId = userId ?? '123456';
+      //_userId = userId ?? '123456';
+      _userId = prefs.getString('userId') ?? '123456'; // Null check
     });
   }
 
@@ -2778,12 +2762,14 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: screenHeight * 0.1),
                                   Align(
                                     alignment: Alignment.bottomRight,
                                     child: Padding(
-                                      padding:
-                                          EdgeInsets.all(screenWidth * 0.05),
+                                      padding: EdgeInsets.fromLTRB(
+                                          screenWidth * 0.05,
+                                          screenHeight * 0.1,
+                                          screenWidth * 0.05,
+                                          screenHeight * 0.02),
                                       child: FloatingActionButton(
                                         onPressed: _showRatingPopup,
                                         backgroundColor: const Color.fromARGB(

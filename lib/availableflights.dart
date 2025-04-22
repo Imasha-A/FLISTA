@@ -341,10 +341,118 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                     SizedBox(
                       height: screenHeight * 0.02,
                     ),
+                    // Container(
+                    //   padding: const EdgeInsets.all(16.0),
+                    //   margin: const EdgeInsets.all(16.0),
+                    //   width: screenWidth * 1.6,
+                    //   decoration: BoxDecoration(
+                    //     gradient: const LinearGradient(
+                    //       colors: [
+                    //         Color.fromRGBO(51, 123, 169, 1),
+                    //         Color.fromRGBO(2, 77, 117, 1),
+                    //       ],
+                    //       begin: Alignment.topCenter,
+                    //       end: Alignment.bottomCenter,
+                    //     ),
+                    //     borderRadius: BorderRadius.circular(16.0),
+                    //   ),
+                    //   child: Column(
+                    //     children: [
+                    //       SizedBox(height: screenHeight * 0.03),
+                    //       Transform.translate(
+                    //         offset: Offset(
+                    //             screenWidth * -0.09, screenHeight * -0.035),
+                    //         child: Text(
+                    //           'Available Flights',
+                    //           style: TextStyle(
+                    //             color: Colors.white,
+                    //             fontWeight: FontWeight.bold,
+                    //             fontSize: screenWidth * 0.08,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       Transform.translate(
+                    //         offset: Offset(
+                    //             screenWidth * -0.18, screenHeight * -0.038),
+                    //         child: Text(
+                    //           'on ${widget.selectedDate}',
+                    //           style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: screenWidth * 0.045),
+                    //         ),
+                    //       ),
+
+                    //       for (var flight in ulList)
+                    //         Padding(
+                    //           padding: EdgeInsets.only(
+                    //               bottom: screenWidth *
+                    //                   0.01), // Add space between buttons
+                    //           child: ElevatedButton(
+                    //             onPressed: () {
+                    //               _navigateToCapacityInfoPage(context,
+                    //                   flight.ulNumber, flight.scheduledTime);
+                    //               _saveFlightInfoToDB(
+                    //                   flight.ulNumber, flight.scheduledTime);
+                    //             },
+                    //             style: ElevatedButton.styleFrom(
+                    //               backgroundColor:
+                    //                   const Color.fromARGB(96, 151, 181, 237),
+                    //               shape: RoundedRectangleBorder(
+                    //                 borderRadius: BorderRadius.circular(9.0),
+                    //               ),
+                    //               padding: EdgeInsets.symmetric(
+                    //                 horizontal: screenWidth * 0.17,
+                    //                 vertical: screenHeight * 0.010,
+                    //               ),
+                    //             ),
+                    //             child: Row(
+                    //               mainAxisAlignment:
+                    //                   MainAxisAlignment.spaceEvenly,
+                    //               children: [
+                    //                 Transform.translate(
+                    //                   offset: Offset(screenWidth * -0.13, 0.0),
+                    //                   child: Text(
+                    //                     'UL${flight.ulNumber}\nScheduled: ${flight.scheduledTime.substring(0, 2)}:${flight.scheduledTime.substring(2)}',
+                    //                     style: TextStyle(
+                    //                       color: Colors.white,
+                    //                       fontWeight: FontWeight.w400,
+                    //                       fontSize: screenWidth * 0.05,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //                 Transform.translate(
+                    //                   offset: Offset(screenWidth * 0.12, 0.0),
+                    //                   child: const Icon(
+                    //                     Icons.arrow_forward_ios_rounded,
+                    //                     color: Colors.white,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       // New condition to display message if ulList is empty or null
+                    //       if (ulList.isEmpty)
+                    //         Padding(
+                    //           padding:
+                    //               EdgeInsets.only(bottom: screenHeight * 0.03),
+                    //           child: Text(
+                    //             'No flights available for the selected date and route.',
+                    //             style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: screenWidth * 0.045,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //     ],
+                    //   ),
+                    // ),
                     Container(
-                      padding: const EdgeInsets.all(16.0),
-                      margin: const EdgeInsets.all(16.0),
-                      width: screenWidth * 1.6,
+                      // use relative padding/margin instead of consts
+                      padding: EdgeInsets.all(screenWidth * 0.04),
+                      margin: EdgeInsets.all(screenWidth * 0.04),
+                      // cap width to the screen (or a fraction of it)
+                      width: screenWidth * 0.95,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
@@ -357,11 +465,13 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                         borderRadius: BorderRadius.circular(16.0),
                       ),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: screenHeight * 0.03),
-                          Transform.translate(
-                            offset: Offset(
-                                screenWidth * -0.09, screenHeight * -0.035),
+                          SizedBox(height: screenHeight * 0.005),
+
+                          // Title
+                          Padding(
+                            padding: EdgeInsets.only(left: screenWidth * 0.04),
                             child: Text(
                               'Available Flights',
                               style: TextStyle(
@@ -371,28 +481,39 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                               ),
                             ),
                           ),
-                          Transform.translate(
-                            offset: Offset(
-                                screenWidth * -0.18, screenHeight * -0.038),
+
+                          SizedBox(height: screenHeight * 0.005),
+
+                          // Subtitle
+                          Padding(
+                            padding: EdgeInsets.only(left: screenWidth * 0.04),
                             child: Text(
                               'on ${widget.selectedDate}',
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: screenWidth * 0.045),
+                                color: Colors.white,
+                                fontSize: screenWidth * 0.045,
+                              ),
                             ),
                           ),
 
+                          SizedBox(height: screenHeight * 0.02),
+
+                          // Flight buttons
                           for (var flight in ulList)
                             Padding(
-                              padding: EdgeInsets.only(
-                                  bottom: screenWidth *
-                                      0.01), // Add space between buttons
+                              padding:
+                                  EdgeInsets.only(bottom: screenHeight * 0.015),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  _navigateToCapacityInfoPage(context,
-                                      flight.ulNumber, flight.scheduledTime);
+                                  _navigateToCapacityInfoPage(
+                                    context,
+                                    flight.ulNumber,
+                                    flight.scheduledTime,
+                                  );
                                   _saveFlightInfoToDB(
-                                      flight.ulNumber, flight.scheduledTime);
+                                    flight.ulNumber,
+                                    flight.scheduledTime,
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -400,19 +521,24 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(9.0),
                                   ),
+                                  // ensure button fills available width but has nice padding
+                                  minimumSize: Size(
+                                      double.infinity, screenHeight * 0.07),
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.17,
-                                    vertical: screenHeight * 0.010,
+                                    horizontal: screenWidth * 0.04,
+                                    vertical: screenHeight * 0.012,
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Transform.translate(
-                                      offset: Offset(screenWidth * -0.13, 0.0),
+                                    // flight info on the left
+                                    Flexible(
                                       child: Text(
-                                        'UL${flight.ulNumber}\nScheduled: ${flight.scheduledTime.substring(0, 2)}:${flight.scheduledTime.substring(2)}',
+                                        'UL${flight.ulNumber}\n'
+                                        'Scheduled: ${flight.scheduledTime.substring(0, 2)}'
+                                        ':${flight.scheduledTime.substring(2)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w400,
@@ -420,30 +546,31 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                                         ),
                                       ),
                                     ),
-                                    Transform.translate(
-                                      offset: Offset(screenWidth * 0.12, 0.0),
-                                      child: const Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        color: Colors.white,
-                                      ),
+
+                                    // arrow icon on the right
+                                    const Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: Colors.white,
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          // New condition to display message if ulList is empty or null
-                          if (ulList.isEmpty)
-                            Padding(
-                              padding:
-                                  EdgeInsets.only(bottom: screenHeight * 0.03),
+
+                          // empty state
+                          if (ulList.isEmpty) ...[
+                            SizedBox(height: screenHeight * 0.03),
+                            Center(
                               child: Text(
                                 'No flights available for the selected date and route.',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: screenWidth * 0.045,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
                             ),
+                          ],
                         ],
                       ),
                     ),

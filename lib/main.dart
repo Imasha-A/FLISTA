@@ -1,11 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 import './services/api_service.dart';
 
 void main() {
-  runApp(const MyApp());
+  // Add these lines before runApp()
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    // DeviceOrientation.portraitDown, // Include if you want upside-down
+  ]).then((_) {
+    runApp(const MyApp());
+  });
 }
 
 class SplashScreen extends StatefulWidget {
@@ -87,7 +95,7 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
-  late String selectedDate = '';
+  String selectedDate = '';
   late PageController _pageController;
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -271,6 +279,8 @@ class _MyLoginPageState extends State<MyLoginPage> {
     }
   }
 
+  
+
   void _navigateToHomePage(BuildContext context, String selectedDate) {
     Navigator.push(
       context,
@@ -416,7 +426,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                           child: TextField(
                             controller: _usernameController,
                             decoration: InputDecoration(
-                              labelText: 'Staff ID',
+                              labelText: 'User ID',
                               labelStyle: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

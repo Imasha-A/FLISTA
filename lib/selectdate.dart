@@ -96,7 +96,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                 )
               : Image.asset(
                   iconPath,
-                 height: 30,
+                  height: 30,
                   width: 30,
                   fit: BoxFit.contain,
                 ),
@@ -527,14 +527,14 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                   const Color.fromARGB(255, 255, 255, 255),
                               shadowColor:
                                   const Color.fromARGB(255, 33, 144, 213),
-                              side: const BorderSide(
-                                  width: 1.5,
+                              side: BorderSide(
+                                  width: screenWidth * 0.01,
                                   color: Color.fromARGB(0, 255, 255, 255)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(9.0),
                               ),
                               padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.25,
+                                  horizontal: screenWidth * 0.24,
                                   vertical: screenHeight * 0.014),
                             ),
                             child: Column(

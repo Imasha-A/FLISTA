@@ -1,3 +1,4 @@
+import 'package:flista_new/models/staffaccess.dart';
 import 'package:flista_new/mytickets.dart';
 import 'package:flista_new/yaana.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +77,13 @@ class _PriorityState extends State<PriorityPage> {
       MaterialPageRoute(builder: (context) => const MyLoginPage()),
     );
   }
+
+   void fetchPermissions() async {
+  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+  for (var p in permissions) {
+    print('Module: ${p.moduleId}, Staff: ${p.staffId}, Active: ${p.isActive}');
+  }
+}
 
   void fetchData() {
     _apiService
