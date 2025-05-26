@@ -625,6 +625,89 @@ class APIService {
     }
   }
 
+
+   Future<bool> getStandbyVisible() async {
+    final url = Uri.parse(
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie':
+            'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+      },
+      body: {
+        'SETTING_CODE': 'IS_RETURN_SECTOR_STANDBY_BUTTON_VISIBLE',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['VALUESS'] == 'TRUE';
+    } else {
+      throw Exception('Failed to load settings');
+    }
+  }
+
+   Future<bool> getStatusInfo() async {
+    final url = Uri.parse(
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie':
+            'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+      },
+      body: {
+        'SETTING_CODE': 'TICKET_BUTTON_CONTENT',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['VALUESS'] == 'TRUE';
+    } else {
+      throw Exception('Failed to load settings');
+    }
+  }
+
+
+
+
+
+Future<Map<String, String>> getStatusContent() async {
+  final url = Uri.parse(
+    'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
+  );
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: {
+      'SETTING_CODE': 'TICKET_BUTTON_CONTENT',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final outerJson = jsonDecode(response.body);
+
+    // Decode the VALUESS field which is a JSON string
+    final innerJson = jsonDecode(outerJson['VALUESS']);
+
+    return {
+      'button_name': innerJson['button_name'] ?? '',
+      'consent_content': innerJson['consent_content'] ?? '',
+    };
+  } else {
+    throw Exception('Failed to fetch ticket button content');
+  }
+}
+
   Future<StaffMember?> getStaffMember(String flightDate, String boardPoint,
       String flightNo, String ticketNumber) async {
     final url = Uri.parse(

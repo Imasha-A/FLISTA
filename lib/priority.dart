@@ -78,12 +78,14 @@ class _PriorityState extends State<PriorityPage> {
     );
   }
 
-   void fetchPermissions() async {
-  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
-  for (var p in permissions) {
-    print('Module: ${p.moduleId}, Staff: ${p.staffId}, Active: ${p.isActive}');
+  void fetchPermissions() async {
+    List<FlistaPermission> permissions =
+        await _apiService.getFlistaModulePermissions();
+    for (var p in permissions) {
+      print(
+          'Module: ${p.moduleId}, Staff: ${p.staffId}, Active: ${p.isActive}');
+    }
   }
-}
 
   void fetchData() {
     _apiService
@@ -475,134 +477,146 @@ class _PriorityState extends State<PriorityPage> {
                                     ),
                                   )
                                 else
-                                  Column(
-                                    children: staffMembers.map((staff) {
-                                      // Mask fields if the name doesn't match _userName
-                                      String fullName =
-                                          '${staff.firstName} ${staff.lastName}';
+                                  SizedBox(
+                                    height: screenHeigth * 0.37,
+                                    child: SingleChildScrollView(
+                                      child: Column(
+                                        children: staffMembers.map((staff) {
+                                          // Mask fields if the name doesn't match _userName
+                                          String fullName =
+                                              '${staff.firstName} ${staff.lastName}';
 
-                                      if (fullName.toLowerCase() !=
-                                              _userName.toLowerCase() &&
-                                          staff.staffID != _userId) {
-                                        // Mask sensitive fields
-                                        staff = StaffMember(
-                                          title: 'xxx',
-                                          firstName:
-                                              'xxxxxx', // Masked first name
-                                          lastName:
-                                              'xxxxxx', // Masked last name
-                                          staffID: 'xxxxxx', // Masked staff ID
-                                          priority: staff.priority,
-                                          status: staff.status,
-                                          pnr: staff.pnr,
-                                          actionStatus: staff.actionStatus,
-                                          uniqueCustomerID:
-                                              staff.uniqueCustomerID,
-                                          paxType: staff.paxType,
-                                          prodIdentificationRefCode:
-                                              staff.prodIdentificationRefCode,
-                                          givenName: staff.givenName,
-                                          prodIdentificationPrimeID:
-                                              staff.prodIdentificationPrimeID,
-                                          gender: staff.gender,
-                                          Title: staff.title,
-                                          surname: staff.surname,
-                                        );
-                                      }
+                                          if (fullName.toLowerCase() !=
+                                                  _userName.toLowerCase() &&
+                                              staff.staffID != _userId) {
+                                            // Mask sensitive fields
+                                            staff = StaffMember(
+                                              title: 'xxx',
+                                              firstName:
+                                                  'xxxxxx', // Masked first name
+                                              lastName:
+                                                  'xxxxxx', // Masked last name
+                                              staffID:
+                                                  'xxxxxx', // Masked staff ID
+                                              priority: staff.priority,
+                                              status: staff.status,
+                                              pnr: staff.pnr,
+                                              actionStatus: staff.actionStatus,
+                                              uniqueCustomerID:
+                                                  staff.uniqueCustomerID,
+                                              paxType: staff.paxType,
+                                              prodIdentificationRefCode: staff
+                                                  .prodIdentificationRefCode,
+                                              givenName: staff.givenName,
+                                              prodIdentificationPrimeID: staff
+                                                  .prodIdentificationPrimeID,
+                                              gender: staff.gender,
+                                              Title: staff.title,
+                                              surname: staff.surname,
+                                            );
+                                          }
 
-                                      return Column(
-                                        children: [
-                                          SizedBox(
-                                            width: screenWidth * 2,
-                                            height: screenHeigth * 0.115,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                // Handle button press
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        48, 53, 106, 204),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          9.0),
-                                                ),
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        screenWidth * 0.045),
-                                              ),
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceEvenly,
-                                                      children: [
-                                                        // Full name and ID
-                                                        Text(
-                                                          '${staff.title}. ${staff.firstName} ${staff.lastName} (${staff.staffID})',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize:
-                                                                  screenWidth *
-                                                                      0.04),
-                                                        ),
-                                                        // Priority and Status row
-                                                        Row(
+                                          return Column(
+                                            children: [
+                                              SizedBox(
+                                                width: screenWidth * 2,
+                                                height: screenHeigth * 0.115,
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    // Handle button press
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            48, 53, 106, 204),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              9.0),
+                                                    ),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal:
+                                                                screenWidth *
+                                                                    0.045),
+                                                  ),
+                                                  child: Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
                                                           children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                'Priority - ${staff.priority}',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: const Color
-                                                                      .fromARGB(
-                                                                      255,
-                                                                      255,
-                                                                      251,
-                                                                      21),
+                                                            // Full name and ID
+                                                            Text(
+                                                              '${staff.title}. ${staff.firstName} ${staff.lastName} (${staff.staffID})',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
                                                                   fontSize:
                                                                       screenWidth *
-                                                                          0.04,
-                                                                ),
-                                                              ),
+                                                                          0.04),
                                                             ),
-                                                            Text(
-                                                              'Status - ${staff.actionStatus}',
-                                                              style: TextStyle(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    255,
-                                                                    110,
-                                                                    26),
-                                                                fontSize:
-                                                                    screenWidth *
-                                                                        0.04,
-                                                              ),
+                                                            // Priority and Status row
+                                                            Row(
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    'Priority - ${staff.priority}',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: const Color
+                                                                          .fromARGB(
+                                                                          255,
+                                                                          255,
+                                                                          251,
+                                                                          21),
+                                                                      fontSize:
+                                                                          screenWidth *
+                                                                              0.04,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  'Status - ${staff.actionStatus}',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: const Color
+                                                                        .fromARGB(
+                                                                        255,
+                                                                        255,
+                                                                        110,
+                                                                        26),
+                                                                    fontSize:
+                                                                        screenWidth *
+                                                                            0.04,
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           ],
                                                         ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          SizedBox(
-                                              height: screenHeigth * 0.015),
-                                        ],
-                                      );
-                                    }).toList(),
+                                              SizedBox(
+                                                  height: screenHeigth * 0.015),
+                                            ],
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
                                   ),
                               ],
                             ),

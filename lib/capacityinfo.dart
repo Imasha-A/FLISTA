@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flista_new/checkin.dart';
 import 'package:flista_new/models/checkinmodel.dart';
 import 'package:flista_new/models/staffaccess.dart';
@@ -53,16 +56,18 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   bool isLoading = true;
   List<StaffMember> staffMembers = [];
   CheckinSummery? checkinSummery;
-List<String> giveCheckInAccess=[];
+  List<String> giveCheckInAccess = [];
+  Future<int>? majorVersion;
 
-List<String> givePriorityAccess=[];
+  List<String> givePriorityAccess = [];
 
   final APIService _apiService = APIService();
   late String _userName = 'User Name';
   late String _userId = '123456';
+  String version = "";
 
-bool isCheckInSummaryEnabled = false;
-bool isPriorityButtonEnabled = false;
+  bool isCheckInSummaryEnabled = false;
+  bool isPriorityButtonEnabled = false;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -72,78 +77,126 @@ bool isPriorityButtonEnabled = false;
     selectedDate = widget.selectedDate;
     selectedUL =
         widget.selectedUL; // Initialize selectedUL with the passed value
-        scheduledTime=widget.scheduledTime;
+    scheduledTime = widget.scheduledTime;
     ulList = widget.ulList; // Initialize ulList with the passed value
     formattedDate =
         APIService().formatDate(selectedDate); // Assign formattedDate value
     formattedLongDate = APIService()
         .formatLongDate(selectedDate); // Assign formattedLongDate value
+
+    // only one “kick-off” to handle all permissions+staff
+    _initializeWithPermissions();
+    if (Platform.isAndroid) {
+      majorVersion = getAndroidVersion();
+    } else {
+      version = "ios";
+      //majorVersion = Future.value(9);
+    }
+
+    // now fetch the flight-specific data
     _fetchFlightExtraInfo();
     _fetchFlightLoadInfo();
-
-    _initializeState();
-    fetchCheckInPermissions();
-    fetchPriorityPermissions();
-
-    
   }
 
-   void fetchCheckInPermissions() async {
-  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+  Future<void> _initializeWithPermissions() async {
+    await _loadUserName();
+    await _loadUserId();
 
-   giveCheckInAccess = permissions
-      .where((p) => p.moduleId == 'CHECKIN_SUMMARY'&& p.isActive=="TRUE")
-      .map((p) => p.staffId)
-      .toList();
+    await fetchCheckInPermissions();
+    await fetchPriorityPermissions();
 
-      print('CheckIn Access: $giveCheckInAccess');
-print('Priority Access: $givePriorityAccess');
+    await fetchData();
+  }
 
-}
+  Future<int> getAndroidVersion() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
- void fetchPriorityPermissions() async {
-  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+    // Get the Android version as a string
+    String androidVersionString = androidInfo.version.release;
+    print("Android Version (String): $androidVersionString");
+    int androidVersion = 0;
+    // Convert the Android version to an integer for comparison
+    try {
+      androidVersion = int.parse(
+          androidVersionString.split('.')[0]); // To handle cases like "14.1"
+      print("Android Version (Integer): $androidVersion");
 
-   givePriorityAccess = permissions
-      .where((p) => p.moduleId == 'MY_PRIORITY'&& p.isActive=="TRUE")
-      .map((p) => p.staffId)
-      .toList();
-}
-
-
-
- void _fetchFlightExtraInfo() async {
-  await _loadUserId();
-  await fetchData();
-
-  try {
-    // Assuming you have a DateTime object, or replace with your actual date source
-    DateTime flightDate = DateTime.now(); // Replace with your actual flight date
-    String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
-
-    var responseList = await _apiService.viewCheckInStatus(
-      formattedDate,
-      widget.originCountryCode,
-      widget.selectedUL,
-      _userId,
-    );
-
-   List<CheckinSummery> summaryList = responseList;
-
-    setState(() {
-      if (summaryList.isNotEmpty) {
-        checkinSummery = summaryList.first;
+      // Example comparison
+      if (androidVersion > 8) {
+        print("Your Android version is above 8.");
+        return androidVersion;
+      } else {
+        print("Your Android version is below 8.");
+        return androidVersion;
       }
-      isLoading = false;
-    });
-  } catch (error) {
-    print('Error fetching flight load information: $error');
-    setState(() {
-      isLoading = false;
-    });
+    } catch (e) {
+      print("Failed to parse Android version: $e");
+      return androidVersion;
+    }
   }
-}
 
+  Future<void> fetchCheckInPermissions() async {
+    List<FlistaPermission> permissions =
+        await _apiService.getFlistaModulePermissions();
+
+    giveCheckInAccess = permissions
+        .where((p) => p.moduleId == 'CHECKIN_SUMMARY' && p.isActive == "TRUE")
+        .map((p) => p.staffId)
+        .toList();
+
+    print('CheckIn Access: $giveCheckInAccess');
+  }
+
+  Future<void> fetchPriorityPermissions() async {
+    List<FlistaPermission> permissions =
+        await _apiService.getFlistaModulePermissions();
+
+    givePriorityAccess = permissions
+        .where((p) => p.moduleId == 'MY_PRIORITY' && p.isActive == "TRUE")
+        .map((p) => p.staffId)
+        .toList();
+
+    print('Priority Access: $givePriorityAccess');
+  }
+
+  void _fetchFlightExtraInfo() async {
+    await _loadUserId();
+
+    // 👇 Fetch permissions first!
+    await fetchCheckInPermissions();
+    await fetchPriorityPermissions();
+
+    await fetchData(); // ← Now the access lists are ready
+
+    try {
+      // Assuming you have a DateTime object, or replace with your actual date source
+      DateTime flightDate =
+          DateTime.now(); // Replace with your actual flight date
+      String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
+
+      var responseList = await _apiService.viewCheckInStatus(
+        formattedDate,
+        widget.originCountryCode,
+        widget.selectedUL,
+        _userId,
+      );
+
+      List<CheckinSummery> summaryList = responseList;
+
+      setState(() {
+        if (summaryList.isNotEmpty) {
+          checkinSummery = summaryList.first;
+        }
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error fetching flight load information: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   Future<void> _initializeState() async {
     await _loadUserName();
@@ -151,22 +204,25 @@ print('Priority Access: $givePriorityAccess');
     await fetchData();
 
     for (var staff in staffMembers) {
-    String fullName = '${staff.firstName} ${staff.lastName}';
+      String fullName = '${staff.firstName} ${staff.lastName}';
 
-    // Check for Check-In Summary Access
-    if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
-      setState(() {
-        isCheckInSummaryEnabled = true;
-      });
-    }
+      // Check for Check-In Summary Access
+      if (fullName == _userName ||
+          staff.staffID == _userId ||
+          giveCheckInAccess.contains(_userId)) {
+        setState(() {
+          isCheckInSummaryEnabled = true;
+        });
+      }
 
-    // Check for Priority Access
-    if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
-      setState(() {
-        isPriorityButtonEnabled = true;
-      });
-    }
-  break;
+      // Check for Priority Access
+      if (fullName == _userName ||
+          staff.staffID == _userId ||
+          givePriorityAccess.contains(_userId)) {
+        setState(() {
+          isPriorityButtonEnabled = true;
+        });
+      }
     }
   }
 
@@ -179,75 +235,76 @@ print('Priority Access: $givePriorityAccess');
   }
 
   // Helper method to build consistent data rows
-Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screenWidth, double screenHeigth) {
-  return Row(
-    children: [
-      // Label column (fixed width)
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-        child: Container(
-          width: screenWidth * 0.5,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: screenWidth * 0.041,
+  Widget _buildDataRow(String label, dynamic jValue, dynamic yValue,
+      double screenWidth, double screenHeigth) {
+    return Row(
+      children: [
+        // Label column (fixed width)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+          child: Container(
+            width: screenWidth * 0.5,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.041,
+              ),
             ),
           ),
         ),
-      ),
-      
-      // BC/J value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$jValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // BC/J value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$jValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      
-      // EY/Y value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$yValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // EY/Y value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$yValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   // Callback for pull-down refresh
   Future<void> _onRefresh() async {
@@ -280,22 +337,25 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
         });
 
         for (var staff in staffMembers) {
-    String fullName = '${staff.firstName} ${staff.lastName}';
+          String fullName = '${staff.firstName} ${staff.lastName}';
 
-    // Check for Check-In Summary Access
-    if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
-      setState(() {
-        isCheckInSummaryEnabled = true;
-      });
-    }
+          // Check for Check-In Summary Access
+          if (fullName == _userName ||
+              staff.staffID == _userId ||
+              giveCheckInAccess.contains(_userId)) {
+            setState(() {
+              isCheckInSummaryEnabled = true;
+            });
+          }
 
-    // Check for Priority Access
-    if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
-      setState(() {
-        isPriorityButtonEnabled = true;
-      });
-    }
-
+          // Check for Priority Access
+          if (fullName == _userName ||
+              staff.staffID == _userId ||
+              givePriorityAccess.contains(_userId)) {
+            setState(() {
+              isPriorityButtonEnabled = true;
+            });
+          }
         }
       }
     } catch (error) {
@@ -360,7 +420,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
     );
   }
 
-   void _navigateToCheckInsSummaryPage(
+  void _navigateToCheckInsSummaryPage(
       BuildContext context, String selectedUL, String scheduledTime) {
     Navigator.push(
       context,
@@ -534,7 +594,8 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
       child: Scaffold(
         backgroundColor: const Color.fromARGB(0, 255, 255, 255),
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(screenHeigth * 0.173),
+          preferredSize: Size.fromHeight(
+              version == "ios" ? screenHeigth * 0.13 : screenHeigth * 0.173),
           child: AppBar(
             backgroundColor: Colors.transparent,
             titleTextStyle: TextStyle(
@@ -886,147 +947,247 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                                         ),
                                       ),
                                       Column(
-  children: [
-    // Header row with BC and EY labels
-    Row(
-      children: [
-        // Empty space for label column
-        SizedBox(width: screenWidth * 0.53),
-        // BC column header
-        Expanded(
-          child: Center(
-            child: Text(
-              'BC', // Business Class
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.041,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        // EY column header
-        Expanded(
-          child: Center(
-            child: Text(
-              'EY', // Economy Class
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.041,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-    SizedBox(height: screenHeigth * 0.015),
-    
-    // Data rows
-    _buildDataRow('Capacity', flightLoad?.jCapacity, flightLoad?.yCapacity, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Booked', flightLoad?.jBooked, flightLoad?.yBooked, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Checked-In', flightLoad?.jCheckedIn, flightLoad?.yCheckedIn, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Commercial Standby', flightLoad?.jCommercialStandby, flightLoad?.yCommercialStandby, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff Listed', flightLoad?.jStaffListed ?? 0, flightLoad?.yStaffListed ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff on Standby', flightLoad?.jStaffOnStandby ?? 0, flightLoad?.yStaffOnStandby ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff Accepted', flightLoad?.jStaffAccepted ?? 0, flightLoad?.yStaffAccepted ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.028),
-   
+                                        children: [
+                                          // Header row with BC and EY labels
+                                          Row(
+                                            children: [
+                                              // Empty space for label column
+                                              SizedBox(
+                                                  width: screenWidth * 0.53),
+                                              // BC column header
+                                              Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'BC', // Business Class
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.041,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              // EY column header
+                                              Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'EY', // Economy Class
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.041,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: screenHeigth * 0.015),
 
-    // Button
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        
-        Container(
-          width: screenWidth * 0.4,
-          height: screenHeigth * 0.04,
-          child: ElevatedButton(
-            onPressed: isPriorityButtonEnabled
-                ? () {
-                    _navigateToPriorityPage(context);
-                  }
-                : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isPriorityButtonEnabled
-                  ? Colors.white
-                  : Colors.grey,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9.0),
-              ),
-              disabledForegroundColor: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.38),
-              disabledBackgroundColor: const Color.fromARGB(255, 242, 236, 236).withOpacity(0.12),
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-            ),
-            child: Text(
-              'My Priority',
-              style: TextStyle(
-                color: isPriorityButtonEnabled
-                    ? const Color.fromRGBO(235, 97, 39, 1)
-                    : const Color.fromARGB(194, 235, 98, 39),
-                fontWeight: FontWeight.w900,
-                fontSize: screenWidth * 0.04,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: screenWidth*0.02),
-       // Check-in Summary Button
-    Container(
-      width: screenWidth * 0.4,
-      height: screenHeigth * 0.04,
-      child: ElevatedButton(
-        onPressed: isCheckInSummaryEnabled
-            ? () {
-                _navigateToCheckInsSummaryPage(context, selectedUL, scheduledTime);
-              }
-            : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isCheckInSummaryEnabled
-              ? const Color.fromRGBO(235, 97, 39, 1)
-              : Colors.grey,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(9.0),
-          ),
-          disabledForegroundColor: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.38),
-          disabledBackgroundColor: const Color.fromARGB(255, 242, 236, 236).withOpacity(0.12),
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-        ),
-        child: Text(
-          'Check-in Summary',
-          style: TextStyle(
-            color: isCheckInSummaryEnabled
-                ? Colors.white
-                : const Color.fromARGB(194, 255, 255, 255),
-            fontWeight: FontWeight.w900,
-            fontSize: screenWidth * 0.032,
-          ),
-        ),
-      ),
-    ),
+                                          // Data rows
+                                          _buildDataRow(
+                                              'Capacity',
+                                              flightLoad?.jCapacity,
+                                              flightLoad?.yCapacity,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
 
-        
-      
-        
+                                          _buildDataRow(
+                                              'Booked',
+                                              flightLoad?.jBooked,
+                                              flightLoad?.yBooked,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
 
-      
-      ],
-    ),
-  ],
-)
-                                     
+                                          _buildDataRow(
+                                              'Checked-In',
+                                              flightLoad?.jCheckedIn,
+                                              flightLoad?.yCheckedIn,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Commercial Standby',
+                                              flightLoad?.jCommercialStandby,
+                                              flightLoad?.yCommercialStandby,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff Listed',
+                                              flightLoad?.jStaffListed ?? 0,
+                                              flightLoad?.yStaffListed ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff on Standby',
+                                              flightLoad?.jStaffOnStandby ?? 0,
+                                              flightLoad?.yStaffOnStandby ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff Accepted',
+                                              flightLoad?.jStaffAccepted ?? 0,
+                                              flightLoad?.yStaffAccepted ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(
+                                              height: screenHeigth * 0.028),
+
+                                          // Button
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                width: screenWidth * 0.4,
+                                                height: screenHeigth * 0.04,
+                                                child: ElevatedButton(
+                                                  onPressed:
+                                                      isPriorityButtonEnabled
+                                                          ? () {
+                                                              _navigateToPriorityPage(
+                                                                  context);
+                                                            }
+                                                          : null,
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        isPriorityButtonEnabled
+                                                            ? Colors.white
+                                                            : Colors.grey,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              9.0),
+                                                    ),
+                                                    disabledForegroundColor:
+                                                        const Color.fromARGB(
+                                                                255,
+                                                                255,
+                                                                255,
+                                                                255)
+                                                            .withOpacity(0.38),
+                                                    disabledBackgroundColor:
+                                                        const Color.fromARGB(
+                                                                255,
+                                                                242,
+                                                                236,
+                                                                236)
+                                                            .withOpacity(0.12),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal:
+                                                                screenWidth *
+                                                                    0.03),
+                                                  ),
+                                                  child: Text(
+                                                    'My Priority',
+                                                    style: TextStyle(
+                                                      color:
+                                                          isPriorityButtonEnabled
+                                                              ? const Color
+                                                                  .fromRGBO(235,
+                                                                  97, 39, 1)
+                                                              : const Color
+                                                                  .fromARGB(194,
+                                                                  235, 98, 39),
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      fontSize:
+                                                          screenWidth * 0.04,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  width: screenWidth * 0.02),
+                                              // Check-in Summary Button
+                                              Container(
+                                                width: screenWidth * 0.4,
+                                                height: screenHeigth * 0.04,
+                                                child: ElevatedButton(
+                                                  onPressed:
+                                                      isCheckInSummaryEnabled
+                                                          ? () {
+                                                              _navigateToCheckInsSummaryPage(
+                                                                  context,
+                                                                  selectedUL,
+                                                                  scheduledTime);
+                                                            }
+                                                          : null,
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        isCheckInSummaryEnabled
+                                                            ? const Color
+                                                                .fromRGBO(
+                                                                235, 97, 39, 1)
+                                                            : Colors.grey,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              9.0),
+                                                    ),
+                                                    disabledForegroundColor:
+                                                        const Color.fromARGB(
+                                                                255,
+                                                                255,
+                                                                255,
+                                                                255)
+                                                            .withOpacity(0.38),
+                                                    disabledBackgroundColor:
+                                                        const Color.fromARGB(
+                                                                255,
+                                                                242,
+                                                                236,
+                                                                236)
+                                                            .withOpacity(0.12),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal:
+                                                                screenWidth *
+                                                                    0.01),
+                                                  ),
+                                                  child: Text(
+                                                    'Check-in Summary',
+                                                    style: TextStyle(
+                                                      color:
+                                                          isCheckInSummaryEnabled
+                                                              ? Colors.white
+                                                              : const Color
+                                                                  .fromARGB(
+                                                                  194,
+                                                                  255,
+                                                                  255,
+                                                                  255),
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      fontSize:
+                                                          screenWidth * 0.032,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ],

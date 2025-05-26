@@ -85,7 +85,7 @@ class _CheckInState extends State<CheckInPage> {
 
       if (fullName == _userName || staff.staffID == _userId) {
         setState(() {
-          areButtonsEnabled = true; 
+          areButtonsEnabled = true;
         });
 
         print(fullName);
@@ -93,7 +93,7 @@ class _CheckInState extends State<CheckInPage> {
         print(staff.staffID);
         print(_userName);
 
-        break; 
+        break;
       }
     }
   }
@@ -106,74 +106,75 @@ class _CheckInState extends State<CheckInPage> {
     });
   }
 
-Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screenWidth, double screenHeigth) {
-  return Row(
-    children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-        child: Container(
-          width: screenWidth * 0.5,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: screenWidth * 0.041,
+  Widget _buildDataRow(String label, dynamic jValue, dynamic yValue,
+      double screenWidth, double screenHeigth) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+          child: Container(
+            width: screenWidth * 0.5,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.041,
+              ),
             ),
           ),
         ),
-      ),
-      
-      // BC/J value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$jValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // BC/J value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$jValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      
-      // EY/Y value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$yValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // EY/Y value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$yValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   // Callback for pull-down refresh
   Future<void> _onRefresh() async {
@@ -197,7 +198,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
         widget.originCountryCode,
         selectedUL,
       );
-     
+
       // Only update state if the widget is still mounted
       if (mounted) {
         setState(() {
@@ -254,20 +255,17 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
 
   void _fetchFlightLoadInfo() async {
     try {
+      print(formattedDate);
 
-      print (    formattedDate
+      print(
+        widget.originCountryCode,
       );
 
-       print (   
-      widget.originCountryCode,
-     );
+      print(
+        widget.selectedUL,
+      );
 
-       print (    
-      widget.selectedUL,
- );
-
-       print (    
-      _userId);
+      print(_userId);
       List<FlightLoadModel> flightLoadDataList =
           await APIService().fetchFlightLoadInfo(
         widget.selectedDate,
@@ -292,44 +290,38 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
     }
   }
 
-  
+  void _fetchFlightExtraInfo() async {
+    await _loadUserId();
+    await fetchData();
 
+    try {
+      // Assuming you have a DateTime object, or replace with your actual date source
+      DateTime flightDate =
+          DateTime.now(); // Replace with your actual flight date
+      String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
 
+      var responseList = await _apiService.viewCheckInStatus(
+        formattedDate,
+        widget.originCountryCode,
+        widget.selectedUL,
+        _userId,
+      );
 
- void _fetchFlightExtraInfo() async {
-  await _loadUserId();
-  await fetchData();
+      List<CheckinSummery> summaryList = responseList;
 
-  try {
-    // Assuming you have a DateTime object, or replace with your actual date source
-    DateTime flightDate = DateTime.now(); // Replace with your actual flight date
-    String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
-
-    var responseList = await _apiService.viewCheckInStatus(
-      formattedDate,
-      widget.originCountryCode,
-      widget.selectedUL,
-      _userId,
-    );
-
-   List<CheckinSummery> summaryList = responseList;
-
-    setState(() {
-      if (summaryList.isNotEmpty) {
-        checkinSummery = summaryList.first;
-      }
-      isLoading = false;
-    });
-  } catch (error) {
-    print('Error fetching flight load information: $error');
-    setState(() {
-      isLoading = false;
-    });
+      setState(() {
+        if (summaryList.isNotEmpty) {
+          checkinSummery = summaryList.first;
+        }
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error fetching flight load information: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
-
- 
-  
 
   BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       String iconPath, String label, bool isHighlighted) {
@@ -645,7 +637,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                             child: Container(
                               padding: const EdgeInsets.all(16.0),
                               margin: const EdgeInsets.all(14.0),
-                              height: screenHeigth * 0.7,
+                              height: screenHeigth * 0.65,
                               width: screenWidth * 0.95,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -682,133 +674,213 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                                   // Adjust the padding to move the image to the right
 
                                   Column(
-  children: [
-    SizedBox(height: screenHeigth * 0.02),
-                            SizedBox(
-                              height: screenHeigth * 0.12,
-                              width: screenWidth * 0.8,
-                              child: Transform.translate(
-                                offset: const Offset(0.4, -15.0),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    // Handle checking availability
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(158, 38, 64, 112),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(9.0),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text(
-                                            '         UL $selectedUL',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: screenWidth * 0.06,
+                                      SizedBox(height: screenHeigth * 0.02),
+                                      SizedBox(
+                                        height: screenHeigth * 0.12,
+                                        width: screenWidth * 0.8,
+                                        child: Transform.translate(
+                                          offset: const Offset(0.4, -15.0),
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              // Handle checking availability
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      158, 38, 64, 112),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(9.0),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    Text(
+                                                      '         UL $selectedUL',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            screenWidth * 0.06,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                        width:
+                                                            screenWidth * .03),
+                                                    // Added SizedBox for spacing
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.002),
+                                                Text(
+                                                  '$selectedDate', // Use selectedDate variable here
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: screenWidth * .04,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.002),
+                                                Text(
+                                                  '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: screenWidth * .04,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.002),
+                                              ],
                                             ),
                                           ),
-                                          SizedBox(width: screenWidth * .03),
-                                          // Added SizedBox for spacing
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.002),
-                                      Text(
-                                        '$selectedDate', // Use selectedDate variable here
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: screenWidth * .04,
                                         ),
                                       ),
-                                      SizedBox(height: screenHeigth * 0.002),
-                                      Text(
-                                        '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: screenWidth * .04,
-                                        ),
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.002),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
                                       Column(
-  children: [
-    // Header row with BC and EY labels
-    Row(
-      children: [
-        // Empty space for label column
-        SizedBox(width: screenWidth * 0.53),
-        // BC column header
-        Expanded(
-          child: Center(
-            child: Text(
-              'BC', // Business Class
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.041,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        // EY column header
-        Expanded(
-          child: Center(
-            child: Text(
-              'EY', // Economy Class
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.041,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-    SizedBox(height: screenHeigth * 0.015),
-    
-    // Data rows
-    _buildDataRow('Capacity', checkinSummery?.jCapacity?? 0, checkinSummery?.yCapacity ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Booked', checkinSummery?.jBooked?? 0, checkinSummery?.yBooked?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Checked-In', checkinSummery?.jCheckedIn?? 0, checkinSummery?.yCheckedIn?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
+                                        children: [
+                                          // Header row with BC and EY labels
+                                          Row(
+                                            children: [
+                                              // Empty space for label column
+                                              SizedBox(
+                                                  width: screenWidth * 0.53),
+                                              // BC column header
+                                              Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'BC', // Business Class
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.041,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              // EY column header
+                                              Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'EY', // Economy Class
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.041,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: screenHeigth * 0.015),
 
-     _buildDataRow('Infants Accepted', checkinSummery?.jInfantsAccepted?? 0, checkinSummery?.yInfantsAccepted?? 0, screenWidth, screenHeigth),
-     SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Commercial Standby', checkinSummery?.jCommercialStandby ?? 0, checkinSummery?.yCommercialStandby?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff Listed', checkinSummery?.jStaffListed ?? 0, checkinSummery?.yStaffListed ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff on Standby', checkinSummery?.jStaffOnStandby ?? 0, checkinSummery?.yStaffOnStandby ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff Accepted', checkinSummery?.jStaffAccepted ?? 0, checkinSummery?.yStaffAccepted ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-     _buildDataRow('Bookable Staff Accepted', checkinSummery?.jBookableStaffAccepted ?? 0, checkinSummery?.yBookableStaffAccepted ?? 0, screenWidth, screenHeigth),
-     SizedBox(height: screenHeigth * 0.028),
-    
-  ],
-)
-                                      
+                                          // Data rows
+                                          _buildDataRow(
+                                              'Capacity',
+                                              checkinSummery?.jCapacity ?? 0,
+                                              checkinSummery?.yCapacity ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Booked',
+                                              checkinSummery?.jBooked ?? 0,
+                                              checkinSummery?.yBooked ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Checked-In',
+                                              checkinSummery?.jCheckedIn ?? 0,
+                                              checkinSummery?.yCheckedIn ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Infants Accepted',
+                                              checkinSummery
+                                                      ?.jInfantsAccepted ??
+                                                  0,
+                                              checkinSummery
+                                                      ?.yInfantsAccepted ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Commercial Standby',
+                                              checkinSummery
+                                                      ?.jCommercialStandby ??
+                                                  0,
+                                              checkinSummery
+                                                      ?.yCommercialStandby ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff Listed',
+                                              checkinSummery?.jStaffListed ?? 0,
+                                              checkinSummery?.yStaffListed ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff on Standby',
+                                              checkinSummery?.jStaffOnStandby ??
+                                                  0,
+                                              checkinSummery?.yStaffOnStandby ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff Accepted',
+                                              checkinSummery?.jStaffAccepted ??
+                                                  0,
+                                              checkinSummery?.yStaffAccepted ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Bookable Staff Accepted',
+                                              checkinSummery
+                                                      ?.jBookableStaffAccepted ??
+                                                  0,
+                                              checkinSummery
+                                                      ?.yBookableStaffAccepted ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(
+                                              height: screenHeigth * 0.028),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ],
