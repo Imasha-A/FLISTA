@@ -70,14 +70,15 @@ class _MyTicketsState extends State<MyTickets> {
     _loadUserIdFromPreferences().then((_) async {
       String pnr = await _fetchPNR(); // Wait for the PNR to be retrieved
       fetchData(pnr); // Pass the retrieved PNR to fetchData
+      _fetchStandbyVisible();
     });
+
     _fetchTicketButtonSetting();
 
     _loadData();
     _loadUserId();
     fetchTicketPermissions();
     _fetchStatusContent();
-    _fetchStandbyVisbile();
   }
 
   Future<void> fetchTicketPermissions() async {
@@ -104,7 +105,6 @@ class _MyTicketsState extends State<MyTickets> {
       });
       print('Standby Button Enabled: $_isTicketButtonEnabled');
     } catch (e) {
-      // For safety, if the API fails then disable the button or use a default value.
       print('Error fetching button settings: $e');
       setState(() {
         _isTicketButtonEnabled = false;
@@ -112,12 +112,18 @@ class _MyTicketsState extends State<MyTickets> {
     }
   }
 
-  Future<void> _fetchStandbyVisbile() async {
+  Future<void> _fetchStandbyVisible() async {
     try {
-      bool isEnabled = await _apiService.getStandbyVisible();
+      bool isEnabledFromAPI = await _apiService.getStandbyVisible();
+
+      bool hasCMBBoardpoint = allFlightInfo.any(
+        (flight) => flight.Boardpoint.toString().toUpperCase() == 'CMB',
+      );
+
       setState(() {
-        _isStandbyButtonEnabled = isEnabled;
+        _isStandbyButtonEnabled = isEnabledFromAPI && hasCMBBoardpoint;
       });
+
       print('Standby Button Enabled: $_isStandbyButtonEnabled');
     } catch (e) {
       print('Error fetching button settings: $e');
@@ -130,8 +136,7 @@ class _MyTicketsState extends State<MyTickets> {
   Future<void> _loadUserIdFromPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _userId = prefs.getString('userId') ??
-          '16231'; // Load the userId (default to '123456')
+      _userId = prefs.getString('userId') ?? '16231';
     });
   }
 
@@ -154,7 +159,7 @@ class _MyTicketsState extends State<MyTickets> {
   Future<String> _fetchPNR() async {
     try {
       if (_userId.isEmpty) {
-        await _loadUserIdFromPreferences(); // Ensure _userId is loaded
+        await _loadUserIdFromPreferences();
       }
 
       if (giveTicketAccess.isEmpty) {
@@ -1996,149 +2001,142 @@ class _MyTicketsState extends State<MyTickets> {
                                                                             0.55,
                                                                   ),
                                                                 SizedBox(
-                                                                  width: screenWidth *
-                                                                      0.28, // Customize width
-                                                                  height: screenHeight *
-                                                                      0.045, // Customize height
+                                                                  width:
+                                                                      screenWidth *
+                                                                          0.28,
+                                                                  height:
+                                                                      screenHeight *
+                                                                          0.0,
                                                                   child: _isTicketButtonEnabled
-                                                                      ? ElevatedButton(
-                                                                          style:
-                                                                              ButtonStyle(
-                                                                            backgroundColor:
-                                                                                MaterialStateProperty.resolveWith<Color>(
-                                                                              (Set<MaterialState> states) {
-                                                                                // Use per-segment tracking instead of a global boolean
-                                                                                return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55);
-                                                                              },
-                                                                            ),
-                                                                            // Force text (foreground) color to remain white in all states.
-                                                                            foregroundColor:
-                                                                                MaterialStateProperty.resolveWith<Color>(
-                                                                              (Set<MaterialState> states) {
-                                                                                return Colors.white;
-                                                                              },
-                                                                            ),
-                                                                            padding:
-                                                                                MaterialStateProperty.all(
-                                                                              EdgeInsets.symmetric(
-                                                                                horizontal: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? screenWidth * 0.03 : screenWidth * 0.05,
-                                                                                vertical: screenHeight * 0.005,
-                                                                              ),
-                                                                            ),
-                                                                            shape:
-                                                                                MaterialStateProperty.all(
-                                                                              RoundedRectangleBorder(
-                                                                                borderRadius: BorderRadius.circular(5),
-                                                                                side: BorderSide(
-                                                                                  color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55),
-                                                                                  width: 1,
+                                                                      ? (_isStandbyButtonEnabled //regardless should he top one be enabled? regradless of not being cmbb i mean.
+                                                                          ? ElevatedButton(
+                                                                              style: ButtonStyle(
+                                                                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                                                                                  (Set<MaterialState> states) {
+                                                                                    // Use per-segment tracking instead of a global boolean
+                                                                                    return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55);
+                                                                                  },
+                                                                                ),
+                                                                                // Force text (foreground) color to remain white in all states.
+                                                                                foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                                                                                  (Set<MaterialState> states) {
+                                                                                    return Colors.white;
+                                                                                  },
+                                                                                ),
+                                                                                padding: MaterialStateProperty.all(
+                                                                                  EdgeInsets.symmetric(
+                                                                                    horizontal: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? screenWidth * 0.03 : screenWidth * 0.05,
+                                                                                    vertical: screenHeight * 0.005,
+                                                                                  ),
+                                                                                ),
+                                                                                shape: MaterialStateProperty.all(
+                                                                                  RoundedRectangleBorder(
+                                                                                    borderRadius: BorderRadius.circular(5),
+                                                                                    side: BorderSide(
+                                                                                      color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55),
+                                                                                      width: 1,
+                                                                                    ),
+                                                                                  ),
                                                                                 ),
                                                                               ),
-                                                                            ),
-                                                                          ),
-                                                                          // Disable the button after successful standby for this specific segment.
-                                                                          onPressed: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                              ? null // Disable button if standby was already successful for this segment
-                                                                              : () async {
-                                                                                  bool confirmStandby = await showDialog<bool>(
-                                                                                        context: context,
-                                                                                        builder: (BuildContext context) {
-                                                                                          return AlertDialog(
-                                                                                            title: Text(
-                                                                                              _buttonName != '' && _buttonName.trim().isNotEmpty ? _buttonName : "Confirm Standby",
-                                                                                              style: TextStyle(
-                                                                                                fontWeight: FontWeight.bold,
-                                                                                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                fontSize: screenWidth * 0.06,
-                                                                                              ),
-                                                                                            ),
-                                                                                            content: Text(
-                                                                                              _consentContent != '' && _consentContent.trim().isNotEmpty ? _consentContent : "Are you sure you want to confirm standby?",
-                                                                                              style: TextStyle(
-                                                                                                color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                fontSize: screenWidth * 0.045,
-                                                                                              ),
-                                                                                            ),
-                                                                                            actions: [
-                                                                                              TextButton(
-                                                                                                onPressed: () {
-                                                                                                  Navigator.of(context).pop(false); // User chose "No"
-                                                                                                },
-                                                                                                child: Text(
-                                                                                                  "No",
+                                                                              // Disable the button after successful standby for this specific segment.
+                                                                              onPressed: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
+                                                                                  ? null // Disable button if standby was already successful for this segment
+                                                                                  : () async {
+                                                                                      bool confirmStandby = await showDialog<bool>(
+                                                                                            context: context,
+                                                                                            builder: (BuildContext context) {
+                                                                                              return AlertDialog(
+                                                                                                title: Text(
+                                                                                                  _buttonName != '' && _buttonName.trim().isNotEmpty ? _buttonName : "Confirm Standby",
                                                                                                   style: TextStyle(
-                                                                                                    fontWeight: FontWeight.w700,
+                                                                                                    fontWeight: FontWeight.bold,
                                                                                                     color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                    fontSize: screenWidth * 0.042,
+                                                                                                    fontSize: screenWidth * 0.06,
                                                                                                   ),
                                                                                                 ),
-                                                                                              ),
-                                                                                              TextButton(
-                                                                                                onPressed: () {
-                                                                                                  Navigator.of(context).pop(true); // User chose "Yes"
-                                                                                                },
-                                                                                                child: Text(
-                                                                                                  "Yes",
+                                                                                                content: Text(
+                                                                                                  _consentContent != '' && _consentContent.trim().isNotEmpty ? _consentContent : "Are you sure you want to confirm standby?",
                                                                                                   style: TextStyle(
-                                                                                                    fontWeight: FontWeight.w700,
                                                                                                     color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                    fontSize: screenWidth * 0.042,
+                                                                                                    fontSize: screenWidth * 0.045,
                                                                                                   ),
                                                                                                 ),
-                                                                                              ),
-                                                                                            ],
+                                                                                                actions: [
+                                                                                                  TextButton(
+                                                                                                    onPressed: () {
+                                                                                                      Navigator.of(context).pop(false); // User chose "No"
+                                                                                                    },
+                                                                                                    child: Text(
+                                                                                                      "No",
+                                                                                                      style: TextStyle(
+                                                                                                        fontWeight: FontWeight.w700,
+                                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                                        fontSize: screenWidth * 0.042,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                  TextButton(
+                                                                                                    onPressed: () {
+                                                                                                      Navigator.of(context).pop(true); // User chose "Yes"
+                                                                                                    },
+                                                                                                    child: Text(
+                                                                                                      "Yes",
+                                                                                                      style: TextStyle(
+                                                                                                        fontWeight: FontWeight.w700,
+                                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                                        fontSize: screenWidth * 0.042,
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              );
+                                                                                            },
+                                                                                          ) ??
+                                                                                          false; // Default to false if dialog returns null
+
+                                                                                      if (confirmStandby) {
+                                                                                        String formattedDate = convertDateFormat(flight.depDate);
+                                                                                        // Fetch StaffMember before calling _getLocation()
+                                                                                        StaffMember? staff = await _apiService.getStaffMember(
+                                                                                          formattedDate,
+                                                                                          flight.Boardpoint,
+                                                                                          flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), ''), // Ensure correct format
+                                                                                          ticket.TicketNumber.replaceAll('-', ''), // Remove dashes
+                                                                                        );
+
+                                                                                        if (staff != null) {
+                                                                                          // Now `staff.uniqueCustomerID` is valid, pass it to _getLocation()
+                                                                                          _getLocation(
+                                                                                            flight.Boardpoint,
+                                                                                            flight.Offpoint,
+                                                                                            staff.uniqueCustomerID,
+                                                                                            staff.surname,
+                                                                                            flight.flightNumber,
+                                                                                            flight.depDate,
+                                                                                            staff.paxType,
+                                                                                            staff.prodIdentificationRefCode,
+                                                                                            staff.prodIdentificationPrimeID,
+                                                                                            staff.givenName,
+                                                                                            staff.gender,
+                                                                                            staff.Title,
                                                                                           );
-                                                                                        },
-                                                                                      ) ??
-                                                                                      false; // Default to false if dialog returns null
-
-                                                                                  if (confirmStandby) {
-                                                                                    String formattedDate = convertDateFormat(flight.depDate);
-                                                                                    // Fetch StaffMember before calling _getLocation()
-                                                                                    StaffMember? staff = await _apiService.getStaffMember(
-                                                                                      formattedDate,
-                                                                                      flight.Boardpoint,
-                                                                                      flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), ''), // Ensure correct format
-                                                                                      ticket.TicketNumber.replaceAll('-', ''), // Remove dashes
-                                                                                    );
-
-                                                                                    if (staff != null) {
-                                                                                      // Now `staff.uniqueCustomerID` is valid, pass it to _getLocation()
-                                                                                      _getLocation(
-                                                                                        flight.Boardpoint,
-                                                                                        flight.Offpoint,
-                                                                                        staff.uniqueCustomerID,
-                                                                                        staff.surname,
-                                                                                        flight.flightNumber,
-                                                                                        flight.depDate,
-                                                                                        staff.paxType,
-                                                                                        staff.prodIdentificationRefCode,
-                                                                                        staff.prodIdentificationPrimeID,
-                                                                                        staff.givenName,
-                                                                                        staff.gender,
-                                                                                        staff.Title,
-                                                                                      );
-                                                                                    } else {
-                                                                                      print('No staff member found for ticket: ${ticket.TicketNumber}');
-                                                                                    }
-                                                                                  }
-                                                                                },
-                                                                          child:
-                                                                              Row(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.min, // Keeps row content compact
-                                                                            mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                                ? MainAxisAlignment.start
-                                                                                : MainAxisAlignment.center,
-                                                                            children: [
-                                                                              Text("Standby"),
-                                                                              if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
-                                                                                SizedBox(width: screenWidth * 0.02), // Adds spacing without using Padding
-                                                                              if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
-                                                                                Icon(Icons.check, color: Colors.white, size: 16),
-                                                                            ],
-                                                                          ),
-                                                                        )
+                                                                                        } else {
+                                                                                          print('No staff member found for ticket: ${ticket.TicketNumber}');
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                              child: Row(
+                                                                                mainAxisSize: MainAxisSize.min, // Keeps row content compact
+                                                                                mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? MainAxisAlignment.start : MainAxisAlignment.center,
+                                                                                children: [
+                                                                                  Text("Standby"),
+                                                                                  if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true) SizedBox(width: screenWidth * 0.02), // Adds spacing without using Padding
+                                                                                  if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true) Icon(Icons.check, color: Colors.white, size: 16),
+                                                                                ],
+                                                                              ),
+                                                                            )
+                                                                          : SizedBox(height: screenHeight * 0))
                                                                       : SizedBox.shrink(),
                                                                 ),
                                                               ],
