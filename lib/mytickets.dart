@@ -50,6 +50,9 @@ class _MyTicketsState extends State<MyTickets> {
   bool _isTicketButtonEnabled = true;
   bool _isStandbyButtonEnabled = true;
 
+  bool _isTicketEnabled = false;
+  bool _isStandbyVisibleForOnlyCMB = false;
+
   Location location = Location();
   LocationData? _locationData;
   String? _error;
@@ -70,10 +73,11 @@ class _MyTicketsState extends State<MyTickets> {
     _loadUserIdFromPreferences().then((_) async {
       String pnr = await _fetchPNR(); // Wait for the PNR to be retrieved
       fetchData(pnr); // Pass the retrieved PNR to fetchData
-      _fetchStandbyVisible();
     });
 
     _fetchTicketButtonSetting();
+    //_fetchStandbySettings();
+    _fetchStandbyVisible();
 
     _loadData();
     _loadUserId();
@@ -112,19 +116,30 @@ class _MyTicketsState extends State<MyTickets> {
     }
   }
 
+  // Future<void> _fetchStandbySettings() async {
+  //   try {
+  //     _isStandbyVisibleForOnlyCMB = await _apiService.getStandbyVisible();
+
+  //     print('Standby Visible For Only CMB: $_isStandbyVisibleForOnlyCMB');
+
+  //     setState(() {}); // trigger rebuild
+  //   } catch (e) {
+  //     print('Error fetching standby settings: $e');
+
+  //     _isStandbyVisibleForOnlyCMB = false;
+  //     setState(() {});
+  //   }
+  // }
+
   Future<void> _fetchStandbyVisible() async {
     try {
       bool isEnabledFromAPI = await _apiService.getStandbyVisible();
 
-      bool hasCMBBoardpoint = allFlightInfo.any(
-        (flight) => flight.Boardpoint.toString().toUpperCase() == 'CMB',
-      );
-
       setState(() {
-        _isStandbyButtonEnabled = isEnabledFromAPI && hasCMBBoardpoint;
+        _isStandbyButtonEnabled = isEnabledFromAPI;
       });
 
-      print('Standby Button Enabled: $_isStandbyButtonEnabled');
+      print('Standby Button for CMB ONLY: $_isStandbyButtonEnabled');
     } catch (e) {
       print('Error fetching button settings: $e');
       setState(() {
@@ -2007,17 +2022,17 @@ class _MyTicketsState extends State<MyTickets> {
                                                                   height:
                                                                       screenHeight *
                                                                           0.0,
+                                                                          
                                                                   child: _isTicketButtonEnabled
-                                                                      ? (_isStandbyButtonEnabled //regardless should he top one be enabled? regradless of not being cmbb i mean.
+                                                                  
+                                                                      ? (!_isStandbyButtonEnabled || (_isStandbyButtonEnabled && flight.Boardpoint.trim().toUpperCase() == "CMB"))
                                                                           ? ElevatedButton(
                                                                               style: ButtonStyle(
                                                                                 backgroundColor: MaterialStateProperty.resolveWith<Color>(
                                                                                   (Set<MaterialState> states) {
-                                                                                    // Use per-segment tracking instead of a global boolean
                                                                                     return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55);
                                                                                   },
                                                                                 ),
-                                                                                // Force text (foreground) color to remain white in all states.
                                                                                 foregroundColor: MaterialStateProperty.resolveWith<Color>(
                                                                                   (Set<MaterialState> states) {
                                                                                     return Colors.white;
@@ -2127,7 +2142,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                                                       }
                                                                                     },
                                                                               child: Row(
-                                                                                mainAxisSize: MainAxisSize.min, // Keeps row content compact
+                                                                                mainAxisSize: MainAxisSize.min,
                                                                                 mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? MainAxisAlignment.start : MainAxisAlignment.center,
                                                                                 children: [
                                                                                   Text("Standby"),
@@ -2136,294 +2151,19 @@ class _MyTicketsState extends State<MyTickets> {
                                                                                 ],
                                                                               ),
                                                                             )
-                                                                          : SizedBox(height: screenHeight * 0))
+                                                                          : SizedBox(height: screenHeight * 0)
                                                                       : SizedBox.shrink(),
                                                                 ),
                                                               ],
                                                             )
                                                           : const SizedBox
                                                               .shrink(),
-
-                                                      // Row(
-                                                      //   children: [
-                                                      //     if (excessBaggageInfo
-                                                      //         .isNotEmpty)
-                                                      //       Padding(
-                                                      //         padding:
-                                                      //             EdgeInsets
-                                                      //                 .only(
-                                                      //           left:
-                                                      //               screenWidth *
-                                                      //                   0.04,
-                                                      //           right:
-                                                      //               screenWidth *
-                                                      //                   0.04,
-                                                      //           top: 0,
-                                                      //           bottom: 0,
-                                                      //         ),
-                                                      //         child: Center(
-                                                      //           child:
-                                                      //               ElevatedButton(
-                                                      //             onPressed:
-                                                      //                 () {
-                                                      //               // Show a popup with the excess baggage info
-                                                      //               showDialog(
-                                                      //                 context:
-                                                      //                     context,
-                                                      //                 builder:
-                                                      //                     (BuildContext
-                                                      //                         context) {
-                                                      //                   return AlertDialog(
-                                                      //                     title:
-                                                      //                         Text(
-                                                      //                       "Excess Baggage Info",
-                                                      //                       style:
-                                                      //                           TextStyle(
-                                                      //                         fontWeight: FontWeight.bold,
-                                                      //                         color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                         fontSize: screenWidth * 0.06,
-                                                      //                       ),
-                                                      //                     ),
-                                                      //                     content:
-                                                      //                         Text(
-                                                      //                       excessBaggageInfo.replaceAll(RegExp(r', |\|'), '\n').trim(), // Trim leading/trailing spaces
-                                                      //                       style:
-                                                      //                           TextStyle(
-                                                      //                         color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                         fontSize: screenWidth * 0.043,
-                                                      //                       ),
-                                                      //                     ),
-                                                      //                     actions: [
-                                                      //                       TextButton(
-                                                      //                         onPressed: () => Navigator.pop(context),
-                                                      //                         child: Text(
-                                                      //                           "Close",
-                                                      //                           style: TextStyle(
-                                                      //                             fontWeight: FontWeight.w700,
-                                                      //                             color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                             fontSize: screenWidth * 0.042,
-                                                      //                           ),
-                                                      //                         ),
-                                                      //                       ),
-                                                      //                     ],
-                                                      //                   );
-                                                      //                 },
-                                                      //               );
-                                                      //             },
-                                                      //             child: const Text(
-                                                      //                 'Excess Baggage'),
-                                                      //             style: ElevatedButton
-                                                      //                 .styleFrom(
-                                                      //               disabledBackgroundColor:
-                                                      //                   const Color
-                                                      //                       .fromARGB(
-                                                      //                       255,
-                                                      //                       238,
-                                                      //                       238,
-                                                      //                       243),
-                                                      //               elevation:
-                                                      //                   0,
-                                                      //               foregroundColor:
-                                                      //                   const Color
-                                                      //                       .fromARGB(
-                                                      //                       255,
-                                                      //                       107,
-                                                      //                       109,
-                                                      //                       118),
-                                                      //               backgroundColor:
-                                                      //                   const Color
-                                                      //                       .fromARGB(
-                                                      //                       255,
-                                                      //                       255,
-                                                      //                       255,
-                                                      //                       255),
-                                                      //               padding: EdgeInsets.symmetric(
-                                                      //                   horizontal:
-                                                      //                       screenWidth *
-                                                      //                           0.1,
-                                                      //                   vertical:
-                                                      //                       screenHeight *
-                                                      //                           0.005),
-                                                      //               textStyle: TextStyle(
-                                                      //                   fontSize:
-                                                      //                       screenWidth *
-                                                      //                           0.036),
-                                                      //               shape:
-                                                      //                   RoundedRectangleBorder(
-                                                      //                 borderRadius:
-                                                      //                     BorderRadius.circular(
-                                                      //                         5),
-                                                      //                 side:
-                                                      //                     const BorderSide(
-                                                      //                   color: Color.fromARGB(
-                                                      //                       255,
-                                                      //                       144,
-                                                      //                       140,
-                                                      //                       159),
-                                                      //                   width:
-                                                      //                       1,
-                                                      //                 ),
-                                                      //               ),
-                                                      //             ),
-                                                      //           ),
-                                                      //         ),
-                                                      //       ),
-                                                      //     if (excessBaggageInfo
-                                                      //         .isEmpty)
-                                                      //       SizedBox(
-                                                      //         width:
-                                                      //             screenWidth *
-                                                      //                 0.55,
-                                                      //       ),
-                                                      //     SizedBox(
-                                                      //       width: screenWidth * 0.28, // Customize width
-                                                      //       height: screenHeight * 0.045, // Customize height
-                                                      //       child: ElevatedButton(
-                                                      //         style: ButtonStyle(
-                                                      //           backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                                      //             (Set<MaterialState> states) {
-                                                      //               // Use per-segment tracking instead of a global boolean
-                                                      //               return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                      //                   ? Colors.green
-                                                      //                   : const Color.fromARGB(255, 55, 55, 55);
-                                                      //             },
-                                                      //           ),
-                                                      //           // Force text (foreground) color to remain white in all states.
-                                                      //           foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                                                      //             (Set<MaterialState> states) {
-                                                      //               return Colors.white;
-                                                      //             },
-                                                      //           ),
-                                                      //           padding: MaterialStateProperty.all(
-                                                      //             EdgeInsets.symmetric(
-                                                      //               horizontal: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                      //                   ? screenWidth * 0.03
-                                                      //                   : screenWidth * 0.05,
-                                                      //               vertical: screenHeight * 0.005,
-                                                      //             ),
-                                                      //           ),
-                                                      //           shape: MaterialStateProperty.all(
-                                                      //             RoundedRectangleBorder(
-                                                      //               borderRadius: BorderRadius.circular(5),
-                                                      //               side: BorderSide(
-                                                      //                 color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                      //                     ? Colors.green
-                                                      //                     : const Color.fromARGB(255, 55, 55, 55),
-                                                      //                 width: 1,
-                                                      //               ),
-                                                      //             ),
-                                                      //           ),
-                                                      //         ),
-                                                      //         // Disable the button after successful standby for this specific segment.
-                                                      //         onPressed: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                      //             ? null  // Disable button if standby was already successful for this segment
-                                                      //             : () async {
-                                                      //                 bool confirmStandby = await showDialog<bool>(
-                                                      //                   context: context,
-                                                      //                   builder: (BuildContext context) {
-                                                      //                     return AlertDialog(
-                                                      //                       title: Text(
-                                                      //                         "Confirm Standby",
-                                                      //                         style: TextStyle(
-                                                      //                           fontWeight: FontWeight.bold,
-                                                      //                           color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                           fontSize: screenWidth * 0.06,
-                                                      //                         ),
-                                                      //                       ),
-                                                      //                       content: Text(
-                                                      //                         "Are you sure you want to confirm standby?",
-                                                      //                         style: TextStyle(
-                                                      //                           color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                           fontSize: screenWidth * 0.045,
-                                                      //                         ),
-                                                      //                       ),
-                                                      //                       actions: [
-                                                      //                         TextButton(
-                                                      //                           onPressed: () {
-                                                      //                             Navigator.of(context).pop(false); // User chose "No"
-                                                      //                           },
-                                                      //                           child: Text(
-                                                      //                             "No",
-                                                      //                             style: TextStyle(
-                                                      //                               fontWeight: FontWeight.w700,
-                                                      //                               color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                               fontSize: screenWidth * 0.042,
-                                                      //                             ),
-                                                      //                           ),
-                                                      //                         ),
-                                                      //                         TextButton(
-                                                      //                           onPressed: () {
-                                                      //                             Navigator.of(context).pop(true); // User chose "Yes"
-                                                      //                           },
-                                                      //                           child: Text(
-                                                      //                             "Yes",
-                                                      //                             style: TextStyle(
-                                                      //                               fontWeight: FontWeight.w700,
-                                                      //                               color: const Color.fromRGBO(2, 77, 117, 1),
-                                                      //                               fontSize: screenWidth * 0.042,
-                                                      //                             ),
-                                                      //                           ),
-                                                      //                         ),
-                                                      //                       ],
-                                                      //                     );
-                                                      //                   },
-                                                      //                 ) ?? false; // Default to false if dialog returns null
-
-                                                      //                 if (confirmStandby) {
-                                                      //                   String formattedDate = convertDateFormat(flight.depDate);
-                                                      //                   // Fetch StaffMember before calling _getLocation()
-                                                      //                   StaffMember? staff = await _apiService.getStaffMember(
-                                                      //                     formattedDate,
-                                                      //                     flight.Boardpoint,
-                                                      //                     flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), ''), // Ensure correct format
-                                                      //                     ticket.TicketNumber.replaceAll('-', ''), // Remove dashes
-                                                      //                   );
-
-                                                      //                 if (staff != null) {
-                                                      //                   // Now `staff.uniqueCustomerID` is valid, pass it to _getLocation()
-                                                      //                   _getLocation(
-                                                      //                     flight.Boardpoint,
-                                                      //                     flight.Offpoint,
-                                                      //                     staff.uniqueCustomerID,
-                                                      //                     staff.surname,
-                                                      //                     flight.flightNumber,
-                                                      //                     flight.depDate,
-                                                      //                     staff.paxType,
-                                                      //                     staff.prodIdentificationRefCode,
-                                                      //                     staff.prodIdentificationPrimeID,
-                                                      //                     staff.givenName,
-                                                      //                     staff.gender,
-                                                      //                     staff.Title,
-                                                      //                   );
-                                                      //                 } else {
-                                                      //                   print('No staff member found for ticket: ${ticket.TicketNumber}');
-                                                      //                 }
-                                                      //               }
-                                                      //             },
-                                                      //         child: Row(
-                                                      //           mainAxisSize: MainAxisSize.min, // Keeps row content compact
-                                                      //           mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                      //               ? MainAxisAlignment.start
-                                                      //               : MainAxisAlignment.center,
-                                                      //           children: [
-                                                      //             Text("Standby"),
-                                                      //             if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
-                                                      //               SizedBox(width: screenWidth * 0.02), // Adds spacing without using Padding
-                                                      //             if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
-                                                      //               Icon(Icons.check, color: Colors.white, size: 16),
-                                                      //           ],
-                                                      //         ),
-                                                      //       ),
-                                                      //     ),
-                                                      //   ],
-                                                      // ),
-
                                                       SizedBox(
                                                           height: screenHeight *
                                                               0.02),
                                                     ],
                                                   );
-                                                }).toList(), // Convert the map to a List<Widget>
+                                                }).toList(),
                                               ),
                                             ),
                                           ],
@@ -2611,6 +2351,8 @@ class _MyTicketsState extends State<MyTickets> {
       label: label,
     );
   }
+
+
 
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
