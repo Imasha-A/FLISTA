@@ -335,70 +335,36 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                 ),
               )
             : SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: screenHeight * 0.02,
-                    ),
-                    Container(
-                      // use relative padding/margin instead of consts
-                      padding: EdgeInsets.all(screenWidth * 0.04),
-                      margin: EdgeInsets.all(screenWidth * 0.04),
-                      // cap width to the screen (or a fraction of it)
-                      width: screenWidth * 0.95,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color.fromRGBO(51, 123, 169, 1),
-                            Color.fromRGBO(2, 77, 117, 1),
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: screenHeight * 0.005),
-
-                          // // Title
-                          // Padding(
-                          //   padding: EdgeInsets.only(left: screenWidth * 0.04),
-                          //   child: Text(
-                          //     'Available Flights',
-                          //     style: TextStyle(
-                          //       color: Colors.white,
-                          //       fontWeight: FontWeight.bold,
-                          //       fontSize: screenWidth * 0.08,
-                          //     ),
-                          //   ),
-                          // ),
-
-                          // SizedBox(height: screenHeight * 0.005),
-
-                          // // Subtitle
-                          // Padding(
-                          //   padding: EdgeInsets.only(left: screenWidth * 0.04),
-                          //   child: Text(
-                          //     'on ${widget.selectedDate}',
-                          //     style: TextStyle(
-                          //       color: Colors.white,
-                          //       fontSize: screenWidth * 0.045,
-                          //     ),
-                          //   ),
-                          // ),
-                          // Title and Subtitle - Stable across screen sizes
-                          Padding(
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SizedBox(height: screenHeight * 0.02),
+      Container(
+        padding: const EdgeInsets.all(16.0),
+        margin: const EdgeInsets.all(16.0),
+        width: double.infinity, // full width inside parent
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromRGBO(51, 123, 169, 1),
+              Color.fromRGBO(2, 77, 117, 1),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // align to left
+          children: [
+            SizedBox(height: screenHeight * 0.02),
+             Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.04),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(
-                                    height: screenHeight *
-                                        0.005), // Consistent top spacing
+                                 
                                 Text(
                                   'Available Flights',
                                   style: TextStyle(
@@ -409,7 +375,7 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                                 ),
                                 SizedBox(
                                     height: screenHeight *
-                                        0.004), // Space between title and subtitle
+                                        0.004), 
                                 Text(
                                   'on ${widget.selectedDate}',
                                   style: TextStyle(
@@ -420,25 +386,18 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                               ],
                             ),
                           ),
-
-                          SizedBox(height: screenHeight * 0.02),
-
-                          // Flight buttons
+            SizedBox(height: screenHeight * 0.02),
                           for (var flight in ulList)
                             Padding(
-                              padding:
-                                  EdgeInsets.only(bottom: screenHeight * 0.015),
+                              padding: EdgeInsets.only(
+                                  bottom: screenWidth *
+                                      0.01), // Add space between buttons
                               child: ElevatedButton(
                                 onPressed: () {
-                                  _navigateToCapacityInfoPage(
-                                    context,
-                                    flight.ulNumber,
-                                    flight.scheduledTime,
-                                  );
+                                  _navigateToCapacityInfoPage(context,
+                                      flight.ulNumber, flight.scheduledTime);
                                   _saveFlightInfoToDB(
-                                    flight.ulNumber,
-                                    flight.scheduledTime,
-                                  );
+                                      flight.ulNumber, flight.scheduledTime);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
@@ -446,24 +405,19 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(9.0),
                                   ),
-                                  // ensure button fills available width but has nice padding
-                                  minimumSize: Size(
-                                      double.infinity, screenHeight * 0.07),
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: screenWidth * 0.04,
-                                    vertical: screenHeight * 0.012,
+                                    horizontal: screenWidth * 0.17,
+                                    vertical: screenHeight * 0.010,
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    // flight info on the left
-                                    Flexible(
+                                    Transform.translate(
+                                      offset: Offset(screenWidth * -0.13, 0.0),
                                       child: Text(
-                                        'UL${flight.ulNumber}\n'
-                                        'Scheduled: ${flight.scheduledTime.substring(0, 2)}'
-                                        ':${flight.scheduledTime.substring(2)}',
+                                        'UL${flight.ulNumber}\nScheduled: ${flight.scheduledTime.substring(0, 2)}:${flight.scheduledTime.substring(2)}',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w400,
@@ -471,31 +425,30 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                                         ),
                                       ),
                                     ),
-
-                                    // arrow icon on the right
-                                    const Icon(
-                                      Icons.arrow_forward_ios_rounded,
-                                      color: Colors.white,
+                                    Transform.translate(
+                                      offset: Offset(screenWidth * 0.12, 0.0),
+                                      child: const Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-
-                          // empty state
-                          if (ulList.isEmpty) ...[
-                            SizedBox(height: screenHeight * 0.03),
-                            Center(
+                          // New condition to display message if ulList is empty or null
+                          if (ulList.isEmpty)
+                            Padding(
+                              padding:
+                                  EdgeInsets.only(bottom: screenHeight * 0.03),
                               child: Text(
                                 'No flights available for the selected date and route.',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: screenWidth * 0.045,
                                 ),
-                                textAlign: TextAlign.center,
                               ),
                             ),
-                          ],
                         ],
                       ),
                     ),
@@ -579,7 +532,7 @@ class _AvailableFlightsState extends State<AvailableFlightsPage> {
                 _buildCustomBottomNavigationBarItem(
                     'assets/ticket.png', 'My Tickets', false),
                 _buildCustomBottomNavigationBarItem(
-                    'assets/chatbot.png', 'Yaana', false),
+                    'assets/chatboticon.png', 'Yaana', false),
               ],
             ),
           ),

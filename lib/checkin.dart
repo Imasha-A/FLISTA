@@ -41,18 +41,17 @@ class CheckInPage extends StatefulWidget {
 
 class _CheckInState extends State<CheckInPage> {
   late String selectedDate;
-  late String selectedUL; // Initialize selectedUL
-  late List<String> ulList; // Initialize ulList
+  late String selectedUL; 
+  late List<String> ulList; 
   FlightLoadModel? flightLoad;
   CheckinSummery? checkinSummery;
-  late String formattedDate; // Declare formattedDate property
+  late String formattedDate; 
   late String formattedLongDate;
   bool isLoading = true;
   List<StaffMember> staffMembers = [];
   final APIService _apiService = APIService();
   late String _userName = 'User Name';
   late String _userId = '123456';
-  bool areButtonsEnabled = false;
 
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
@@ -62,11 +61,11 @@ class _CheckInState extends State<CheckInPage> {
     super.initState();
     selectedDate = widget.selectedDate;
     selectedUL =
-        widget.selectedUL; // Initialize selectedUL with the passed value
+        widget.selectedUL; 
     formattedDate =
-        APIService().formatDate(selectedDate); // Assign formattedDate value
+        APIService().formatDate(selectedDate); 
     formattedLongDate = APIService()
-        .formatLongDate(selectedDate); // Assign formattedLongDate value
+        .formatLongDate(selectedDate);
     _fetchFlightLoadInfo();
 
     _initializeState();
@@ -79,23 +78,6 @@ class _CheckInState extends State<CheckInPage> {
     await _loadUserId();
     await fetchData();
 
-    // Check if any staff member matches the condition
-    for (var staff in staffMembers) {
-      String fullName = '${staff.firstName} ${staff.lastName}';
-
-      if (fullName == _userName || staff.staffID == _userId) {
-        setState(() {
-          areButtonsEnabled = true;
-        });
-
-        print(fullName);
-        print(_userName);
-        print(staff.staffID);
-        print(_userName);
-
-        break;
-      }
-    }
   }
 
   Future<void> _loadUserName() async {
@@ -106,75 +88,74 @@ class _CheckInState extends State<CheckInPage> {
     });
   }
 
-  Widget _buildDataRow(String label, dynamic jValue, dynamic yValue,
-      double screenWidth, double screenHeigth) {
-    return Row(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screenWidth, double screenHeigth) {
+  return Row(
+    children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+        child: Container(
+          width: screenWidth * 0.5,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: screenWidth * 0.041,
+            ),
+          ),
+        ),
+      ),
+      
+      // BC/J value
+      Expanded(
+        child: Center(
           child: Container(
-            width: screenWidth * 0.5,
-            child: Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: screenWidth * 0.041,
-              ),
+            height: screenHeigth * 0.035,
+            width: screenWidth * 0.12,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
             ),
-          ),
-        ),
-
-        // BC/J value
-        Expanded(
-          child: Center(
-            child: Container(
-              height: screenHeigth * 0.035,
-              width: screenWidth * 0.12,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: Text(
-                  '$jValue',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth * 0.041,
-                  ),
+            child: Center(
+              child: Text(
+                '$jValue',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: screenWidth * 0.041,
                 ),
               ),
             ),
           ),
         ),
-
-        // EY/Y value
-        Expanded(
-          child: Center(
-            child: Container(
-              height: screenHeigth * 0.035,
-              width: screenWidth * 0.12,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: Text(
-                  '$yValue',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth * 0.041,
-                  ),
+      ),
+      
+      // EY/Y value
+      Expanded(
+        child: Center(
+          child: Container(
+            height: screenHeigth * 0.035,
+            width: screenWidth * 0.12,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                '$yValue',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: screenWidth * 0.041,
                 ),
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   // Callback for pull-down refresh
   Future<void> _onRefresh() async {
@@ -198,41 +179,16 @@ class _CheckInState extends State<CheckInPage> {
         widget.originCountryCode,
         selectedUL,
       );
-
-      // Only update state if the widget is still mounted
+     
       if (mounted) {
         setState(() {
-          staffMembers = response; // Update the list of staff members
+          staffMembers = response; 
           isLoading = false;
         });
 
-        // Check if any staff member matches the condition
-        for (var staff in staffMembers) {
-          String fullName = '${staff.firstName} ${staff.lastName}';
-
-          if (fullName == _userName ||
-              staff.staffID == _userId ||
-              _userId == 'IN1913' ||
-              _userId == 'IN1927' ||
-              _userId == '23799' ||
-              _userId == '23933' ||
-              _userId == '16763' ||
-              _userId == '12988') {
-            setState(() {
-              areButtonsEnabled = true; // Enable buttons for matching staff
-            });
-
-            print(fullName);
-            print(_userName);
-            print(staff.staffID);
-            print(_userId);
-
-            break; // Exit the loop early if condition is met
-          }
-        }
+       
       }
     } catch (error) {
-      // Only update state if the widget is still mounted
       if (mounted) {
         setState(() {
           staffMembers = [];
@@ -243,7 +199,6 @@ class _CheckInState extends State<CheckInPage> {
     }
   }
 
-  // Add this function to handle logout
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -255,25 +210,29 @@ class _CheckInState extends State<CheckInPage> {
 
   void _fetchFlightLoadInfo() async {
     try {
-      print(formattedDate);
 
-      print(
-        widget.originCountryCode,
+      print (    formattedDate
       );
 
-      print(
-        widget.selectedUL,
-      );
+       print (   
+      widget.originCountryCode,
+     );
 
-      print(_userId);
+       print (    
+      widget.selectedUL,
+ );
+
+       print (    
+      _userId);
       List<FlightLoadModel> flightLoadDataList =
           await APIService().fetchFlightLoadInfo(
         widget.selectedDate,
-        formattedDate, // Pass the updated formatted date
-        formattedLongDate, // Pass the updated formatted long date
+        formattedDate, 
+        formattedLongDate, 
         widget.originCountryCode,
         widget.destinationCountryCode,
         widget.selectedUL,
+        _userId,
       );
 
       setState(() {
@@ -285,43 +244,45 @@ class _CheckInState extends State<CheckInPage> {
     } catch (error) {
       print('Error fetching flight load information: $error');
       setState(() {
-        isLoading = false; // Hide loader in case of error
+        isLoading = false; 
       });
     }
   }
 
-  void _fetchFlightExtraInfo() async {
-    await _loadUserId();
-    await fetchData();
 
-    try {
-      // Assuming you have a DateTime object, or replace with your actual date source
-      DateTime flightDate =
-          DateTime.now(); // Replace with your actual flight date
-      String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
+ void _fetchFlightExtraInfo() async {
+  await _loadUserId();
+  await fetchData();
 
-      var responseList = await _apiService.viewCheckInStatus(
-        formattedDate,
-        widget.originCountryCode,
-        widget.selectedUL,
-        _userId,
-      );
+  try {
+    DateTime flightDate = DateTime.now(); 
+    String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
 
-      List<CheckinSummery> summaryList = responseList;
+    var responseList = await _apiService.viewCheckInStatus(
+      formattedDate,
+      widget.originCountryCode,
+      widget.selectedUL,
+      _userId,
+    );
 
-      setState(() {
-        if (summaryList.isNotEmpty) {
-          checkinSummery = summaryList.first;
-        }
-        isLoading = false;
-      });
-    } catch (error) {
-      print('Error fetching flight load information: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
+   List<CheckinSummery> summaryList = responseList;
+
+    setState(() {
+      if (summaryList.isNotEmpty) {
+        checkinSummery = summaryList.first;
+      }
+      isLoading = false;
+    });
+  } catch (error) {
+    print('Error fetching flight load information: $error');
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
+ 
+  
 
   BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       String iconPath, String label, bool isHighlighted) {
@@ -339,10 +300,10 @@ class _CheckInState extends State<CheckInPage> {
                   ),
                   child: Image.asset(
                     iconPath,
-                    height: 28, // Adjust size if needed
+                    height: 28, 
                     width: 28,
                     fit: BoxFit.contain,
-                    color: const Color.fromRGBO(2, 77, 117, 1), // Optional tint
+                    color: const Color.fromRGBO(2, 77, 117, 1), 
                   ),
                 )
               : Image.asset(
@@ -359,22 +320,18 @@ class _CheckInState extends State<CheckInPage> {
 
   void _changeUL(bool next) {
     setState(() {
-      isLoading = true; // Show loader when arrow is clicked
+      isLoading = true; 
 
-      // Update selectedDate based on arrow direction
       if (next) {
         selectedDate = _getNextDate(selectedDate);
       } else {
         selectedDate = _getPreviousDate(selectedDate);
       }
 
-      // Update formattedDate and formattedLongDate with the new date values
       formattedDate = APIService().formatDate(selectedDate);
       formattedLongDate = APIService().formatLongDate(selectedDate);
 
-      // Fetch flight load information for the updated date
       _fetchFlightLoadInfo();
-      areButtonsEnabled = false;
       _initializeState();
     });
   }
@@ -534,30 +491,29 @@ class _CheckInState extends State<CheckInPage> {
                           height: screenHeigth * 0.08,
                         ),
                         SizedBox(
-                          height: screenHeigth * 0.04, // Parent height
-                          width: screenWidth * 0.72, // Parent width
+                          height: screenHeigth * 0.04, 
+                          width: screenWidth * 0.72, 
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              // The line image (background) with reduced size
+                            
                               SizedBox(
                                 height: screenHeigth *
-                                    0.013, // Reduced height for the line image
+                                    0.013, 
                                 width: screenWidth *
-                                    0.72, // You can adjust this width if needed
+                                    0.72, 
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-line.png'),
                                   fit: BoxFit.fill,
                                 ),
                               ),
-                              // The plane image (animated) with reduced size
 
                               SizedBox(
                                 height: screenHeigth *
-                                    0.07, // Smaller height for the plane image
+                                    0.07, 
                                 width: screenWidth *
-                                    0.3, // Adjust the width as needed
+                                    0.3, 
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-plane.png'),
@@ -579,7 +535,7 @@ class _CheckInState extends State<CheckInPage> {
                                     -screenHeigth * 0.035),
                                 child: Text(
                                   widget.originCountryCode
-                                      .trim(), // Trim to remove leading/trailing spaces
+                                      .trim(), 
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -594,7 +550,7 @@ class _CheckInState extends State<CheckInPage> {
                                     screenWidth * 0.08, -screenHeigth * 0.035),
                                 child: Text(
                                   widget.destinationCountryCode
-                                      .trim(), // Trim to remove leading/trailing spaces
+                                      .trim(), 
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -637,7 +593,7 @@ class _CheckInState extends State<CheckInPage> {
                             child: Container(
                               padding: const EdgeInsets.all(16.0),
                               margin: const EdgeInsets.all(14.0),
-                              height: screenHeigth * 0.65,
+                              height: screenHeigth * 0.68,
                               width: screenWidth * 0.95,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
@@ -671,216 +627,130 @@ class _CheckInState extends State<CheckInPage> {
                                       ),
                                     ),
                                   ),
-                                  // Adjust the padding to move the image to the right
 
                                   Column(
+  children: [
+    SizedBox(height: screenHeigth * 0.02),
+                            SizedBox(
+                              height: screenHeigth * 0.12,
+                              width: screenWidth * 0.8,
+                              child: Transform.translate(
+                                offset: const Offset(0.4, -15.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromARGB(158, 38, 64, 112),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(9.0),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(height: screenHeigth * 0.02),
-                                      SizedBox(
-                                        height: screenHeigth * 0.12,
-                                        width: screenWidth * 0.8,
-                                        child: Transform.translate(
-                                          offset: const Offset(0.4, -15.0),
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              // Handle checking availability
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromARGB(
-                                                      158, 38, 64, 112),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(9.0),
-                                              ),
-                                            ),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  children: [
-                                                    Text(
-                                                      '         UL $selectedUL',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize:
-                                                            screenWidth * 0.06,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                        width:
-                                                            screenWidth * .03),
-                                                    // Added SizedBox for spacing
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                    height:
-                                                        screenHeigth * 0.002),
-                                                Text(
-                                                  '$selectedDate', // Use selectedDate variable here
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: screenWidth * .04,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                    height:
-                                                        screenHeigth * 0.002),
-                                                Text(
-                                                  '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: screenWidth * .04,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                    height:
-                                                        screenHeigth * 0.002),
-                                              ],
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Text(
+                                            '         UL $selectedUL',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: screenWidth * 0.06,
                                             ),
                                           ),
+                                          SizedBox(width: screenWidth * .03),
+                                          // Added SizedBox for spacing
+                                        ],
+                                      ),
+                                      SizedBox(height: screenHeigth * 0.002),
+                                      Text(
+                                        '$selectedDate', // Use selectedDate variable here
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * .04,
                                         ),
                                       ),
+                                      SizedBox(height: screenHeigth * 0.002),
+                                      Text(
+                                        '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: screenWidth * .04,
+                                        ),
+                                      ),
+                                      SizedBox(height: screenHeigth * 0.002),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                                       Column(
-                                        children: [
-                                          // Header row with BC and EY labels
-                                          Row(
-                                            children: [
-                                              // Empty space for label column
-                                              SizedBox(
-                                                  width: screenWidth * 0.53),
-                                              // BC column header
-                                              Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'BC', // Business Class
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          screenWidth * 0.041,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              // EY column header
-                                              Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'EY', // Economy Class
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          screenWidth * 0.041,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                              height: screenHeigth * 0.015),
+  children: [
+    Row(
+      children: [
+        SizedBox(width: screenWidth * 0.53),
+        Expanded(
+          child: Center(
+            child: Text(
+              'BC', 
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: screenWidth * 0.041,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Text(
+              'EY', 
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: screenWidth * 0.041,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+    SizedBox(height: screenHeigth * 0.015),
+    
+    // Data rows
+    _buildDataRow('Capacity', checkinSummery?.jCapacity?? 0, checkinSummery?.yCapacity ?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
+    
+    _buildDataRow('Booked', checkinSummery?.jBooked?? 0, checkinSummery?.yBooked?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
+    
+    _buildDataRow('Checked-In', checkinSummery?.jCheckedIn?? 0, checkinSummery?.yCheckedIn?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
 
-                                          // Data rows
-                                          _buildDataRow(
-                                              'Capacity',
-                                              checkinSummery?.jCapacity ?? 0,
-                                              checkinSummery?.yCapacity ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Booked',
-                                              checkinSummery?.jBooked ?? 0,
-                                              checkinSummery?.yBooked ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Checked-In',
-                                              checkinSummery?.jCheckedIn ?? 0,
-                                              checkinSummery?.yCheckedIn ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Infants Accepted',
-                                              checkinSummery
-                                                      ?.jInfantsAccepted ??
-                                                  0,
-                                              checkinSummery
-                                                      ?.yInfantsAccepted ??
-                                                  0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Commercial Standby',
-                                              checkinSummery
-                                                      ?.jCommercialStandby ??
-                                                  0,
-                                              checkinSummery
-                                                      ?.yCommercialStandby ??
-                                                  0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Staff Listed',
-                                              checkinSummery?.jStaffListed ?? 0,
-                                              checkinSummery?.yStaffListed ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Staff on Standby',
-                                              checkinSummery?.jStaffOnStandby ??
-                                                  0,
-                                              checkinSummery?.yStaffOnStandby ??
-                                                  0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Staff Accepted',
-                                              checkinSummery?.jStaffAccepted ??
-                                                  0,
-                                              checkinSummery?.yStaffAccepted ??
-                                                  0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Bookable Staff Accepted',
-                                              checkinSummery
-                                                      ?.jBookableStaffAccepted ??
-                                                  0,
-                                              checkinSummery
-                                                      ?.yBookableStaffAccepted ??
-                                                  0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(
-                                              height: screenHeigth * 0.028),
-                                        ],
-                                      )
+     _buildDataRow('Infants Accepted', checkinSummery?.jInfantsAccepted?? 0, checkinSummery?.yInfantsAccepted?? 0, screenWidth, screenHeigth),
+     SizedBox(height: screenHeigth * 0.01),
+    
+    _buildDataRow('Commercial Standby', checkinSummery?.jCommercialStandby ?? 0, checkinSummery?.yCommercialStandby?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
+    
+    _buildDataRow('Staff Listed', checkinSummery?.jStaffListed ?? 0, checkinSummery?.yStaffListed ?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
+    
+    _buildDataRow('Staff on Standby', checkinSummery?.jStaffOnStandby ?? 0, checkinSummery?.yStaffOnStandby ?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
+    
+    _buildDataRow('Staff Accepted', checkinSummery?.jStaffAccepted ?? 0, checkinSummery?.yStaffAccepted ?? 0, screenWidth, screenHeigth),
+    SizedBox(height: screenHeigth * 0.01),
+    
+     _buildDataRow('Bookable Staff Accepted', checkinSummery?.jBookableStaffAccepted ?? 0, checkinSummery?.yBookableStaffAccepted ?? 0, screenWidth, screenHeigth),
+     SizedBox(height: screenHeigth * 0.02),
+    
+  ],
+)
+                                      
                                     ],
                                   ),
                                 ],
@@ -945,11 +815,11 @@ class _CheckInState extends State<CheckInPage> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const MyTickets(),
                         transitionDuration:
-                            Duration(seconds: 0), // No animation
+                            Duration(seconds: 0), 
                       ),
                     );
                     break;
-                  case 3: // Yaaana
+                  case 3: 
 
                     Navigator.push(
                       context,
@@ -957,7 +827,7 @@ class _CheckInState extends State<CheckInPage> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             Yaana(),
                         transitionDuration:
-                            const Duration(seconds: 0), // No animation
+                            const Duration(seconds: 0), 
                       ),
                     );
                     break;
@@ -971,7 +841,7 @@ class _CheckInState extends State<CheckInPage> {
                 _buildCustomBottomNavigationBarItem(
                     'assets/ticket.png', 'My Tickets', false),
                 _buildCustomBottomNavigationBarItem(
-                    'assets/chatbot.png', 'Yaana', false),
+                    'assets/chatboticon.png', 'Yaana', false),
               ],
             ),
           ),

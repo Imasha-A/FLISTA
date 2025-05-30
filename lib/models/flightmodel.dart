@@ -8,6 +8,8 @@ class FlightInformation {
   final String Offpoint;
   final List confirmedStatus;
   final String SegmentTattooNumber;
+  final String FlightDuration;
+
 
   FlightInformation({
     required this.flightNumber,
@@ -19,6 +21,7 @@ class FlightInformation {
     required this.Offpoint,
     required this.confirmedStatus,
     required this.SegmentTattooNumber,
+    required this.FlightDuration,
   });
 
   factory FlightInformation.fromJson(Map<String, dynamic> json) {
@@ -32,6 +35,7 @@ class FlightInformation {
       Offpoint: json['Offpoint'] ?? '',
       confirmedStatus: json['ConfirmedStatus'] ?? [],
       SegmentTattooNumber: json['SegmentTattooNumber'] ?? [],
+      FlightDuration: json ['FlightDuration'] ?? [],
     );
   }
 }

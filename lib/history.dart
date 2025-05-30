@@ -652,7 +652,7 @@ class _HistoryPageState extends State<HistoryPage> {
                                 'My Tickets',
                                 false),
                             _buildCustomBottomNavigationBarItem(
-                                'assets/chatbot.png', 'Yaana', false),
+                                'assets/chatboticon.png', 'Yaana', false),
                           ],
                   ),
                 ))));

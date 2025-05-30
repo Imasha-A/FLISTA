@@ -1,6 +1,10 @@
 import 'package:flista_new/home.dart';
+import 'package:flista_new/models/staffaccess.dart';
+import 'package:flista_new/models/staffmodel.dart';
 import 'package:flista_new/mytickets.dart';
+import 'package:flista_new/services/api_service.dart';
 import 'package:flista_new/yaana.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'availableflights.dart';
@@ -25,21 +29,65 @@ class SelectDatePage extends StatefulWidget {
 class _SelectDatePageState extends State<SelectDatePage> {
   late String selectedDate;
   bool _animate = false;
+  final APIService _apiService = APIService();
+  late String _userName = 'User Name';
+  late String _userId = '123456';  List<String> datePickerAccess=[];
+  List<StaffMember> staffMembers = [];
+  bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    selectedDate = widget.selectedDate;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _animate = true;
-      });
+ @override
+void initState() {
+  super.initState();
+  selectedDate = widget.selectedDate;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    setState(() {
+      _animate = true;
     });
-  }
+  });
+  _initializePermissionsAndUser();
+}
+
 
   String _originCountry = '      CMB';
   String _destinationCountry = '       BKK';
+    double _sliderDays = 0;
+  DateTime newdate = DateTime.now();
 
+ Future<void> _loadUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //String? displayName = prefs.getString('displayName');
+    setState(() {
+      //_userName = displayName ?? 'User Name';
+      _userName = prefs.getString('displayName') ?? 'User Name'; // Null check
+    });
+  }
+
+  Future<void> _initializePermissionsAndUser() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  _userId = prefs.getString('userId') ?? '123456';
+  _userName = prefs.getString('displayName') ?? 'User Name';
+
+  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+  datePickerAccess = permissions
+      .where((p) => p.moduleId == 'NO_RESTRICTIONS_FOR_DATE_SEARCH' && p.isActive == "TRUE")
+      .map((p) => p.staffId)
+      .toList();
+
+  print('Date Picker Access: $datePickerAccess');
+  setState(() {
+    _isLoading = false;
+  });
+}
+
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //String? userId = prefs.getString('userId');
+    setState(() {
+      //_userId = userId ?? '123456';
+       _userId = prefs.getString('userId') ?? '123456'; // Null check
+    });
+  }
   void _swapCountries() {
     setState(() {
       final String temp = _originCountry;
@@ -48,7 +96,17 @@ class _SelectDatePageState extends State<SelectDatePage> {
     });
   }
 
-  // Add this function to handle logout
+  void fetchdDatePickerPermission() async {
+    List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+
+    datePickerAccess = permissions
+      .where((p) => p.moduleId == 'NO_RESTRICTIONS_FOR_DATE_SEARCH'&& p.isActive=="TRUE")
+      .map((p) => p.staffId)
+      .toList();
+
+      print('Date Picker Access: $datePickerAccess');
+  }
+
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -64,9 +122,9 @@ class _SelectDatePageState extends State<SelectDatePage> {
       MaterialPageRoute(
         builder: (context) => AvailableFlightsPage(
           selectedDate: selectedDate,
-          originCountryCode: widget.originCountryCode, // Pass originCountryCode
+          originCountryCode: widget.originCountryCode, 
           destinationCountryCode:
-              widget.destinationCountryCode, // Pass destinationCountryCode
+              widget.destinationCountryCode, 
         ),
       ),
     );
@@ -88,15 +146,15 @@ class _SelectDatePageState extends State<SelectDatePage> {
                   ),
                   child: Image.asset(
                     iconPath,
-                    height: 28, // Adjust size if needed
+                    height: 28, 
                     width: 28,
                     fit: BoxFit.contain,
-                    color: const Color.fromRGBO(2, 77, 117, 1), // Optional tint
+                    color: const Color.fromRGBO(2, 77, 117, 1), 
                   ),
                 )
               : Image.asset(
                   iconPath,
-                  height: 30,
+                 height: 30,
                   width: 30,
                   fit: BoxFit.contain,
                 ),
@@ -108,6 +166,12 @@ class _SelectDatePageState extends State<SelectDatePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+    return Scaffold(
+      backgroundColor: Color.fromARGB(0, 255, 255, 255),
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
     double screenWidth = MediaQuery.of(context).size.width;
 
     double screenHeight = MediaQuery.of(context).size.height;
@@ -206,12 +270,12 @@ class _SelectDatePageState extends State<SelectDatePage> {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              // The line image (background) with reduced size
+                             
                               SizedBox(
                                 height: screenHeight *
-                                    0.013, // Reduced height for the line image
+                                    0.013, 
                                 width: screenWidth *
-                                    0.72, // You can adjust this width if needed
+                                    0.72, 
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-line.png'),
@@ -287,7 +351,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
           ),
         ),
         body: SizedBox(
-          height: screenHeight * 0.8,
+          height: screenHeight * 0.9,
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -298,7 +362,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     margin: const EdgeInsets.all(16.0),
-                    height: screenHeight * 0.48,
+                    height: screenHeight * ((datePickerAccess.contains(_userId))? 0.75 : 0.5),
                     width: screenWidth * 1,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
@@ -527,15 +591,15 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                   const Color.fromARGB(255, 255, 255, 255),
                               shadowColor:
                                   const Color.fromARGB(255, 33, 144, 213),
-                              side: BorderSide(
-                                  width: screenWidth * 0.01,
+                              side: const BorderSide(
+                                  width: 1,
                                   color: Color.fromARGB(0, 255, 255, 255)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(9.0),
                               ),
                               padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.24,
-                                  vertical: screenHeight * 0.014),
+                                  horizontal: screenWidth * 0.235,
+                                  vertical: screenHeight * 0.013),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -547,7 +611,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                                     color:
                                         const Color.fromARGB(255, 4, 88, 141),
                                     fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * 0.05,
+                                    fontSize: screenWidth * 0.045,
                                   ),
                                 ),
                                 Text(
@@ -573,13 +637,116 @@ class _SelectDatePageState extends State<SelectDatePage> {
                               ],
                             ),
                           ),
+                          
+          SizedBox(height: screenHeight * 0.01),
+
+ if (datePickerAccess.contains(_userId))
+
+ 
+  Padding(
+  padding: EdgeInsets.symmetric(
+    horizontal: screenWidth * 0.02,
+    vertical: screenHeight * 0.01,
+  ),
+  child: Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(screenWidth * 0.04),
+    ),
+    padding: EdgeInsets.all(screenWidth * 0.04),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // the label — we’ll rebuild this when newdate changes
+        Text(
+          'Selected date: ${newdate.day} ${_getMonthName(newdate.month)} ${newdate.year}',
+          style: TextStyle(
+            fontSize: screenWidth * 0.04,
+            fontWeight: FontWeight.w700,
+            color: const Color.fromARGB(255, 4, 88, 141),
+          ),
+        ),
+        SizedBox(height: screenHeight * 0.01),
+
+        // the date picker
+        SizedBox(
+          width: screenWidth * 1.7,
+          height: screenHeight * 0.1,
+          child: CupertinoTheme(
+            data: CupertinoTheme.of(context).copyWith(
+              primaryColor: const Color.fromARGB(255, 4, 88, 141),
+              textTheme: CupertinoTextThemeData(
+                dateTimePickerTextStyle: TextStyle(
+                  color: const Color.fromARGB(255, 4, 88, 141),
+                  fontSize: screenWidth * 0.043,
+                ),
+              ),
+            ),
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              backgroundColor: Colors.white,
+              initialDateTime: newdate,
+              onDateTimeChanged: (DateTime picked) {
+                setState(() {
+                  newdate = picked;
+                });
+              },
+            ),
+          ),
+        ),
+
+        SizedBox(height: screenHeight * 0.01),
+
+        // the formatted-button
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 4, 88, 141),
+              padding: EdgeInsets.symmetric(
+                vertical: screenHeight * 0.01,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(screenWidth * 0.04),
+              ),
+            ),
+            onPressed: () {
+              // Format using your helper:
+              final formattedDate =
+                  '${newdate.day} ${_getMonthName(newdate.month)} ${newdate.year}';
+              setState(() {
+                selectedDate = formattedDate;
+              });
+              // Pass the formatted string (or the DateTime) to your next page:
+              _navigateToAvailableFlightsPage(context);
+            },
+            child: Text(
+              'Check Availability',
+              style: TextStyle(
+                fontSize: screenWidth * 0.038,
+                fontWeight: FontWeight.w600,
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+
+
+
+
+
                         ],
                       ),
                     ),
                   ),
                 ),
                 // Form card
-                SizedBox(height: screenHeight * 0.02)
+                SizedBox(height: screenHeight * 0.01)
               ],
             ),
           ),
@@ -661,7 +828,7 @@ class _SelectDatePageState extends State<SelectDatePage> {
                 _buildCustomBottomNavigationBarItem(
                     'assets/ticket.png', 'My Tickets', false),
                 _buildCustomBottomNavigationBarItem(
-                    'assets/chatbot.png', 'Yaana', false),
+                    'assets/chatboticon.png', 'Yaana', false),
               ],
             ),
           ),

@@ -1,16 +1,16 @@
 class FlightLoadModel {
-  final String jCapacity;
-  final String yCapacity;
-  final String jBooked;
-  final String yBooked;
-  final String jCheckedIn;
-  final String yCheckedIn;
-  final String jCommercialStandby;
-  final String yCommercialStandby;
+  final String? jCapacity;
+  final String? yCapacity;
+  final String? jBooked;
+  final String? yBooked;
+  final String? jCheckedIn;
+  final String? yCheckedIn;
+  final String? jCommercialStandby;
+  final String? yCommercialStandby;
   final String? jStaffListed;
   final String? yStaffListed;
-  final String jStaffOnStandby;
-  final String yStaffOnStandby;
+  final String? jStaffOnStandby;
+  final String? yStaffOnStandby;
   final String? jStaffAccepted;
   final String? yStaffAccepted;
 
@@ -49,4 +49,6 @@ class FlightLoadModel {
       yStaffAccepted: json['YstaffAccepted'],
     );
   }
+
+  toJson() {}
 }

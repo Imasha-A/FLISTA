@@ -27,8 +27,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late String selectedDate;
-  String originCountryCode = '';
-  String destinationCountryCode = '';
+ String originCountryCode = '';
+String destinationCountryCode = '';
 
   late String _userName = 'User Name';
   late String _userId = '123456';
@@ -72,12 +72,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     //selectedDate = widget.selectedDate;
     selectedDate = widget.selectedDate;
-    if (Platform.isAndroid) {
-      majorVersion = getAndroidVersion();
-    } else {
-      majorVersion = Future.value(9);
+    if (Platform.isAndroid)
+    {
+majorVersion = getAndroidVersion();
     }
-
+    else{
+      majorVersion=Future.value(9);
+    }
+    
     originCountryCode = '';
     destinationCountryCode = '';
     _originController.text = _flightSearchModel.selectedOriginCountry ?? '';
@@ -91,12 +93,12 @@ class _HomePageState extends State<HomePage> {
 
     _getAppVersion();
     _saveUserNameToPreferences();
+    _loadUserId();
 
     _loadUserId().then((_) {
       _saveUserIdToPreferences(); // Save userId to SharedPreferences after loading it
     });
 
-    loadRating();
     _fetchAirportList();
 
     if (_cachedAirportList == null) {
@@ -276,8 +278,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _flightSearchModel.originCountries = _cachedAirportList!.map((airport) {
         return {
-          'name':
-              toTitleCase(airport['name']?.trim() ?? 'Unknown'), // Null checks
+          'name': toTitleCase(airport['name']?.trim() ?? 'Unknown'), // Null checks
           'code': airport['code']!,
           'city': airport['city']!,
           'country': airport['country']!,
@@ -502,7 +503,7 @@ class _HomePageState extends State<HomePage> {
     //String? userId = prefs.getString('userId');
     setState(() {
       //_userId = userId ?? '123456';
-      _userId = prefs.getString('userId') ?? '123456'; // Null check
+       _userId = prefs.getString('userId') ?? '123456'; // Null check
     });
   }
 
@@ -1298,15 +1299,15 @@ class _HomePageState extends State<HomePage> {
                         }
                       },
                       items: [
-                        _buildCustomBottomNavigationBarItem(
-                            'assets/history.svg', 'History', false),
-                        _buildCustomBottomNavigationBarItem(
-                            'assets/home.svg', 'Home', true),
-                        _buildCustomBottomNavigationBarItem(
-                            'assets/ticket.svg', 'My Tickets', false),
-                        _buildCustomBottomNavigationBarItem(
-                            'assets/chatbot.svg', 'Yaana', false),
-                      ],
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/history.png', 'History', false),
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/home.png', 'Home', true),
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/ticket.png', 'My Tickets', false),
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/chatboticon.png', 'Yaana', false),
+                          ],
                     ),
                   ),
                 ),
@@ -2521,7 +2522,7 @@ class _HomePageState extends State<HomePage> {
                                                               },
                                                               child: Container(
                                                                 width: screenWidth *
-                                                                    0.9, // Adjusted for uniformity
+                                                                    0.9, 
                                                                 height:
                                                                     screenHeight *
                                                                         0.139,
@@ -2539,13 +2540,13 @@ class _HomePageState extends State<HomePage> {
                                                                           92,
                                                                           255,
                                                                           255,
-                                                                          255) // When no country is selected
+                                                                          255) 
                                                                       : const Color
                                                                           .fromARGB(
                                                                           230,
                                                                           255,
                                                                           255,
-                                                                          255), // When a country is selected
+                                                                          255), 
                                                                   border: Border
                                                                       .all(
                                                                     color: _destinationController
@@ -2737,11 +2738,11 @@ class _HomePageState extends State<HomePage> {
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black.withOpacity(
-                                                      0.35), // Adjust shadow color and opacity
+                                                      0.35), 
                                                   blurRadius:
-                                                      4.0, // Adjust blur radius for the shadow size
+                                                      4.0, 
                                                   offset: const Offset(2,
-                                                      2), // Adjust shadow direction and distance
+                                                      2), 
                                                 ),
                                               ],
                                             ),
@@ -2762,14 +2763,12 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                   ),
+                                  SizedBox(height: screenHeight * 0.1),
                                   Align(
                                     alignment: Alignment.bottomRight,
                                     child: Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                          screenWidth * 0.05,
-                                          screenHeight * 0.1,
-                                          screenWidth * 0.05,
-                                          screenHeight * 0.02),
+                                      padding:
+                                          EdgeInsets.all(screenWidth * 0.05),
                                       child: FloatingActionButton(
                                         onPressed: _showRatingPopup,
                                         backgroundColor: const Color.fromARGB(
@@ -2829,11 +2828,11 @@ class _HomePageState extends State<HomePage> {
                                       selectedDate: '',
                                     ),
                                     transitionDuration: const Duration(
-                                        seconds: 0), // No animation
+                                        seconds: 0), 
                                   ),
                                 );
                                 break;
-                              case 2: // My Tickets
+                              case 2: 
                                 Navigator.push(
                                   context,
                                   PageRouteBuilder(
@@ -2841,11 +2840,11 @@ class _HomePageState extends State<HomePage> {
                                             secondaryAnimation) =>
                                         const MyTickets(),
                                     transitionDuration: const Duration(
-                                        seconds: 0), // No animation
+                                        seconds: 0),
                                   ),
                                 );
                                 break;
-                              case 3: // Yaaana
+                              case 3: 
 
                                 Navigator.push(
                                   context,
@@ -2854,7 +2853,7 @@ class _HomePageState extends State<HomePage> {
                                             secondaryAnimation) =>
                                         Yaana(),
                                     transitionDuration: const Duration(
-                                        seconds: 0), // No animation
+                                        seconds: 0), 
                                   ),
                                 );
                                 break;
@@ -2868,7 +2867,7 @@ class _HomePageState extends State<HomePage> {
                             _buildCustomBottomNavigationBarItem(
                                 'assets/ticket.png', 'My Tickets', false),
                             _buildCustomBottomNavigationBarItem(
-                                'assets/chatbot.png', 'Yaana', false),
+                                'assets/chatboticon.png', 'Yaana', false),
                           ],
                         ),
                       ),
@@ -2888,7 +2887,7 @@ class _HomePageState extends State<HomePage> {
         final screenHeight = MediaQuery.of(context).size.height;
         final screenWidth = MediaQuery.of(context).size.width;
         bool isSubmitting = false;
-        String? popupMessage; // New state for the popup message
+        String? popupMessage;
         TextEditingController reviewController = TextEditingController();
 
         return StatefulBuilder(
@@ -2904,7 +2903,6 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Top container with gradient header
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -2980,7 +2978,6 @@ class _HomePageState extends State<HomePage> {
                                   color: Colors.white,
                                 ),
                               ),
-                              // Wrap the stars row in a Stack so we can overlay the popup message above it
                               Stack(
                                 clipBehavior: Clip.none,
                                 alignment: Alignment.center,
@@ -3009,8 +3006,6 @@ class _HomePageState extends State<HomePage> {
                                                       ? 0
                                                       : index + 1;
                                                 });
-
-                                                // Save rating persistently
                                                 await saveRating(selectedRating,
                                                     reviewController.text);
 
@@ -3039,7 +3034,6 @@ class _HomePageState extends State<HomePage> {
                                                     print(
                                                         "Failed to submit rating: $error");
                                                   } finally {
-                                                    // Clear the popup after 2 seconds
                                                     Timer(Duration(seconds: 1),
                                                         () {
                                                       setState(() {
@@ -3055,11 +3049,10 @@ class _HomePageState extends State<HomePage> {
                                       );
                                     }),
                                   ),
-                                  // Positioned popup message above the stars
                                   if (popupMessage != null)
                                     Positioned(
                                       top: screenHeight *
-                                          0.05, // adjust as needed
+                                          0.05, 
                                       child: Container(
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 3),
@@ -3081,7 +3074,6 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                               SizedBox(height: screenHeight * 0.02),
-                              // "Leave a Review" button
                               GestureDetector(
                                 onTap: () {
                                   showDialog(
@@ -3194,7 +3186,6 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
-                    // Bottom container with version info and IT support info
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,

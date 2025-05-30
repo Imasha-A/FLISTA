@@ -41,6 +41,8 @@ class _PriorityState extends State<PriorityPage> {
   int _selectedIndex = 0;
   late String _userName = 'User Name';
   late String _userId = '123456';
+  List<String> givePriorityAccess=[];
+
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _PriorityState extends State<PriorityPage> {
         widget.selectedUL; // Initialize selectedUL with the passed value
     ulList = widget.ulList;
     fetchData();
+    fetchPriorityPermissions();
   }
 
   Future<void> _loadUserName() async {
@@ -78,14 +81,15 @@ class _PriorityState extends State<PriorityPage> {
     );
   }
 
-  void fetchPermissions() async {
-    List<FlistaPermission> permissions =
-        await _apiService.getFlistaModulePermissions();
-    for (var p in permissions) {
-      print(
-          'Module: ${p.moduleId}, Staff: ${p.staffId}, Active: ${p.isActive}');
-    }
-  }
+ 
+void fetchPriorityPermissions() async {
+  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+
+   givePriorityAccess = permissions
+      .where((p) => p.moduleId == 'MY_PRIORITY_DISP_ALL_STAFF_INFO'&& p.isActive=="TRUE")
+      .map((p) => p.staffId)
+      .toList();
+}
 
   void fetchData() {
     _apiService
@@ -476,7 +480,9 @@ class _PriorityState extends State<PriorityPage> {
                                       fontSize: 16.0,
                                     ),
                                   )
+                                
                                 else
+                                
                                   SizedBox(
                                     height: screenHeigth * 0.37,
                                     child: SingleChildScrollView(
@@ -485,37 +491,83 @@ class _PriorityState extends State<PriorityPage> {
                                           // Mask fields if the name doesn't match _userName
                                           String fullName =
                                               '${staff.firstName} ${staff.lastName}';
-
-                                          if (fullName.toLowerCase() !=
-                                                  _userName.toLowerCase() &&
-                                              staff.staffID != _userId) {
-                                            // Mask sensitive fields
-                                            staff = StaffMember(
-                                              title: 'xxx',
-                                              firstName:
-                                                  'xxxxxx', // Masked first name
-                                              lastName:
-                                                  'xxxxxx', // Masked last name
-                                              staffID:
-                                                  'xxxxxx', // Masked staff ID
-                                              priority: staff.priority,
-                                              status: staff.status,
-                                              pnr: staff.pnr,
-                                              actionStatus: staff.actionStatus,
-                                              uniqueCustomerID:
-                                                  staff.uniqueCustomerID,
-                                              paxType: staff.paxType,
-                                              prodIdentificationRefCode: staff
-                                                  .prodIdentificationRefCode,
-                                              givenName: staff.givenName,
-                                              prodIdentificationPrimeID: staff
-                                                  .prodIdentificationPrimeID,
-                                              gender: staff.gender,
-                                              Title: staff.title,
-                                              surname: staff.surname,
-                                            );
-                                          }
-
+                                      
+                                          // if (fullName.toLowerCase() !=
+                                          //         _userName.toLowerCase() &&
+                                          //     staff.staffID != _userId) {
+                                          //   // Mask sensitive fields
+                                          //   staff = StaffMember(
+                                          //     title: 'xxx',
+                                          //     firstName:
+                                          //         'xxxxxx', // Masked first name
+                                          //     lastName:
+                                          //         'xxxxxx', // Masked last name
+                                          //     staffID: 'xxxxxx', // Masked staff ID
+                                          //     priority: staff.priority,
+                                          //     status: staff.status,
+                                          //     pnr: staff.pnr,
+                                          //     actionStatus: staff.actionStatus,
+                                          //     uniqueCustomerID:
+                                          //         staff.uniqueCustomerID,
+                                          //     paxType: staff.paxType,
+                                          //     prodIdentificationRefCode:
+                                          //         staff.prodIdentificationRefCode,
+                                          //     givenName: staff.givenName,
+                                          //     prodIdentificationPrimeID:
+                                          //         staff.prodIdentificationPrimeID,
+                                          //     gender: staff.gender,
+                                          //     Title: staff.title,
+                                          //     surname: staff.surname,
+                                          //   );
+                                          // }
+                                      if (givePriorityAccess.contains(_userId)) {
+                                        print(staff.staffID);
+                                        print(_userId);
+                                        // Staff has priority access; retain original details
+                                        staff = StaffMember(
+                                          title: staff.title,
+                                          firstName: staff.firstName,
+                                          lastName: staff.lastName,
+                                          staffID: staff.staffID,
+                                          priority: staff.priority,
+                                          status: staff.status,
+                                          pnr: staff.pnr,
+                                          actionStatus: staff.actionStatus,
+                                          uniqueCustomerID: staff.uniqueCustomerID,
+                                          paxType: staff.paxType,
+                                          prodIdentificationRefCode: staff.prodIdentificationRefCode,
+                                          givenName: staff.givenName,
+                                          prodIdentificationPrimeID: staff.prodIdentificationPrimeID,
+                                          gender: staff.gender,
+                                          Title: staff.title,
+                                          surname: staff.surname,
+                                        );
+                                      } else if (fullName.toLowerCase() != _userName.toLowerCase() &&
+                                          staff.staffID != _userId) {
+                                              print(staff.staffID);
+                                        print(_userId);
+                                        // Mask sensitive fields
+                                        staff = StaffMember(
+                                          title: 'xxx',
+                                          firstName: 'xxxxxx',
+                                          lastName: 'xxxxxx',
+                                          staffID: 'xxxxxx',
+                                          priority: staff.priority,
+                                          status: staff.status,
+                                          pnr: staff.pnr,
+                                          actionStatus: staff.actionStatus,
+                                          uniqueCustomerID: staff.uniqueCustomerID,
+                                          paxType: staff.paxType,
+                                          prodIdentificationRefCode: staff.prodIdentificationRefCode,
+                                          givenName: staff.givenName,
+                                          prodIdentificationPrimeID: staff.prodIdentificationPrimeID,
+                                          gender: staff.gender,
+                                          Title: staff.title,
+                                          surname: staff.surname,
+                                        );
+                                      }
+                                          
+                                      
                                           return Column(
                                             children: [
                                               SizedBox(
@@ -525,27 +577,22 @@ class _PriorityState extends State<PriorityPage> {
                                                   onPressed: () {
                                                     // Handle button press
                                                   },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
+                                                  style: ElevatedButton.styleFrom(
                                                     backgroundColor:
                                                         const Color.fromARGB(
                                                             48, 53, 106, 204),
-                                                    shape:
-                                                        RoundedRectangleBorder(
+                                                    shape: RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               9.0),
                                                     ),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal:
-                                                                screenWidth *
-                                                                    0.045),
+                                                    padding: EdgeInsets.symmetric(
+                                                        horizontal:
+                                                            screenWidth * 0.045),
                                                   ),
                                                   child: Row(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
+                                                        CrossAxisAlignment.start,
                                                     children: [
                                                       Expanded(
                                                         child: Column(
@@ -560,8 +607,8 @@ class _PriorityState extends State<PriorityPage> {
                                                             Text(
                                                               '${staff.title}. ${staff.firstName} ${staff.lastName} (${staff.staffID})',
                                                               style: TextStyle(
-                                                                  color: Colors
-                                                                      .white,
+                                                                  color:
+                                                                      Colors.white,
                                                                   fontSize:
                                                                       screenWidth *
                                                                           0.04),
@@ -588,8 +635,7 @@ class _PriorityState extends State<PriorityPage> {
                                                                 ),
                                                                 Text(
                                                                   'Status - ${staff.actionStatus}',
-                                                                  style:
-                                                                      TextStyle(
+                                                                  style: TextStyle(
                                                                     color: const Color
                                                                         .fromARGB(
                                                                         255,
@@ -705,7 +751,7 @@ class _PriorityState extends State<PriorityPage> {
                 _buildCustomBottomNavigationBarItem(
                     'assets/ticket.png', 'My Tickets', false),
                 _buildCustomBottomNavigationBarItem(
-                    'assets/chatbot.png', 'Yaana', false),
+                    'assets/chatboticon.png', 'Yaana', false),
               ],
             ),
           ),

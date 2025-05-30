@@ -10,7 +10,6 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
-    // DeviceOrientation.portraitDown, // Include if you want upside-down
   ]).then((_) {
     runApp(const MyApp());
   });
@@ -95,6 +94,7 @@ class MyLoginPage extends StatefulWidget {
 }
 
 class _MyLoginPageState extends State<MyLoginPage> {
+  //late String selectedDate = '';//commented by Chamila
   String selectedDate = '';
   late PageController _pageController;
   final _usernameController = TextEditingController();
@@ -153,8 +153,8 @@ class _MyLoginPageState extends State<MyLoginPage> {
             _loginSuccessMessage = 'Login successful';
           });
 
-          // Navigate to home page
-          _navigateToHomePage(context, selectedDate);
+                   _navigateToHomePage(context, selectedDate);
+
         } else {
           setState(() {
             _errorMessage = 'Auto-login failed. Please log in manually.';
@@ -197,32 +197,99 @@ class _MyLoginPageState extends State<MyLoginPage> {
     return match != null ? match.group(1) ?? '' : '';
   }
 
+  // Future<void> _login() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   final username = _usernameController.text;
+  //   final password = _passwordController.text;
+
+  //   try {
+  //     final response = await _apiService.login(username, password);
+  //     if (response['RESPONSE_CODE'] == '1') {
+  //       setState(() {
+  //         _errorMessage = null;
+  //         _loginSuccessMessage = 'Login successful';
+  //       });
+
+  //       final displayName =
+  //           response['DISPLAYNAME'] ?? _extractUserName(response['PATH']);
+  //       final userId =
+  //           response['USERID'] ?? ''; // Assuming USERID might be null
+
+  //       SharedPreferences prefs = await SharedPreferences.getInstance();
+  //       prefs.setString('displayName', displayName);
+  //       prefs.setString('userId', userId);
+
+       
+
+  //       // Print username and password to console
+  //       print('Username: $username');
+  //       print('Password: $password');
+
+  //       _usernameController.clear();
+  //       _passwordController.clear();
+
+  //       _navigateToHomePage(context, selectedDate);
+  //     } else {
+  //       setState(() {
+  //         _errorMessage = 'Login unsuccessful. Please check your credentials.';
+  //         _loginSuccessMessage = null;
+  //       });
+
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Center(
+  //               child: Text(
+  //                   'Login unsuccessful. Please check your credentials.',
+  //                   style: TextStyle(fontWeight: FontWeight.bold))),
+  //           duration: Duration(seconds: 2),
+  //           behavior: SnackBarBehavior.floating,
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _errorMessage = 'An error occurred. Please try again later.';
+  //       _loginSuccessMessage = null;
+  //     });
+
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content:
+  //             Center(child: Text('An error occurred. Please try again later.')),
+  //         duration: Duration(seconds: 2),
+  //         behavior: SnackBarBehavior.floating,
+  //       ),
+  //     );
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
+
   Future<void> _login() async {
-    setState(() {
-      _isLoading = true;
-    });
+  setState(() => _isLoading = true);
 
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  final username = _usernameController.text;
+  final password = _passwordController.text;
 
-    try {
-      final response = await _apiService.login(username, password);
-      if (response['RESPONSE_CODE'] == '1') {
-        setState(() {
-          _errorMessage = null;
-          _loginSuccessMessage = 'Login successful';
-        });
+  try {
+    final response = await _apiService.login(username, password);
 
-        final displayName =
-            response['DISPLAYNAME'] ?? _extractUserName(response['PATH']);
-        final userId =
-            response['USERID'] ?? ''; // Assuming USERID might be null
+    if (response['RESPONSE_CODE'] == '1') {
+      // ✅ SUCCESS: go straight to Home, replacing this page
+      final displayName =
+          response['DISPLAYNAME'] ?? _extractUserName(response['PATH']);
+      final userId = response['USERID'] ?? '';
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('displayName', displayName);
-        prefs.setString('userId', userId);
-
-        ScaffoldMessenger.of(context).showSnackBar(
+      final prefs = await SharedPreferences.getInstance();
+      await prefs
+        ..setString('displayName', displayName)
+        ..setString('userId', userId);
+ ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Center(
                 child: Text('Login successful',
@@ -232,7 +299,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
           ),
         );
         _saveCredentials(username, password);
-
+_isLoading=false;
         // Print username and password to console
         print('Username: $username');
         print('Password: $password');
@@ -240,46 +307,44 @@ class _MyLoginPageState extends State<MyLoginPage> {
         _usernameController.clear();
         _passwordController.clear();
 
-        _navigateToHomePage(context, selectedDate);
-      } else {
-        setState(() {
-          _errorMessage = 'Login unsuccessful. Please check your credentials.';
-          _loginSuccessMessage = null;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Center(
-                child: Text(
-                    'Login unsuccessful. Please check your credentials.',
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => HomePage(selectedDate: selectedDate),
+        ),
+      );
+    } else {
       setState(() {
-        _errorMessage = 'An error occurred. Please try again later.';
-        _loginSuccessMessage = null;
+        _errorMessage = 'Login unsuccessful. Please check your credentials.';
+        _isLoading = false;
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content:
-              Center(child: Text('An error occurred. Please try again later.')),
+          content: Text(
+            'Login unsuccessful. Please check your credentials.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+  } catch (e) {
+    setState(() {
+      _errorMessage = 'An error occurred. Please try again later.';
+      _isLoading = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content:
+            Text('An error occurred. Please try again later.', textAlign: TextAlign.center),
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
+}
 
-  
 
   void _navigateToHomePage(BuildContext context, String selectedDate) {
     Navigator.push(
@@ -367,12 +432,23 @@ class _MyLoginPageState extends State<MyLoginPage> {
       buttonFontSize = screenWidth * 0.04;
     }
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(
+  return Scaffold(
+    body: Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            'assets/blur.png',
+            fit: BoxFit.cover,
+          ),
+        ),
+        const Center(
           child: CircularProgressIndicator(),
         ),
-      );
-    }
+      ],
+    ),
+  );
+}
+
     return Scaffold(
       resizeToAvoidBottomInset:
           true, // Allow resizing when the keyboard appears
@@ -485,7 +561,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
                             style: TextStyle(
                               fontSize: textFieldFontSize,
                               color: Colors
-                                  .white, // Imasha is the best
+                                  .white, // Imasha and Ayani are the bestest
                             ),
                           ),
                         ),
@@ -561,3 +637,4 @@ class _MyLoginPageState extends State<MyLoginPage> {
     );
   }
 }
+

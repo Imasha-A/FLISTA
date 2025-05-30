@@ -56,18 +56,21 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   bool isLoading = true;
   List<StaffMember> staffMembers = [];
   CheckinSummery? checkinSummery;
-  List<String> giveCheckInAccess = [];
-  Future<int>? majorVersion;
+List<String> giveCheckInAccess=[];
 
-  List<String> givePriorityAccess = [];
+List<String> givePriorityAccess=[];
+String? _apiErrorMessage;
+
 
   final APIService _apiService = APIService();
   late String _userName = 'User Name';
   late String _userId = '123456';
-  String version = "";
+    Future<int>? majorVersion;
+    String version="";
 
-  bool isCheckInSummaryEnabled = false;
-  bool isPriorityButtonEnabled = false;
+
+bool isCheckInSummaryEnabled = false;
+bool isPriorityButtonEnabled = false;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -77,38 +80,42 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     selectedDate = widget.selectedDate;
     selectedUL =
         widget.selectedUL; // Initialize selectedUL with the passed value
-    scheduledTime = widget.scheduledTime;
+        scheduledTime=widget.scheduledTime;
     ulList = widget.ulList; // Initialize ulList with the passed value
     formattedDate =
         APIService().formatDate(selectedDate); // Assign formattedDate value
     formattedLongDate = APIService()
         .formatLongDate(selectedDate); // Assign formattedLongDate value
-
-    // only one “kick-off” to handle all permissions+staff
-    _initializeWithPermissions();
-    if (Platform.isAndroid) {
-      majorVersion = getAndroidVersion();
-    } else {
-      version = "ios";
-      //majorVersion = Future.value(9);
-    }
-
-    // now fetch the flight-specific data
     _fetchFlightExtraInfo();
     _fetchFlightLoadInfo();
+
+    _initializeState();
+    fetchCheckInPermissions();
+    fetchPriorityPermissions();
+    if (Platform.isAndroid)
+    {
+majorVersion = getAndroidVersion();
+    }
+    else{
+      //majorVersion=Future.value(0);
+      version="ios";
+    }
   }
 
-  Future<void> _initializeWithPermissions() async {
-    await _loadUserName();
-    await _loadUserId();
+   void fetchCheckInPermissions() async {
+  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
 
-    await fetchCheckInPermissions();
-    await fetchPriorityPermissions();
+   giveCheckInAccess = permissions
+      .where((p) => p.moduleId == 'CHECKIN_SUMMARY'&& p.isActive=="TRUE")
+      .map((p) => p.staffId)
+      .toList();
 
-    await fetchData();
-  }
+      print('CheckIn Access: $giveCheckInAccess');
+print('Priority Access: $givePriorityAccess');
 
-  Future<int> getAndroidVersion() async {
+}
+
+Future<int> getAndroidVersion() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -136,67 +143,49 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     }
   }
 
-  Future<void> fetchCheckInPermissions() async {
-    List<FlistaPermission> permissions =
-        await _apiService.getFlistaModulePermissions();
+ void fetchPriorityPermissions() async {
+  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
 
-    giveCheckInAccess = permissions
-        .where((p) => p.moduleId == 'CHECKIN_SUMMARY' && p.isActive == "TRUE")
-        .map((p) => p.staffId)
-        .toList();
+   givePriorityAccess = permissions
+      .where((p) => p.moduleId == 'MY_PRIORITY'&& p.isActive=="TRUE")
+      .map((p) => p.staffId)
+      .toList();
+}
 
-    print('CheckIn Access: $giveCheckInAccess');
+
+
+ void _fetchFlightExtraInfo() async {
+  await _loadUserId();
+  await fetchData();
+
+  try {
+    DateTime flightDate = DateTime.now(); // Replace with your actual flight date
+    String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
+
+    var responseList = await _apiService.viewCheckInStatus(
+      formattedDate,
+      widget.originCountryCode,
+      widget.selectedUL,
+      _userId,
+    );
+
+   List<CheckinSummery> summaryList = responseList;
+
+    setState(() {
+      if (summaryList.isNotEmpty) {
+        checkinSummery = summaryList.first;
+      }
+      isLoading = false;
+    });
+  } catch (error) {
+    print('Error fetching flight load information: $error');
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
-  Future<void> fetchPriorityPermissions() async {
-    List<FlistaPermission> permissions =
-        await _apiService.getFlistaModulePermissions();
 
-    givePriorityAccess = permissions
-        .where((p) => p.moduleId == 'MY_PRIORITY' && p.isActive == "TRUE")
-        .map((p) => p.staffId)
-        .toList();
-
-    print('Priority Access: $givePriorityAccess');
-  }
-
-  void _fetchFlightExtraInfo() async {
-    await _loadUserId();
-
-    // 👇 Fetch permissions first!
-    await fetchCheckInPermissions();
-    await fetchPriorityPermissions();
-
-    await fetchData(); // ← Now the access lists are ready
-
-    try {
-      // Assuming you have a DateTime object, or replace with your actual date source
-      DateTime flightDate =
-          DateTime.now(); // Replace with your actual flight date
-      String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
-
-      var responseList = await _apiService.viewCheckInStatus(
-        formattedDate,
-        widget.originCountryCode,
-        widget.selectedUL,
-        _userId,
-      );
-
-      List<CheckinSummery> summaryList = responseList;
-
-      setState(() {
-        if (summaryList.isNotEmpty) {
-          checkinSummery = summaryList.first;
-        }
-        isLoading = false;
-      });
-    } catch (error) {
-      print('Error fetching flight load information: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   Future<void> _initializeState() async {
     await _loadUserName();
@@ -204,25 +193,22 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     await fetchData();
 
     for (var staff in staffMembers) {
-      String fullName = '${staff.firstName} ${staff.lastName}';
+    String fullName = '${staff.firstName} ${staff.lastName}';
 
-      // Check for Check-In Summary Access
-      if (fullName == _userName ||
-          staff.staffID == _userId ||
-          giveCheckInAccess.contains(_userId)) {
-        setState(() {
-          isCheckInSummaryEnabled = true;
-        });
-      }
+    // Check for Check-In Summary Access
+    if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
+      setState(() {
+        isCheckInSummaryEnabled = true;
+      });
+    }
 
-      // Check for Priority Access
-      if (fullName == _userName ||
-          staff.staffID == _userId ||
-          givePriorityAccess.contains(_userId)) {
-        setState(() {
-          isPriorityButtonEnabled = true;
-        });
-      }
+    // Check for Priority Access
+    if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
+      setState(() {
+        isPriorityButtonEnabled = true;
+      });
+    }
+  break;
     }
   }
 
@@ -234,77 +220,75 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     });
   }
 
-  // Helper method to build consistent data rows
-  Widget _buildDataRow(String label, dynamic jValue, dynamic yValue,
-      double screenWidth, double screenHeigth) {
-    return Row(
-      children: [
-        // Label column (fixed width)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screenWidth, double screenHeigth) {
+  return Row(
+    children: [
+      // Label column (fixed width)
+      Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+        child: Container(
+          width: screenWidth * 0.5,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: screenWidth * 0.041,
+            ),
+          ),
+        ),
+      ),
+      
+      // BC/J value
+      Expanded(
+        child: Center(
           child: Container(
-            width: screenWidth * 0.5,
-            child: Text(
-              label,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: screenWidth * 0.041,
-              ),
+            height: screenHeigth * 0.035,
+            width: screenWidth * 0.12,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
             ),
-          ),
-        ),
-
-        // BC/J value
-        Expanded(
-          child: Center(
-            child: Container(
-              height: screenHeigth * 0.035,
-              width: screenWidth * 0.12,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: Text(
-                  '$jValue',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth * 0.041,
-                  ),
+            child: Center(
+              child: Text(
+                '$jValue',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: screenWidth * 0.041,
                 ),
               ),
             ),
           ),
         ),
-
-        // EY/Y value
-        Expanded(
-          child: Center(
-            child: Container(
-              height: screenHeigth * 0.035,
-              width: screenWidth * 0.12,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: Text(
-                  '$yValue',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth * 0.041,
-                  ),
+      ),
+      
+      // EY/Y value
+      Expanded(
+        child: Center(
+          child: Container(
+            height: screenHeigth * 0.035,
+            width: screenWidth * 0.12,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                '$yValue',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: screenWidth * 0.041,
                 ),
               ),
             ),
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   // Callback for pull-down refresh
   Future<void> _onRefresh() async {
@@ -337,25 +321,22 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
         });
 
         for (var staff in staffMembers) {
-          String fullName = '${staff.firstName} ${staff.lastName}';
+    String fullName = '${staff.firstName} ${staff.lastName}';
 
-          // Check for Check-In Summary Access
-          if (fullName == _userName ||
-              staff.staffID == _userId ||
-              giveCheckInAccess.contains(_userId)) {
-            setState(() {
-              isCheckInSummaryEnabled = true;
-            });
-          }
+    // Check for Check-In Summary Access
+    if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
+      setState(() {
+        isCheckInSummaryEnabled = true;
+      });
+    }
 
-          // Check for Priority Access
-          if (fullName == _userName ||
-              staff.staffID == _userId ||
-              givePriorityAccess.contains(_userId)) {
-            setState(() {
-              isPriorityButtonEnabled = true;
-            });
-          }
+    // Check for Priority Access
+    if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
+      setState(() {
+        isPriorityButtonEnabled = true;
+      });
+    }
+
         }
       }
     } catch (error) {
@@ -380,31 +361,74 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     );
   }
 
-  void _fetchFlightLoadInfo() async {
-    try {
-      List<FlightLoadModel> flightLoadDataList =
-          await APIService().fetchFlightLoadInfo(
-        widget.selectedDate,
-        formattedDate, // Pass the updated formatted date
-        formattedLongDate, // Pass the updated formatted long date
-        widget.originCountryCode,
-        widget.destinationCountryCode,
-        widget.selectedUL,
-      );
+//  void _fetchFlightLoadInfo() async {
+//   setState(() => isLoading = true);
+//   try {
+//     final flightLoadDataList = await APIService().fetchFlightLoadInfo(
+//       widget.selectedDate,
+//       formattedDate,
+//       formattedLongDate,
+//       widget.originCountryCode,
+//       widget.destinationCountryCode,
+//       widget.selectedUL,
+//       _userId,
+//     );
 
-      setState(() {
-        if (flightLoadDataList.isNotEmpty) {
-          flightLoad = flightLoadDataList.first;
-        }
-        isLoading = false; // Hide loader after data is fetched
-      });
-    } catch (error) {
-      print('Error fetching flight load information: $error');
-      setState(() {
-        isLoading = false; // Hide loader in case of error
-      });
-    }
+//     print( formattedDate);
+//     print(formattedLongDate);
+
+//     setState(() {
+//       flightLoad = flightLoadDataList.isNotEmpty
+//           ? flightLoadDataList.first
+//           : null;
+//       _apiErrorMessage = null;      
+//       isLoading = false;
+//     });
+//   } catch (e) {
+//     setState(() {
+//       _apiErrorMessage = e.toString().replaceFirst('Exception: ', '');
+//       isLoading = false;
+//     });
+//   }
+// }
+
+
+Future<void> _fetchFlightLoadInfo() async {
+  setState(() => isLoading = true);
+
+  formattedDate     = APIService().formatDate(selectedDate);
+  formattedLongDate = APIService().formatLongDate(selectedDate);
+
+  await Future.delayed(const Duration(seconds: 0));
+
+  try {
+    final flightLoadDataList = await APIService().fetchFlightLoadInfo(
+      widget.selectedDate,
+      formattedDate,
+      formattedLongDate,
+      widget.originCountryCode,
+      widget.destinationCountryCode,
+      widget.selectedUL,
+      _userId,
+    );
+
+    setState(() {
+      flightLoad       = flightLoadDataList.isNotEmpty
+                          ? flightLoadDataList.first
+                          : null;
+      _apiErrorMessage = null;
+      isLoading        = false;
+    });
+  } catch (e) {
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      _apiErrorMessage = e.toString().replaceFirst('Exception: ', '');
+      isLoading        = false;
+    });
   }
+}
+
+
 
   void _navigateToPriorityPage(BuildContext context) {
     Navigator.push(
@@ -420,7 +444,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     );
   }
 
-  void _navigateToCheckInsSummaryPage(
+   void _navigateToCheckInsSummaryPage(
       BuildContext context, String selectedUL, String scheduledTime) {
     Navigator.push(
       context,
@@ -429,11 +453,11 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
           selectedDate: selectedDate,
           selectedUL: selectedUL,
           scheduledTime:
-              scheduledTime, // Pass scheduledTime to CapacityInfoPage
+              scheduledTime, 
           originCountryCode: widget.originCountryCode,
           destinationCountryCode: widget.destinationCountryCode,
           onULSelected: (selectedUL) {
-            // Handle the selected UL
+      
           },
         ),
       ),
@@ -456,10 +480,10 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                   ),
                   child: Image.asset(
                     iconPath,
-                    height: 28, // Adjust size if needed
+                    height: 28, 
                     width: 28,
                     fit: BoxFit.contain,
-                    color: const Color.fromRGBO(2, 77, 117, 1), // Optional tint
+                    color: const Color.fromRGBO(2, 77, 117, 1), 
                   ),
                 )
               : Image.asset(
@@ -476,23 +500,20 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
 
   void _changeUL(bool next) {
     setState(() {
-      isLoading = true; // Show loader when arrow is clicked
-
-      // Update selectedDate based on arrow direction
+      isLoading = true; 
       if (next) {
         selectedDate = _getNextDate(selectedDate);
       } else {
         selectedDate = _getPreviousDate(selectedDate);
       }
 
-      // Update formattedDate and formattedLongDate with the new date values
+
       formattedDate = APIService().formatDate(selectedDate);
       formattedLongDate = APIService().formatLongDate(selectedDate);
 
-      // Fetch flight load information for the updated date
+     
       _fetchFlightLoadInfo();
-      isCheckInSummaryEnabled = false;
-      isPriorityButtonEnabled = false;
+
       _initializeState();
     });
   }
@@ -587,15 +608,16 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/homebgnew.png"), // Change to your image
+          image: AssetImage("assets/homebgnew.png"), 
           fit: BoxFit.fitWidth,
         ),
       ),
       child: Scaffold(
         backgroundColor: const Color.fromARGB(0, 255, 255, 255),
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(
-              version == "ios" ? screenHeigth * 0.13 : screenHeigth * 0.173),
+preferredSize: Size.fromHeight(
+  version=="ios" ? screenHeigth * 0.145 : screenHeigth * 0.173,
+),
           child: AppBar(
             backgroundColor: Colors.transparent,
             titleTextStyle: TextStyle(
@@ -644,7 +666,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                       ),
                     ),
                   ),
-                  // New content added to the flexibleSpace
                   Positioned.fill(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -653,30 +674,29 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                           height: screenHeigth * 0.08,
                         ),
                         SizedBox(
-                          height: screenHeigth * 0.04, // Parent height
-                          width: screenWidth * 0.72, // Parent width
+                          height: screenHeigth * 0.04,
+                          width: screenWidth * 0.72, 
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              // The line image (background) with reduced size
+                              
                               SizedBox(
                                 height: screenHeigth *
-                                    0.013, // Reduced height for the line image
+                                    0.013, 
                                 width: screenWidth *
-                                    0.72, // You can adjust this width if needed
+                                    0.72, 
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-line.png'),
                                   fit: BoxFit.fill,
                                 ),
                               ),
-                              // The plane image (animated) with reduced size
 
                               SizedBox(
                                 height: screenHeigth *
-                                    0.07, // Smaller height for the plane image
+                                    0.07, 
                                 width: screenWidth *
-                                    0.3, // Adjust the width as needed
+                                    0.3, 
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-plane.png'),
@@ -698,7 +718,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                     -screenHeigth * 0.035),
                                 child: Text(
                                   widget.originCountryCode
-                                      .trim(), // Trim to remove leading/trailing spaces
+                                      .trim(), 
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -713,7 +733,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                     screenWidth * 0.08, -screenHeigth * 0.035),
                                 child: Text(
                                   widget.destinationCountryCode
-                                      .trim(), // Trim to remove leading/trailing spaces
+                                      .trim(), 
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -736,7 +756,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
             ? const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.blue), // Set the color to blue
+                      Colors.blue), 
                 ),
               )
             : SmartRefresher(
@@ -790,7 +810,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                       ),
                                     ),
                                   ),
-                                  // Adjust the padding to move the image to the right
+                               
 
                                   Column(
                                     children: [
@@ -811,19 +831,15 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                 borderRadius:
                                                     BorderRadius.circular(20.0),
                                               ),
-                                              // padding: EdgeInsets.symmetric(
-                                              //   horizontal: screenWidth * 0.05,
-                                              //   vertical: screenHeigth * 0.018, // Further reduced vertical padding
-                                              // ),
+                                         
                                               padding: EdgeInsets.zero,
                                             ),
                                             child: Column(
                                               mainAxisSize: MainAxisSize
-                                                  .min, // Avoid extra space
+                                                  .min, 
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                               children: [
-                                                // UL Number (Shifted closer)
                                                 Transform.translate(
                                                   offset: Offset(0, 11),
                                                   child: Text(
@@ -835,30 +851,29 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                       fontSize:
                                                           screenWidth * 0.06,
                                                       height:
-                                                          1.0, // Remove extra spacing
+                                                          1.0, 
                                                     ),
                                                   ),
                                                 ),
 
-                                                // Row for Arrows and Date
+                                                
                                                 Transform.translate(
                                                   offset: Offset(0,
-                                                      -2), // Moves Date row upwards
+                                                      -2), 
                                                   child: Row(
                                                     mainAxisSize: MainAxisSize
-                                                        .min, // Avoid extra space
+                                                        .min, 
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .center,
                                                     children: [
-                                                      // Left Arrow (Move to Previous Date)
                                                       GestureDetector(
                                                         onTap: () {
                                                           _changeUL(false);
                                                         },
                                                         child: Container(
                                                           width: screenWidth *
-                                                              0.12, // Increased tap area
+                                                              0.12, 
                                                           height: screenHeigth *
                                                               0.06,
                                                           alignment:
@@ -868,22 +883,22 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                                 .arrow_back_ios_rounded,
                                                             color: Colors.white,
                                                             size: screenWidth *
-                                                                0.075, // Increased icon size
+                                                                0.075, 
                                                           ),
                                                         ),
                                                       ),
 
                                                       SizedBox(
                                                           width: screenWidth *
-                                                              0.09), // Increased spacing
+                                                              0.09), 
 
-                                                      // Selected Date (Reduced padding)
+                                                      
                                                       Padding(
                                                         padding: EdgeInsets
                                                             .symmetric(
                                                                 horizontal:
                                                                     screenWidth *
-                                                                        0.01), // Reduced horizontal padding
+                                                                        0.01), 
                                                         child: Text(
                                                           '$selectedDate',
                                                           style: TextStyle(
@@ -892,7 +907,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                                 screenWidth *
                                                                     .04,
                                                             height:
-                                                                1.0, // Remove extra spacing
+                                                                1.0, 
                                                           ),
                                                         ),
                                                       ),
@@ -901,7 +916,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                           width: screenWidth *
                                                               0.09), // Increased spacing
 
-                                                      // Right Arrow (Move to Next Date)
+                                                   
                                                       GestureDetector(
                                                         onTap: () {
                                                           _changeUL(true);
@@ -926,7 +941,6 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                                   ),
                                                 ),
 
-                                                // Scheduled Time (Shifted closer)
                                                 Transform.translate(
                                                   offset: Offset(0,
                                                       -12), // Moves scheduled time upwards
@@ -946,248 +960,146 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                                           ),
                                         ),
                                       ),
-                                      Column(
-                                        children: [
-                                          // Header row with BC and EY labels
-                                          Row(
-                                            children: [
-                                              // Empty space for label column
-                                              SizedBox(
-                                                  width: screenWidth * 0.53),
-                                              // BC column header
-                                              Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'BC', // Business Class
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          screenWidth * 0.041,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              // EY column header
-                                              Expanded(
-                                                child: Center(
-                                                  child: Text(
-                                                    'EY', // Economy Class
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize:
-                                                          screenWidth * 0.041,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                              height: screenHeigth * 0.015),
+                                    
+_apiErrorMessage != null
+  ? Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.05,
+        vertical: screenHeigth * 0.02,
+      ),
+      child: Center(
+        child: Text(
+          _apiErrorMessage!,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: screenWidth * 0.045,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    )
+  : Column(
+      children: [
+        Row(
+          children: [
+            SizedBox(width: screenWidth * 0.53),
+            Expanded(
+              child: Center(
+                child: Text(
+                  'BC',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: screenWidth * 0.041,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  'EY',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: screenWidth * 0.041,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: screenHeigth * 0.015),
 
-                                          // Data rows
-                                          _buildDataRow(
-                                              'Capacity',
-                                              flightLoad?.jCapacity,
-                                              flightLoad?.yCapacity,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Capacity', flightLoad?.jCapacity ?? 0, flightLoad?.yCapacity ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Booked', flightLoad?.jBooked ?? 0, flightLoad?.yBooked ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Checked-In', flightLoad?.jCheckedIn ?? 0, flightLoad?.yCheckedIn ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Commercial Standby', flightLoad?.jCommercialStandby ?? 0, flightLoad?.yCommercialStandby ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Staff Listed', flightLoad?.jStaffListed ?? 0, flightLoad?.yStaffListed ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Staff on Standby', flightLoad?.jStaffOnStandby ?? 0, flightLoad?.yStaffOnStandby ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.01),
+        _buildDataRow('Staff Accepted', flightLoad?.jStaffAccepted ?? 0, flightLoad?.yStaffAccepted ?? 0, screenWidth, screenHeigth),
+        SizedBox(height: screenHeigth * 0.028),
 
-                                          _buildDataRow(
-                                              'Booked',
-                                              flightLoad?.jBooked,
-                                              flightLoad?.yBooked,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: screenWidth * 0.4,
+              height: screenHeigth * 0.04,
+              child: ElevatedButton(
+                onPressed: isPriorityButtonEnabled
+                    ? () => _navigateToPriorityPage(context)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isPriorityButtonEnabled
+                      ? Colors.white
+                      : Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9.0),
+                  ),
+                  disabledForegroundColor: Colors.white.withOpacity(0.38),
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                ),
+                child: Text(
+                  'My Priority',
+                  style: TextStyle(
+                    color: isPriorityButtonEnabled
+                        ? const Color.fromRGBO(235, 97, 39, 1)
+                        : const Color.fromARGB(194, 235, 98, 39),
+                    fontWeight: FontWeight.w900,
+                    fontSize: screenWidth * 0.04,
+                  ),
+                ),
+              ),
+            ),
 
-                                          _buildDataRow(
-                                              'Checked-In',
-                                              flightLoad?.jCheckedIn,
-                                              flightLoad?.yCheckedIn,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
+            SizedBox(width: screenWidth * 0.02),
 
-                                          _buildDataRow(
-                                              'Commercial Standby',
-                                              flightLoad?.jCommercialStandby,
-                                              flightLoad?.yCommercialStandby,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
+            // Check-in Summary
+            Container(
+              width: screenWidth * 0.4,
+              height: screenHeigth * 0.04,
+              child: ElevatedButton(
+                onPressed: isCheckInSummaryEnabled
+                    ? () => _navigateToCheckInsSummaryPage(context, selectedUL, scheduledTime)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isCheckInSummaryEnabled
+                      ? const Color.fromRGBO(235, 97, 39, 1)
+                      : Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9.0),
+                  ),
+                  disabledForegroundColor: Colors.white.withOpacity(0.38),
+                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
+                ),
+                child: Text(
+                  'Check-in Summary',
+                  style: TextStyle(
+                    color: isCheckInSummaryEnabled
+                        ? Colors.white
+                        : const Color.fromARGB(194, 255, 255, 255),
+                    fontWeight: FontWeight.w900,
+                    fontSize: screenWidth * 0.032,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
 
-                                          _buildDataRow(
-                                              'Staff Listed',
-                                              flightLoad?.jStaffListed ?? 0,
-                                              flightLoad?.yStaffListed ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Staff on Standby',
-                                              flightLoad?.jStaffOnStandby ?? 0,
-                                              flightLoad?.yStaffOnStandby ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(height: screenHeigth * 0.01),
-
-                                          _buildDataRow(
-                                              'Staff Accepted',
-                                              flightLoad?.jStaffAccepted ?? 0,
-                                              flightLoad?.yStaffAccepted ?? 0,
-                                              screenWidth,
-                                              screenHeigth),
-                                          SizedBox(
-                                              height: screenHeigth * 0.028),
-
-                                          // Button
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                width: screenWidth * 0.4,
-                                                height: screenHeigth * 0.04,
-                                                child: ElevatedButton(
-                                                  onPressed:
-                                                      isPriorityButtonEnabled
-                                                          ? () {
-                                                              _navigateToPriorityPage(
-                                                                  context);
-                                                            }
-                                                          : null,
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        isPriorityButtonEnabled
-                                                            ? Colors.white
-                                                            : Colors.grey,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              9.0),
-                                                    ),
-                                                    disabledForegroundColor:
-                                                        const Color.fromARGB(
-                                                                255,
-                                                                255,
-                                                                255,
-                                                                255)
-                                                            .withOpacity(0.38),
-                                                    disabledBackgroundColor:
-                                                        const Color.fromARGB(
-                                                                255,
-                                                                242,
-                                                                236,
-                                                                236)
-                                                            .withOpacity(0.12),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal:
-                                                                screenWidth *
-                                                                    0.03),
-                                                  ),
-                                                  child: Text(
-                                                    'My Priority',
-                                                    style: TextStyle(
-                                                      color:
-                                                          isPriorityButtonEnabled
-                                                              ? const Color
-                                                                  .fromRGBO(235,
-                                                                  97, 39, 1)
-                                                              : const Color
-                                                                  .fromARGB(194,
-                                                                  235, 98, 39),
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize:
-                                                          screenWidth * 0.04,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                  width: screenWidth * 0.02),
-                                              // Check-in Summary Button
-                                              Container(
-                                                width: screenWidth * 0.4,
-                                                height: screenHeigth * 0.04,
-                                                child: ElevatedButton(
-                                                  onPressed:
-                                                      isCheckInSummaryEnabled
-                                                          ? () {
-                                                              _navigateToCheckInsSummaryPage(
-                                                                  context,
-                                                                  selectedUL,
-                                                                  scheduledTime);
-                                                            }
-                                                          : null,
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        isCheckInSummaryEnabled
-                                                            ? const Color
-                                                                .fromRGBO(
-                                                                235, 97, 39, 1)
-                                                            : Colors.grey,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              9.0),
-                                                    ),
-                                                    disabledForegroundColor:
-                                                        const Color.fromARGB(
-                                                                255,
-                                                                255,
-                                                                255,
-                                                                255)
-                                                            .withOpacity(0.38),
-                                                    disabledBackgroundColor:
-                                                        const Color.fromARGB(
-                                                                255,
-                                                                242,
-                                                                236,
-                                                                236)
-                                                            .withOpacity(0.12),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal:
-                                                                screenWidth *
-                                                                    0.01),
-                                                  ),
-                                                  child: Text(
-                                                    'Check-in Summary',
-                                                    style: TextStyle(
-                                                      color:
-                                                          isCheckInSummaryEnabled
-                                                              ? Colors.white
-                                                              : const Color
-                                                                  .fromARGB(
-                                                                  194,
-                                                                  255,
-                                                                  255,
-                                                                  255),
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize:
-                                                          screenWidth * 0.032,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      )
+                                     
                                     ],
                                   ),
                                 ],
@@ -1229,7 +1141,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const HistoryPage(),
                         transitionDuration:
-                            Duration(seconds: 0), // No animation
+                            Duration(seconds: 0), 
                       ),
                     );
                     break;
@@ -1240,7 +1152,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             HomePage(selectedDate: selectedDate),
                         transitionDuration:
-                            Duration(seconds: 0), // No animation
+                            Duration(seconds: 0), 
                       ),
                     );
                     break;
@@ -1252,7 +1164,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const MyTickets(),
                         transitionDuration:
-                            Duration(seconds: 0), // No animation
+                            Duration(seconds: 0),
                       ),
                     );
                     break;
@@ -1264,7 +1176,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             Yaana(),
                         transitionDuration:
-                            const Duration(seconds: 0), // No animation
+                            const Duration(seconds: 0), 
                       ),
                     );
                     break;
@@ -1278,7 +1190,7 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
                 _buildCustomBottomNavigationBarItem(
                     'assets/ticket.png', 'My Tickets', false),
                 _buildCustomBottomNavigationBarItem(
-                    'assets/chatbot.png', 'Yaana', false),
+                    'assets/chatboticon.png', 'Yaana', false),
               ],
             ),
           ),

@@ -11,8 +11,8 @@ import 'dart:core';
 import '../models/staffmodel.dart';
 
 class APIService {
-  static const String baseUrl =
-      'https://ulmobservices.srilankan.com/ULRESTAPP/api';
+  // static const String baseUrl =
+  //     'https://ulmobservices.srilankan.com/ULRESTAPP/api';
 
   static const String baseUrl2 =
       'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api';
@@ -33,6 +33,8 @@ class APIService {
   Future<List<Map<String, String>>> fetchAirportList() async {
     final url = Uri.parse(
         'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/GET_AIRPORT_LIST?specialFlag=ALL');
+
+        //
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -152,7 +154,7 @@ class APIService {
 
     final response = await http.get(
       Uri.parse(
-          '$baseUrl/FLIGHTINFO?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode'),
+          '$baseUrl2/FLIGHTINFO?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode'),
     );
 
     // Print the response before decoding it
@@ -243,7 +245,8 @@ class APIService {
       String formattedLongDate,
       String originCountryCode,
       String destinationCountryCode,
-      String selectedUL) async {
+      String selectedUL,
+      String staffID) async {
     String formattedOriginCountryCode =
         formatOriginCountryCode(originCountryCode);
     String formattedDestinationCountryCode =
@@ -258,23 +261,26 @@ class APIService {
 
     final response = await http.get(
       Uri.parse(
-          '$baseUrl/FLIGHTINFO/ALL?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate'),
+          // '$baseUrl2/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate'),
+          'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate&staffID=$staffID'),
     );
-    print(
-        '$baseUrl/FLIGHTINFO/ALL?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate');
+    print('https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate&staffID=$staffID');
+print(response);
+    if (response.statusCode != 200) {
+    throw Exception('HTTP ${response.statusCode}');
+  }
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      List<FlightLoadModel> flightLoadModels =
-          data.map((item) => FlightLoadModel.fromJson(item)).toList();
+  final decoded = json.decode(response.body);
+  if (decoded is Map<String, dynamic> && decoded.containsKey('code')) {
+    final serverMsg = decoded['message'] as String? ?? 'Unknown error';
+    throw Exception(serverMsg);
+  }
 
-      // Print the fetched data
-      print('Fetched Flight Load Models: $flightLoadModels');
+  final List<dynamic> data = decoded as List<dynamic>;
+  return data
+      .map((item) => FlightLoadModel.fromJson(item))
+      .toList();
 
-      return flightLoadModels;
-    } else {
-      throw Exception('Failed to load flight information');
-    }
   }
 
   Future<List<StaffMember>> viewStaffMembers(
@@ -547,15 +553,46 @@ class APIService {
     }
   }
 
+  Future<Map<String, String>> getStatusContent() async {
+  final url = Uri.parse(
+    'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
+  );
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: {
+      'SETTING_CODE': 'TICKET_BUTTON_CONTENT',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final outerJson = jsonDecode(response.body);
+
+    // Decode the VALUESS field which is a JSON string
+    final innerJson = jsonDecode(outerJson['VALUESS']);
+
+    return {
+      'button_name': innerJson['button_name'] ?? '',
+      'consent_content': innerJson['consent_content'] ?? '',
+    };
+  } else {
+    throw Exception('Failed to fetch ticket button content');
+  }
+}
+
+
   Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
       String boardPoint, String flightNo, String staffID) async {
     try {
       final response = await http.get(
         Uri.parse(
-            '$baseUrl/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID'),
+            '$baseUrl2/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID'),
       );
       print(
-          '$baseUrl/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID');
+          '$baseUrl2/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID');
 
       if (response.statusCode == 200) {
         final body = response.body;
@@ -619,13 +656,15 @@ class APIService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return data['VALUESS'] == 'TRUE';
+     return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
+
     } else {
       throw Exception('Failed to load settings');
     }
   }
 
-  Future<bool> getStandbyVisible() async {
+
+    Future<bool> getStandbyDisplay() async {
     final url = Uri.parse(
         'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
 
@@ -643,13 +682,14 @@ class APIService {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return data['VALUESS'] == 'TRUE';
+return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
     } else {
       throw Exception('Failed to load settings');
     }
   }
 
-  Future<bool> getStatusInfo() async {
+
+     Future<bool> getStandbyMessage() async {
     final url = Uri.parse(
         'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
 
@@ -673,35 +713,6 @@ class APIService {
     }
   }
 
-  Future<Map<String, String>> getStatusContent() async {
-    final url = Uri.parse(
-      'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
-    );
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: {
-        'SETTING_CODE': 'TICKET_BUTTON_CONTENT',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final outerJson = jsonDecode(response.body);
-
-      // Decode the VALUESS field which is a JSON string
-      final innerJson = jsonDecode(outerJson['VALUESS']);
-
-      return {
-        'button_name': innerJson['button_name'] ?? '',
-        'consent_content': innerJson['consent_content'] ?? '',
-      };
-    } else {
-      throw Exception('Failed to fetch ticket button content');
-    }
-  }
 
   Future<StaffMember?> getStaffMember(String flightDate, String boardPoint,
       String flightNo, String ticketNumber) async {

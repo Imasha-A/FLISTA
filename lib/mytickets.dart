@@ -46,22 +46,20 @@ class _MyTicketsState extends State<MyTickets> {
   double? accuracy = 0.0;
   String? requestTime = "";
   bool _hasRequestedPermissionBefore = false;
-  Map<String, bool> _standbyStatusMap = {};
-  bool _isTicketButtonEnabled = true;
-  bool _isStandbyButtonEnabled = true;
-
-  bool _isTicketEnabled = false;
-  bool _isStandbyVisibleForOnlyCMB = false;
-
+  // Track standby status separately for each segment
+  Map<String, bool> _standbyStatusMap = {}; 
+bool _isTicketButtonEnabled = true; // default true, update based on API response
+bool _isStandbyButtonEnabled = true; 
   Location location = Location();
   LocationData? _locationData;
   String? _error;
-  String _buttonName = '';
+    String _buttonName = '';
   String _consentContent = '';
 
-  List<Map<String, String>> giveTicketAccess = [];
+List<Map<String, String>> giveTicketAccess = [];
 
-  bool hasTicketAccess = false;
+bool hasTicketAccess=false;
+
 
   @override
   void initState() {
@@ -74,87 +72,29 @@ class _MyTicketsState extends State<MyTickets> {
       String pnr = await _fetchPNR(); // Wait for the PNR to be retrieved
       fetchData(pnr); // Pass the retrieved PNR to fetchData
     });
-
-    _fetchTicketButtonSetting();
-    //_fetchStandbySettings();
-    _fetchStandbyVisible();
+        _fetchTicketButtonSetting();
+        _fetchStandbySetting();
 
     _loadData();
     _loadUserId();
-    fetchTicketPermissions();
-    _fetchStatusContent();
+fetchTicketPermissions();
+_fetchStatusContent();
   }
 
-  Future<void> fetchTicketPermissions() async {
-    List<FlistaPermission> permissions =
-        await _apiService.getFlistaModulePermissions();
-    giveTicketAccess = permissions
-        .where(
-            (p) => p.moduleId == 'DEBUG_TICKET_DISPLAY' && p.isActive == "TRUE")
-        .map((p) => {
-              'staffId': p.staffId,
-              'specialValues': p.specialValues,
-            })
-        .toList();
 
-    hasTicketAccess =
-        giveTicketAccess.any((entry) => entry['staffId'] == _userId);
-  }
+   Future<void> fetchTicketPermissions() async {
+  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+  giveTicketAccess = permissions
+      .where((p) => p.moduleId == 'DEBUG_TICKET_DISPLAY'&& p.isActive=="TRUE")
+      .map((p) => {
+            'staffId': p.staffId,
+            'specialValues': p.specialValues,
+          })
+      .toList();
 
-  Future<void> _fetchTicketButtonSetting() async {
-    try {
-      bool isEnabled = await _apiService.getTicketButtonEnabled();
-      setState(() {
-        _isTicketButtonEnabled = isEnabled;
-      });
-      print('Standby Button Enabled: $_isTicketButtonEnabled');
-    } catch (e) {
-      print('Error fetching button settings: $e');
-      setState(() {
-        _isTicketButtonEnabled = false;
-      });
-    }
-  }
+      hasTicketAccess = giveTicketAccess.any((entry) => entry['staffId'] == _userId);
 
-  // Future<void> _fetchStandbySettings() async {
-  //   try {
-  //     _isStandbyVisibleForOnlyCMB = await _apiService.getStandbyVisible();
-
-  //     print('Standby Visible For Only CMB: $_isStandbyVisibleForOnlyCMB');
-
-  //     setState(() {}); // trigger rebuild
-  //   } catch (e) {
-  //     print('Error fetching standby settings: $e');
-
-  //     _isStandbyVisibleForOnlyCMB = false;
-  //     setState(() {});
-  //   }
-  // }
-
-  Future<void> _fetchStandbyVisible() async {
-    try {
-      bool isEnabledFromAPI = await _apiService.getStandbyVisible();
-
-      setState(() {
-        _isStandbyButtonEnabled = isEnabledFromAPI;
-      });
-
-      print('Standby Button for CMB ONLY: $_isStandbyButtonEnabled');
-    } catch (e) {
-      print('Error fetching button settings: $e');
-      setState(() {
-        _isStandbyButtonEnabled = false;
-      });
-    }
-  }
-
-  Future<void> _loadUserIdFromPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId') ?? '16231';
-    });
-  }
-
+}
   Future<void> _fetchStatusContent() async {
     try {
       Map<String, String> data = await _apiService.getStatusContent();
@@ -170,35 +110,87 @@ class _MyTicketsState extends State<MyTickets> {
       print('Error fetching button settings: $e');
     }
   }
+ 
+Future<void> _fetchTicketButtonSetting() async {
+      try {
+        bool isEnabled = await _apiService.getTicketButtonEnabled();
+        setState(() {
+          _isTicketButtonEnabled = isEnabled;
+        });
+        print('Standby Button Enabled: $_isTicketButtonEnabled');
+      } catch (e) {
+        // For safety, if the API fails then disable the button or use a default value.
+        print('Error fetching button settings: $e');
+        setState(() {
+          _isTicketButtonEnabled = false;
+        });
+      }
+    }
+
+
+Future<void> _fetchStandbySetting() async {
+      try {
+        bool isEnabled = await _apiService.getStandbyDisplay();
+        setState(() {
+          _isStandbyButtonEnabled = isEnabled;
+        });
+        print('Standby Button Visible: $_isStandbyButtonEnabled');
+      } catch (e) {
+        // For safety, if the API fails then disable the button or use a default value.
+        print('Error fetching button settings: $e');
+        setState(() {
+          _isStandbyButtonEnabled = false;
+        });
+      }
+    }
+ 
+ 
+
+  Future<void> _loadUserIdFromPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId') ??
+          '16231'; // Load the userId (default to '123456')
+    });
+  }
+
+  //CHANGE,JUST A PLACEHOLDER UNTIL SERVICE IS GIVEN, PLEASE REPLACE THIS!
+  Future<String> _fetchPNRStatic() async {
+    String pnr = '5M7ECE';
+    return pnr;
+    
+  }
+
+ 
 
   Future<String> _fetchPNR() async {
     try {
+
       if (_userId.isEmpty) {
-        await _loadUserIdFromPreferences();
+        await _loadUserIdFromPreferences(); // Ensure _userId is loaded
       }
 
-      if (giveTicketAccess.isEmpty) {
-        await fetchTicketPermissions();
-      }
+       if (giveTicketAccess.isEmpty) {
+      await fetchTicketPermissions();
+    }
 
-      hasTicketAccess =
-          giveTicketAccess.any((entry) => entry['staffId'] == _userId);
+      
+ hasTicketAccess = giveTicketAccess.any((entry) => entry['staffId'] == _userId);
 
-      if (hasTicketAccess) {
-        final entry =
-            giveTicketAccess.firstWhere((e) => e['staffId'] == _userId);
-        final specialValues = entry['specialValues'];
-        if (specialValues != null && specialValues.toString().isNotEmpty) {
-          print("Special PNR from access: $specialValues");
-          return specialValues.toString();
-        }
+    if (hasTicketAccess) {
+      final entry = giveTicketAccess.firstWhere((e) => e['staffId'] == _userId);
+      final specialValues = entry['specialValues'];
+      if (specialValues != null && specialValues.toString().isNotEmpty) {
+        print("Special PNR from access: $specialValues");
+        return specialValues.toString();
       }
+    }
       List<StaffPNRModal> pnrList = await _apiService.viewStaffPNR(_userId);
 
       if (pnrList.isNotEmpty) {
         String pnr = pnrList.first.pnr;
         print("Fetched PNR: $pnr");
-        return pnr;
+        return pnr; // Successfully fetched PNR
       }
     } catch (e) {
       print("Error fetching PNR: $e");
@@ -296,7 +288,22 @@ class _MyTicketsState extends State<MyTickets> {
         print(
             'Flight Number: ${flights.flightNumber}, Dep Date: ${flights.depDate}, Dep Time: ${flights.depTime}, Arr Date: ${flights.arrDate}, Arr Time: ${flights.arrTime}, BoardPoint: ${flights.Boardpoint}, Off Point: ${flights.Offpoint}');
       }
+
+      for (var flight in allFlightInfo) {
+  // Print specific fields
+  print(
+      'Flight Number: ${flight.flightNumber}, Dep Date: ${flight.depDate}, Dep Time: ${flight.depTime}, '
+      'Arr Date: ${flight.arrDate}, Arr Time: ${flight.arrTime}, Board Point: ${flight.Boardpoint}, '
+      'Off Point: ${flight.Offpoint}');
+  
+  // Print full object (assuming it's a Map or has toString overridden)
+  print('Full Flight Info: $flight');
+}
+
+
+      // **Trigger fetching UniqueCustomerID for each ticket**
       await fetchUniqueCustomerIDs();
+
     } catch (e) {
       print('Error fetching ticket information: $e');
     }
@@ -405,49 +412,21 @@ class _MyTicketsState extends State<MyTickets> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _standbyStatusMap = Map<String, bool>.from(
-          jsonDecode(prefs.getString('standbyStatus') ?? '{}'));
+        jsonDecode(prefs.getString('standbyStatus') ?? '{}')
+      );
     });
   }
 
-  Future<void> sendData(
-      double latitude,
-      double longitude,
-      String _userId,
-      String boardPoint,
-      String offPoint,
-      String uniqueCustomerID,
-      String surname,
-      String flightNum,
-      String departureDate,
-      String paxType,
-      String prodIdentificationRefCode,
-      String prodIdentificationPrimeID,
-      String requestTime,
-      double accuracy,
-      String givenName,
-      String gender,
-      String Title) async {
+
+  Future<void> sendData(double latitude, double longitude, String _userId, String boardPoint, String offPoint, String uniqueCustomerID, 
+    String surname, String flightNum, String departureDate, String paxType, String prodIdentificationRefCode, String prodIdentificationPrimeID, 
+    String requestTime, double accuracy, String givenName, String gender, String Title) async {
+
     //String result = "success";
     //print("$latitude, $longitude, $_userId, $boardPoint, $offPoint, $segmentTattooNumber, $pnr, $ticketNumber, $uniqueCustomerID, $requestTime, $accuracy");
 
-    Map<String, dynamic> result = await _apiService.sendLocationData(
-        latitude,
-        longitude,
-        _userId,
-        boardPoint,
-        offPoint,
-        uniqueCustomerID,
-        surname,
-        flightNum,
-        departureDate,
-        paxType,
-        prodIdentificationRefCode,
-        prodIdentificationPrimeID,
-        requestTime,
-        accuracy,
-        givenName,
-        gender,
-        Title);
+    Map<String, dynamic> result = await _apiService.sendLocationData(latitude, longitude, _userId, boardPoint, offPoint, uniqueCustomerID, 
+    surname, flightNum, departureDate, paxType, prodIdentificationRefCode, prodIdentificationPrimeID, requestTime, accuracy, givenName, gender, Title);
 
     String responseCode = result["ResponseCode"];
     String responseMessage = result["ResponseMessage"];
@@ -456,8 +435,7 @@ class _MyTicketsState extends State<MyTickets> {
     print("API Response Message: $responseMessage");
 
     if (responseCode == "1") {
-      String key =
-          "$ticketNumber-$segmentTattooNumber"; // Unique key per segment & ticket
+      String key = "$ticketNumber-$segmentTattooNumber"; // Unique key per segment & ticket
 
       setState(() {
         _standbyStatusMap[key] = true; // Store status uniquely
@@ -505,10 +483,10 @@ class _MyTicketsState extends State<MyTickets> {
           );
         },
       );
-    } else {
+    } else { 
       double screenWidth = MediaQuery.of(context).size.width;
 
-      //show failure message
+      //show failure message 
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -547,19 +525,8 @@ class _MyTicketsState extends State<MyTickets> {
     }
   } //success
 
-  Future<void> _getLocation(
-      String boardPoint,
-      String offPoint,
-      String uniqueCustomerID,
-      String surname,
-      String flightNum,
-      String departureDate,
-      String paxType,
-      String prodIdentificationRefCode,
-      String prodIdentificationPrimeID,
-      String givenName,
-      String gender,
-      String Title) async {
+  Future<void> _getLocation(String boardPoint, String offPoint, String uniqueCustomerID, String surname, String flightNum, 
+  String departureDate, String paxType, String prodIdentificationRefCode, String prodIdentificationPrimeID, String givenName, String gender, String Title) async {
     try {
       bool serviceEnabled;
       PermissionStatus permissionGranted;
@@ -580,190 +547,168 @@ class _MyTicketsState extends State<MyTickets> {
       }
 
       // Check location permission
-      permissionGranted = await location.hasPermission();
-      print("Initial permission status: $permissionGranted");
+    permissionGranted = await location.hasPermission();
+    print("Initial permission status: $permissionGranted");
 
-      if (!_hasRequestedPermissionBefore) {
-        // First time: use the system prompt
-        if (permissionGranted == PermissionStatus.denied) {
-          permissionGranted = await location.requestPermission();
-          print(
-              "Requested permission via system prompt. New status: $permissionGranted");
-          _hasRequestedPermissionBefore = true;
-        }
-      } else {
-        // Subsequent attempts: show custom dialog if permission isn't granted
-        if (permissionGranted != PermissionStatus.granted) {
-          bool shouldOpenSettings = await showPermissionDialog();
-          if (shouldOpenSettings) {
-            await ph.openAppSettings();
-            // Re-check permission after returning from settings
-            permissionGranted = await location.hasPermission();
-            if (permissionGranted != PermissionStatus.granted) {
-              setState(() => _error = "Location permission denied.");
-              print("Error: Location permission still denied after settings.");
-              return;
-            }
-          } else {
+    if (!_hasRequestedPermissionBefore) {
+      // First time: use the system prompt
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        print("Requested permission via system prompt. New status: $permissionGranted");
+        _hasRequestedPermissionBefore = true;
+      }
+    } else {
+      // Subsequent attempts: show custom dialog if permission isn't granted
+      if (permissionGranted != PermissionStatus.granted) {
+        bool shouldOpenSettings = await showPermissionDialog();
+        if (shouldOpenSettings) {
+          await ph.openAppSettings();
+          // Re-check permission after returning from settings
+          permissionGranted = await location.hasPermission();
+          if (permissionGranted != PermissionStatus.granted) {
             setState(() => _error = "Location permission denied.");
-            print("User declined to open settings. Permission denied.");
+            print("Error: Location permission still denied after settings.");
             return;
           }
+        } else {
+          setState(() => _error = "Location permission denied.");
+          print("User declined to open settings. Permission denied.");
+          return;
         }
       }
-
-      // If permission is granted, get location data
-      if (permissionGranted == PermissionStatus.granted) {
-        _locationData = await location.getLocation();
-        print("Location data received: $_locationData");
-
-        // Access latitude and longitude
-        latitude = _locationData?.latitude;
-        longitude = _locationData?.longitude;
-        accuracy = _locationData?.accuracy;
-        requestTime = DateTime.now().toIso8601String();
-
-        setState(() {
-          _error = null; // Clear error if successful
-        });
-
-        print("Latitude: $latitude, Longitude: $longitude");
-
-        await sendData(
-            latitude!,
-            longitude!,
-            _userId,
-            boardPoint,
-            offPoint,
-            uniqueCustomerID,
-            surname,
-            flightNum,
-            departureDate,
-            paxType,
-            prodIdentificationRefCode,
-            prodIdentificationPrimeID,
-            requestTime!,
-            accuracy!,
-            givenName,
-            gender,
-            Title);
-      }
-    } catch (e) {
-      setState(() => _error = "Error: $e");
-      print("Exception caught: $e");
     }
-  }
 
-  Future<bool> showPermissionDialog() async {
-    bool? response = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        double screenWidth = MediaQuery.of(context).size.width;
-        return AlertDialog(
-          title: Text(
-            "Location Permission Required",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: const Color.fromRGBO(2, 77, 117, 1),
-              fontSize: screenWidth * 0.06,
-            ),
+    // If permission is granted, get location data
+    if (permissionGranted == PermissionStatus.granted) {
+      _locationData = await location.getLocation();
+      print("Location data received: $_locationData");
+
+      // Access latitude and longitude
+      latitude = _locationData?.latitude;
+      longitude = _locationData?.longitude;
+      accuracy = _locationData?.accuracy;
+      requestTime =  DateTime.now().toIso8601String();
+
+      setState(() {
+        _error = null; // Clear error if successful
+      });
+
+      
+
+      print("Latitude: $latitude, Longitude: $longitude");
+
+      await sendData(latitude!, longitude!, _userId, boardPoint, offPoint, uniqueCustomerID, surname, flightNum, departureDate, paxType, prodIdentificationRefCode, prodIdentificationPrimeID, requestTime!, accuracy!, givenName, gender, Title);
+    }
+  } catch (e) {
+    setState(() => _error = "Error: $e");
+    print("Exception caught: $e");
+  }
+}
+
+
+Future<bool> showPermissionDialog() async {
+  bool? response = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      double screenWidth = MediaQuery.of(context).size.width;
+      return AlertDialog(
+        title: Text(
+          "Location Permission Required",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: const Color.fromRGBO(2, 77, 117, 1),
+            fontSize: screenWidth * 0.06,
           ),
-          content: Text(
-            "Do you want to grant location access?",
-            style: TextStyle(
-              color: const Color.fromRGBO(2, 77, 117, 1),
-              fontSize: screenWidth * 0.045,
-            ),
+        ),
+        content: Text(
+          "Do you want to grant location access?",
+          style: TextStyle(
+          color: const Color.fromRGBO(2, 77, 117, 1),
+            fontSize: screenWidth * 0.045,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                "No",
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: const Color.fromRGBO(2, 77, 117, 1),
-                  fontSize: screenWidth * 0.042,
-                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              "No",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: const Color.fromRGBO(2, 77, 117, 1),
+                fontSize: screenWidth * 0.042,
               ),
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(
-                "Yes",
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: const Color.fromRGBO(2, 77, 117, 1),
-                  fontSize: screenWidth * 0.042,
-                ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              "Yes",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: const Color.fromRGBO(2, 77, 117, 1),
+                fontSize: screenWidth * 0.042,
               ),
             ),
-          ],
-        );
-      },
-    );
-    return response ?? false;
-  }
+          ),
+        ],
+      );
+    },
+  );
+  return response ?? false;
+}
 
-  String convertDateFormat(String date) {
-    if (date.length == 6) {
-      return "20" +
-          date.substring(4, 6) +
-          date.substring(2, 4) +
-          date.substring(0, 2);
-    }
-    return date; // Return as is if the format is incorrect
+ String convertDateFormat(String date) {
+  if (date.length == 6) {
+    return "20" + date.substring(4, 6) + date.substring(2, 4) + date.substring(0, 2);
   }
+  return date; // Return as is if the format is incorrect
+} 
 
   Future<void> fetchUniqueCustomerIDs() async {
-    print("Fetching unique customer IDs...");
-    print(allFlightInfo);
-    if (allFlightInfo.isNotEmpty && allTicketInfo.isNotEmpty) {
-      for (var ticket in allTicketInfo) {
-        for (var flight in allFlightInfo) {
-          print(
-              "Processing ticket: ${ticket.TicketNumber} for flight: ${flight.flightNumber}");
+     print("Fetching unique customer IDs...");
+  if (allFlightInfo.isNotEmpty && allTicketInfo.isNotEmpty) {
+    for (var ticket in allTicketInfo) {
+      for (var flight in allFlightInfo) {
+        print("Processing ticket: ${ticket.TicketNumber} for flight: ${flight.flightNumber}");
+       
+        // Convert date to YYYYMMDD format
+        String formattedDate = convertDateFormat(flight.depDate);
+        
+        // Remove "UL" from flight number
+        String formattedFlightNum = flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), '');
+        
+        // Remove dashes from ticket number
+        String formattedTicketNum = ticket.TicketNumber.replaceAll('-', '');
 
-          // Convert date to YYYYMMDD format
-          String formattedDate = convertDateFormat(flight.depDate);
+        print("Formatted Date: $formattedDate");
+        print("Formatted Flight Number: $formattedFlightNum");
+        print("Formatted Ticket Number: $formattedTicketNum");
 
-          // Remove "UL" from flight number
-          String formattedFlightNum =
-              flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), '');
+        // Fetch the full StaffMember object
+        StaffMember? staffMember = await _apiService.getStaffMember(
+          formattedDate,
+          flight.Boardpoint, 
+          formattedFlightNum,
+          formattedTicketNum,
+        );
 
-          // Remove dashes from ticket number
-          String formattedTicketNum = ticket.TicketNumber.replaceAll('-', '');
-
-          print("Formatted Date: $formattedDate");
-          print("Formatted Flight Number: $formattedFlightNum");
-          print("Formatted Ticket Number: $formattedTicketNum");
-
-          // Fetch the full StaffMember object
-          StaffMember? staffMember = await _apiService.getStaffMember(
-            formattedDate,
-            flight.Boardpoint,
-            formattedFlightNum,
-            formattedTicketNum,
-          );
-
-          if (staffMember != null) {
-            print(
-                'Ticket: $formattedTicketNum, Unique Customer ID: ${staffMember.uniqueCustomerID}');
-            print(
-                'Staff Member: ${staffMember.firstName} ${staffMember.lastName}');
-            print('Pax Type: ${staffMember.paxType}');
-            print(
-                'Prod Identification Ref Code: ${staffMember.prodIdentificationRefCode}');
-            print(
-                'Prod Identification Prime ID: ${staffMember.prodIdentificationPrimeID}');
-          } else {
-            print(
-                'No matching staff member found for ticket: $formattedTicketNum');
-          }
+        if (staffMember != null) {
+          print('Ticket: $formattedTicketNum, Unique Customer ID: ${staffMember.uniqueCustomerID}');
+          print('Staff Member: ${staffMember.firstName} ${staffMember.lastName}');
+          print('Pax Type: ${staffMember.paxType}');
+          print('Prod Identification Ref Code: ${staffMember.prodIdentificationRefCode}');
+          print('Prod Identification Prime ID: ${staffMember.prodIdentificationPrimeID}');
+        } else {
+          print('No matching staff member found for ticket: $formattedTicketNum');
         }
       }
     }
   }
+}
+
+
+
+
 
   String calculateDuration(
       String depDate, String depTime, String arrDate, String arrTime) {
@@ -792,6 +737,8 @@ class _MyTicketsState extends State<MyTickets> {
     final minutes = duration.inMinutes.remainder(60);
     return "${hours}h ${minutes}m";
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -1033,7 +980,10 @@ class _MyTicketsState extends State<MyTickets> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (hasTicketAccess || allFlightInfo.isNotEmpty)
+                          
+                          //REPLACE WITH IF INFO IS THERE IN API, PASS THE ID TO API AND SEE IF DETAILS RETURN
+                          if (hasTicketAccess || 
+                              allFlightInfo.isNotEmpty) //temporary
                             Column(
                               children: displayedTickets.map<Widget>((ticket) {
                                 return Container(
@@ -1597,8 +1547,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                                         screenHeight *
                                                                             0.01),
                                                                 Text(
-                                                                  flight
-                                                                      .flightNumber,
+                                                                  flight.flightNumber,
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                           screenWidth *
@@ -1836,6 +1785,7 @@ class _MyTicketsState extends State<MyTickets> {
                                                                 ],
                                                               ),
                                                             ),
+                                                            
                                                             Expanded(
                                                               child: Column(
                                                                 crossAxisAlignment:
@@ -1877,15 +1827,8 @@ class _MyTicketsState extends State<MyTickets> {
                                                                           fontSize:
                                                                               screenWidth * 0.038)),
                                                                   Text(
-                                                                    calculateDuration(
-                                                                        flight
-                                                                            .depDate,
-                                                                        flight
-                                                                            .depTime,
-                                                                        flight
-                                                                            .arrDate,
-                                                                        flight
-                                                                            .arrTime),
+                                                                   
+                                                                    flight.FlightDuration,
                                                                     style: TextStyle(
                                                                         fontSize:
                                                                             screenWidth *
@@ -1899,271 +1842,298 @@ class _MyTicketsState extends State<MyTickets> {
                                                           ],
                                                         ),
                                                       ),
-                                                      SizedBox(
+                                                    SizedBox(
                                                           height: screenHeight *
                                                               0.025),
-                                                      excessBaggageInfo
-                                                                  .isNotEmpty ||
-                                                              _isTicketButtonEnabled
-                                                          ? Row(
-                                                              children: [
-                                                                if (excessBaggageInfo
-                                                                    .isNotEmpty)
-                                                                  Padding(
-                                                                    padding:
-                                                                        EdgeInsets
-                                                                            .only(
-                                                                      left: screenWidth *
+                                                            excessBaggageInfo.isNotEmpty || _isTicketButtonEnabled 
+                                                        ? Row(
+                                                          children: [
+                                                            if (excessBaggageInfo
+                                                                .isNotEmpty)
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .only(
+                                                                  left:
+                                                                      screenWidth *
                                                                           0.04,
-                                                                      right: screenWidth *
+                                                                  right:
+                                                                      screenWidth *
                                                                           0.04,
-                                                                      top: 0,
-                                                                      bottom: 0,
-                                                                    ),
-                                                                    child:
-                                                                        Center(
-                                                                      child:
-                                                                          ElevatedButton(
-                                                                        onPressed:
-                                                                            () {
-                                                                          // Show a popup with the excess baggage info
-                                                                          showDialog(
-                                                                            context:
-                                                                                context,
-                                                                            builder:
-                                                                                (BuildContext context) {
-                                                                              return AlertDialog(
-                                                                                title: Text(
-                                                                                  "Excess Baggage Info",
+                                                                  top: 0,
+                                                                  bottom: 0,
+                                                                ),
+                                                                child: Center(
+                                                                  child:
+                                                                      ElevatedButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      // Show a popup with the excess baggage info
+                                                                      showDialog(
+                                                                        context:
+                                                                            context,
+                                                                        builder:
+                                                                            (BuildContext
+                                                                                context) {
+                                                                          return AlertDialog(
+                                                                            title:
+                                                                                Text(
+                                                                              "Excess Baggage Info",
+                                                                              style:
+                                                                                  TextStyle(
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                fontSize: screenWidth * 0.06,
+                                                                              ),
+                                                                            ),
+                                                                            content:
+                                                                                Text(
+                                                                              excessBaggageInfo.replaceAll(RegExp(r', |\|'), '\n').trim(), // Trim leading/trailing spaces
+                                                                              style:
+                                                                                  TextStyle(
+                                                                                color: const Color.fromRGBO(2, 77, 117, 1),
+                                                                                fontSize: screenWidth * 0.043,
+                                                                              ),
+                                                                            ),
+                                                                            actions: [
+                                                                              TextButton(
+                                                                                onPressed: () => Navigator.pop(context),
+                                                                                child: Text(
+                                                                                  "Close",
                                                                                   style: TextStyle(
-                                                                                    fontWeight: FontWeight.bold,
+                                                                                    fontWeight: FontWeight.w700,
                                                                                     color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                    fontSize: screenWidth * 0.06,
+                                                                                    fontSize: screenWidth * 0.042,
                                                                                   ),
                                                                                 ),
-                                                                                content: Text(
-                                                                                  excessBaggageInfo.replaceAll(RegExp(r', |\|'), '\n').trim(), // Trim leading/trailing spaces
-                                                                                  style: TextStyle(
-                                                                                    color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                    fontSize: screenWidth * 0.043,
-                                                                                  ),
-                                                                                ),
-                                                                                actions: [
-                                                                                  TextButton(
-                                                                                    onPressed: () => Navigator.pop(context),
-                                                                                    child: Text(
-                                                                                      "Close",
-                                                                                      style: TextStyle(
-                                                                                        fontWeight: FontWeight.w700,
-                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                        fontSize: screenWidth * 0.042,
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              );
-                                                                            },
+                                                                              ),
+                                                                            ],
                                                                           );
                                                                         },
-                                                                        child: const Text(
-                                                                            'Excess Baggage'),
-                                                                        style: ElevatedButton
-                                                                            .styleFrom(
-                                                                          disabledBackgroundColor: const Color
+                                                                      );
+                                                                    },
+                                                                    child: const Text(
+                                                                        'Excess Baggage'),
+                                                                    style: ElevatedButton
+                                                                        .styleFrom(
+                                                                      disabledBackgroundColor:
+                                                                          const Color
                                                                               .fromARGB(
                                                                               255,
                                                                               238,
                                                                               238,
                                                                               243),
-                                                                          elevation:
-                                                                              0,
-                                                                          foregroundColor: const Color
+                                                                      elevation:
+                                                                          0,
+                                                                      foregroundColor:
+                                                                          const Color
                                                                               .fromARGB(
                                                                               255,
                                                                               107,
                                                                               109,
                                                                               118),
-                                                                          backgroundColor: const Color
+                                                                      backgroundColor:
+                                                                          const Color
                                                                               .fromARGB(
                                                                               255,
                                                                               255,
                                                                               255,
                                                                               255),
-                                                                          padding: EdgeInsets.symmetric(
-                                                                              horizontal: screenWidth * 0.1,
-                                                                              vertical: screenHeight * 0.005),
-                                                                          textStyle:
-                                                                              TextStyle(fontSize: screenWidth * 0.036),
-                                                                          shape:
-                                                                              RoundedRectangleBorder(
-                                                                            borderRadius:
-                                                                                BorderRadius.circular(5),
-                                                                            side:
-                                                                                const BorderSide(
-                                                                              color: Color.fromARGB(255, 144, 140, 159),
-                                                                              width: 1,
-                                                                            ),
-                                                                          ),
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              screenWidth *
+                                                                                  0.1,
+                                                                          vertical:
+                                                                              screenHeight *
+                                                                                  0.005),
+                                                                      textStyle: TextStyle(
+                                                                          fontSize:
+                                                                              screenWidth *
+                                                                                  0.036),
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                                5),
+                                                                        side:
+                                                                            const BorderSide(
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              144,
+                                                                              140,
+                                                                              159),
+                                                                          width:
+                                                                              1,
                                                                         ),
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                if (excessBaggageInfo
-                                                                    .isEmpty)
-                                                                  SizedBox(
-                                                                    width:
-                                                                        screenWidth *
-                                                                            0.55,
-                                                                  ),
-                                                                SizedBox(
-                                                                  width:
-                                                                      screenWidth *
-                                                                          0.28,
-                                                                  height:
-                                                                      screenHeight *
-                                                                          0.0,
-                                                                          
-                                                                  child: _isTicketButtonEnabled
-                                                                  
-                                                                      ? (!_isStandbyButtonEnabled || (_isStandbyButtonEnabled && flight.Boardpoint.trim().toUpperCase() == "CMB"))
-                                                                          ? ElevatedButton(
-                                                                              style: ButtonStyle(
-                                                                                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                                                                  (Set<MaterialState> states) {
-                                                                                    return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55);
-                                                                                  },
-                                                                                ),
-                                                                                foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                                                                                  (Set<MaterialState> states) {
-                                                                                    return Colors.white;
-                                                                                  },
-                                                                                ),
-                                                                                padding: MaterialStateProperty.all(
-                                                                                  EdgeInsets.symmetric(
-                                                                                    horizontal: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? screenWidth * 0.03 : screenWidth * 0.05,
-                                                                                    vertical: screenHeight * 0.005,
-                                                                                  ),
-                                                                                ),
-                                                                                shape: MaterialStateProperty.all(
-                                                                                  RoundedRectangleBorder(
-                                                                                    borderRadius: BorderRadius.circular(5),
-                                                                                    side: BorderSide(
-                                                                                      color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? Colors.green : const Color.fromARGB(255, 55, 55, 55),
-                                                                                      width: 1,
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                              // Disable the button after successful standby for this specific segment.
-                                                                              onPressed: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
-                                                                                  ? null // Disable button if standby was already successful for this segment
-                                                                                  : () async {
-                                                                                      bool confirmStandby = await showDialog<bool>(
-                                                                                            context: context,
-                                                                                            builder: (BuildContext context) {
-                                                                                              return AlertDialog(
-                                                                                                title: Text(
-                                                                                                  _buttonName != '' && _buttonName.trim().isNotEmpty ? _buttonName : "Confirm Standby",
-                                                                                                  style: TextStyle(
-                                                                                                    fontWeight: FontWeight.bold,
-                                                                                                    color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                    fontSize: screenWidth * 0.06,
-                                                                                                  ),
-                                                                                                ),
-                                                                                                content: Text(
-                                                                                                  _consentContent != '' && _consentContent.trim().isNotEmpty ? _consentContent : "Are you sure you want to confirm standby?",
-                                                                                                  style: TextStyle(
-                                                                                                    color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                    fontSize: screenWidth * 0.045,
-                                                                                                  ),
-                                                                                                ),
-                                                                                                actions: [
-                                                                                                  TextButton(
-                                                                                                    onPressed: () {
-                                                                                                      Navigator.of(context).pop(false); // User chose "No"
-                                                                                                    },
-                                                                                                    child: Text(
-                                                                                                      "No",
-                                                                                                      style: TextStyle(
-                                                                                                        fontWeight: FontWeight.w700,
-                                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                        fontSize: screenWidth * 0.042,
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                  TextButton(
-                                                                                                    onPressed: () {
-                                                                                                      Navigator.of(context).pop(true); // User chose "Yes"
-                                                                                                    },
-                                                                                                    child: Text(
-                                                                                                      "Yes",
-                                                                                                      style: TextStyle(
-                                                                                                        fontWeight: FontWeight.w700,
-                                                                                                        color: const Color.fromRGBO(2, 77, 117, 1),
-                                                                                                        fontSize: screenWidth * 0.042,
-                                                                                                      ),
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ],
-                                                                                              );
-                                                                                            },
-                                                                                          ) ??
-                                                                                          false; // Default to false if dialog returns null
-
-                                                                                      if (confirmStandby) {
-                                                                                        String formattedDate = convertDateFormat(flight.depDate);
-                                                                                        // Fetch StaffMember before calling _getLocation()
-                                                                                        StaffMember? staff = await _apiService.getStaffMember(
-                                                                                          formattedDate,
-                                                                                          flight.Boardpoint,
-                                                                                          flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), ''), // Ensure correct format
-                                                                                          ticket.TicketNumber.replaceAll('-', ''), // Remove dashes
-                                                                                        );
-
-                                                                                        if (staff != null) {
-                                                                                          // Now `staff.uniqueCustomerID` is valid, pass it to _getLocation()
-                                                                                          _getLocation(
-                                                                                            flight.Boardpoint,
-                                                                                            flight.Offpoint,
-                                                                                            staff.uniqueCustomerID,
-                                                                                            staff.surname,
-                                                                                            flight.flightNumber,
-                                                                                            flight.depDate,
-                                                                                            staff.paxType,
-                                                                                            staff.prodIdentificationRefCode,
-                                                                                            staff.prodIdentificationPrimeID,
-                                                                                            staff.givenName,
-                                                                                            staff.gender,
-                                                                                            staff.Title,
-                                                                                          );
-                                                                                        } else {
-                                                                                          print('No staff member found for ticket: ${ticket.TicketNumber}');
-                                                                                        }
-                                                                                      }
-                                                                                    },
-                                                                              child: Row(
-                                                                                mainAxisSize: MainAxisSize.min,
-                                                                                mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true ? MainAxisAlignment.start : MainAxisAlignment.center,
-                                                                                children: [
-                                                                                  Text("Standby"),
-                                                                                  if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true) SizedBox(width: screenWidth * 0.02), // Adds spacing without using Padding
-                                                                                  if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true) Icon(Icons.check, color: Colors.white, size: 16),
-                                                                                ],
-                                                                              ),
-                                                                            )
-                                                                          : SizedBox(height: screenHeight * 0)
-                                                                      : SizedBox.shrink(),
                                                                 ),
-                                                              ],
-                                                            )
-                                                          : const SizedBox
-                                                              .shrink(),
+                                                              ),
+                                                            if (excessBaggageInfo
+                                                                .isEmpty)
+                                                              SizedBox(
+                                                                width:
+                                                                    screenWidth *
+                                                                        0.55,
+                                                              ),
+                                                            SizedBox(
+                                                              width: screenWidth *
+                                                                  0.28, 
+                                                              height: screenHeight *
+                                                                  0.04,
+                                           
+   child: // ((_isTicketButtonEnabled && flight.Boardpoint.trim().toUpperCase() == "CMB")||(_isTicketButtonEnabled &&!_isStandbyButtonEnabled))
+(
+  (_isTicketButtonEnabled && _isStandbyButtonEnabled && flight.Boardpoint.trim().toUpperCase() == "CMB")
+  ||
+  (_isTicketButtonEnabled &&!_isStandbyButtonEnabled)
+  
+)
+
+    ? ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              return _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
+                  ? Colors.green
+                  : const Color.fromARGB(255, 55, 55, 55);
+            },
+          ),
+          foregroundColor: MaterialStateProperty.all(Colors.white),
+          padding: MaterialStateProperty.all(
+            EdgeInsets.symmetric(
+              horizontal: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
+                  ? screenWidth * 0.03
+                  : screenWidth * 0.05,
+              vertical: screenHeight * 0.005,
+            ),
+          ),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+              side: BorderSide(
+                color: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
+                    ? Colors.green
+                    : const Color.fromARGB(255, 55, 55, 55),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+        onPressed: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
+            ? null
+            : () async {
+                bool confirmStandby = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text(
+                            _buttonName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.06,
+                            ),
+                          ),
+                          content: Text(
+                            _consentContent,
+                            style: TextStyle(
+                              color: const Color.fromRGBO(2, 77, 117, 1),
+                              fontSize: screenWidth * 0.045,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false);
+                              },
+                              child: Text(
+                                "No",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                              child: Text(
+                                "Yes",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color.fromRGBO(2, 77, 117, 1),
+                                  fontSize: screenWidth * 0.042,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ) ??
+                    false;
+
+                if (confirmStandby) {
+                  String formattedDate = convertDateFormat(flight.depDate);
+                  StaffMember? staff = await _apiService.getStaffMember(
+                    formattedDate,
+                    flight.Boardpoint,
+                    flight.flightNumber.replaceAll(RegExp(r'[^0-9]'), ''),
+                    ticket.TicketNumber.replaceAll('-', ''),
+                  );
+
+                  if (staff != null) {
+                    _getLocation(
+                      flight.Boardpoint,
+                      flight.Offpoint,
+                      staff.uniqueCustomerID,
+                      staff.surname,
+                      flight.flightNumber,
+                      flight.depDate,
+                      staff.paxType,
+                      staff.prodIdentificationRefCode,
+                      staff.prodIdentificationPrimeID,
+                      staff.givenName,
+                      staff.gender,
+                      staff.Title,
+                    );
+                  } else {
+                    print('No staff member found for ticket: ${ticket.TicketNumber}');
+                  }
+                }
+              },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: _standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          children: [
+            Text("Standby"),
+            if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
+              SizedBox(width: screenWidth * 0.02),
+            if (_standbyStatusMap["${ticket.TicketNumber}-${flight.SegmentTattooNumber}"] == true)
+              Icon(Icons.check, color: Colors.white, size: 16),
+          ],
+        ),
+      )
+    : const SizedBox.shrink(),
+
+  
+
+
+   ),
+                                                          ],
+                                                        ) : const SizedBox.shrink(),
+
                                                       SizedBox(
                                                           height: screenHeight *
                                                               0.02),
                                                     ],
                                                   );
-                                                }).toList(),
+                                                }).toList(), // Convert the map to a List<Widget>
                                               ),
                                             ),
                                           ],
@@ -2289,28 +2259,29 @@ class _MyTicketsState extends State<MyTickets> {
                     break;
                   case 3: // Yaaana
 
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            Yaana(),
-                        transitionDuration:
-                            const Duration(seconds: 0), // No animation
-                      ),
-                    );
-                    break;
-                }
-              },
-              items: [
-                _buildCustomBottomNavigationBarItem(
-                    'assets/history.png', 'History', false),
-                _buildCustomBottomNavigationBarItem(
-                    'assets/home.png', 'Home', false),
-                _buildCustomBottomNavigationBarItem(
-                    'assets/ticket.png', 'My Tickets', true),
-                _buildCustomBottomNavigationBarItem(
-                    'assets/chatbot.png', 'Yaana', false),
-              ],
+                                Navigator.push(
+                                  context,
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        Yaana(),
+                                    transitionDuration: const Duration(
+                                        seconds: 0), // No animation
+                                  ),
+                                );
+                                break;
+                            }
+                          },
+                           items: [
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/history.png', 'History', false),
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/home.png', 'Home', false),
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/ticket.png', 'My Tickets', true),
+                            _buildCustomBottomNavigationBarItem(
+                                'assets/chatboticon.png', 'Yaana', false),
+                          ],
             ),
           ),
         ),
@@ -2318,7 +2289,7 @@ class _MyTicketsState extends State<MyTickets> {
     );
   }
 
-  BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
+ BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       String iconPath, String label, bool isHighlighted) {
     return BottomNavigationBarItem(
       icon: Column(
@@ -2351,9 +2322,6 @@ class _MyTicketsState extends State<MyTickets> {
       label: label,
     );
   }
-
-
-
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();

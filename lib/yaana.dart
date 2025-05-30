@@ -184,7 +184,7 @@ class _YaanaState extends State<Yaana> {
             _buildCustomBottomNavigationBarItem(
                 'assets/ticket.png', 'My Tickets', false),
             _buildCustomBottomNavigationBarItem(
-                'assets/chatbot.png', 'Yaana', true),
+                'assets/chatboticon.png', 'Yaana', true),
           ],
         ),
       ),
