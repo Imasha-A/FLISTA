@@ -16,6 +16,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   final String selectedDate;
@@ -27,8 +28,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late String selectedDate;
- String originCountryCode = '';
-String destinationCountryCode = '';
+  String originCountryCode = '';
+  String destinationCountryCode = '';
 
   late String _userName = 'User Name';
   late String _userId = '123456';
@@ -67,19 +68,24 @@ String destinationCountryCode = '';
   bool _hasLoaded = false;
   bool _nowLoaded = false;
 
+  String latestVersion = '';
+
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkVersionAndForceUpdate(context);
+    });
+
     //selectedDate = widget.selectedDate;
     selectedDate = widget.selectedDate;
-    if (Platform.isAndroid)
-    {
-majorVersion = getAndroidVersion();
+    if (Platform.isAndroid) {
+      majorVersion = getAndroidVersion();
+    } else {
+      majorVersion = Future.value(9);
     }
-    else{
-      majorVersion=Future.value(9);
-    }
-    
+
     originCountryCode = '';
     destinationCountryCode = '';
     _originController.text = _flightSearchModel.selectedOriginCountry ?? '';
@@ -137,6 +143,69 @@ majorVersion = getAndroidVersion();
         _hideDestinationSuggestions();
       }
     });
+  }
+
+  void checkVersionAndForceUpdate(BuildContext context) async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+
+      APIService apiService = APIService();
+      String latestVersion = '';
+
+      if (Platform.isAndroid) {
+        latestVersion = await apiService.getAndroidVersionFromServer();
+      } else if (Platform.isIOS) {
+        latestVersion = await apiService.getIosVersionFromServer();
+      }
+
+      print('Current version: $currentVersion');
+      print('Latest version: $latestVersion');
+
+      if (currentVersion != latestVersion && latestVersion.isNotEmpty) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => AlertDialog(
+            title: Text("Update Required"),
+            content: Text(
+                "Please update the app to continue.\nCurrent: $currentVersion\nLatest: $latestVersion"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  if (Platform.isAndroid) {
+                    _launchURLPlayStore(Uri.parse(
+                        'https://play.google.com/store/apps/details?id=com.srilankan.flista_new'));
+                  } else if (Platform.isIOS) {
+                    _launchURLAppStore(Uri.parse(
+                        'https://apps.apple.com/lk/app/flista/id6444480490'));
+                  }
+                },
+                child: Text("Update"),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error checking version: $e');
+    }
+  }
+
+  Future<void> _launchURLPlayStore(Uri parse) async {
+    final Uri url = Uri.parse(
+        'https://play.google.com/store/apps/details?id=com.srilankan.flista_new');
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> _launchURLAppStore(Uri parse) async {
+    final Uri url =
+        Uri.parse('https://apps.apple.com/lk/app/flista/id6444480490');
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
   }
 
   Future<void> saveRating(int rating, String review) async {
@@ -278,7 +347,8 @@ majorVersion = getAndroidVersion();
     setState(() {
       _flightSearchModel.originCountries = _cachedAirportList!.map((airport) {
         return {
-          'name': toTitleCase(airport['name']?.trim() ?? 'Unknown'), // Null checks
+          'name':
+              toTitleCase(airport['name']?.trim() ?? 'Unknown'), // Null checks
           'code': airport['code']!,
           'city': airport['city']!,
           'country': airport['country']!,
@@ -503,7 +573,7 @@ majorVersion = getAndroidVersion();
     //String? userId = prefs.getString('userId');
     setState(() {
       //_userId = userId ?? '123456';
-       _userId = prefs.getString('userId') ?? '123456'; // Null check
+      _userId = prefs.getString('userId') ?? '123456'; // Null check
     });
   }
 
@@ -1299,15 +1369,15 @@ majorVersion = getAndroidVersion();
                         }
                       },
                       items: [
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/history.png', 'History', false),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/home.png', 'Home', true),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/ticket.png', 'My Tickets', false),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/chatboticon.png', 'Yaana', false),
-                          ],
+                        _buildCustomBottomNavigationBarItem(
+                            'assets/history.png', 'History', false),
+                        _buildCustomBottomNavigationBarItem(
+                            'assets/home.png', 'Home', true),
+                        _buildCustomBottomNavigationBarItem(
+                            'assets/ticket.png', 'My Tickets', false),
+                        _buildCustomBottomNavigationBarItem(
+                            'assets/chatboticon.png', 'Yaana', false),
+                      ],
                     ),
                   ),
                 ),
@@ -2521,8 +2591,9 @@ majorVersion = getAndroidVersion();
                                                                 );
                                                               },
                                                               child: Container(
-                                                                width: screenWidth *
-                                                                    0.9, 
+                                                                width:
+                                                                    screenWidth *
+                                                                        0.9,
                                                                 height:
                                                                     screenHeight *
                                                                         0.139,
@@ -2540,13 +2611,13 @@ majorVersion = getAndroidVersion();
                                                                           92,
                                                                           255,
                                                                           255,
-                                                                          255) 
+                                                                          255)
                                                                       : const Color
                                                                           .fromARGB(
                                                                           230,
                                                                           255,
                                                                           255,
-                                                                          255), 
+                                                                          255),
                                                                   border: Border
                                                                       .all(
                                                                     color: _destinationController
@@ -2737,12 +2808,10 @@ majorVersion = getAndroidVersion();
                                                   BorderRadius.circular(9.0),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.black.withOpacity(
-                                                      0.35), 
-                                                  blurRadius:
-                                                      4.0, 
-                                                  offset: const Offset(2,
-                                                      2), 
+                                                  color: Colors.black
+                                                      .withOpacity(0.35),
+                                                  blurRadius: 4.0,
+                                                  offset: const Offset(2, 2),
                                                 ),
                                               ],
                                             ),
@@ -2827,33 +2896,32 @@ majorVersion = getAndroidVersion();
                                         const HomePage(
                                       selectedDate: '',
                                     ),
-                                    transitionDuration: const Duration(
-                                        seconds: 0), 
+                                    transitionDuration:
+                                        const Duration(seconds: 0),
                                   ),
                                 );
                                 break;
-                              case 2: 
+                              case 2:
                                 Navigator.push(
                                   context,
                                   PageRouteBuilder(
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
                                         const MyTickets(),
-                                    transitionDuration: const Duration(
-                                        seconds: 0),
+                                    transitionDuration:
+                                        const Duration(seconds: 0),
                                   ),
                                 );
                                 break;
-                              case 3: 
-
+                              case 3:
                                 Navigator.push(
                                   context,
                                   PageRouteBuilder(
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
                                         Yaana(),
-                                    transitionDuration: const Duration(
-                                        seconds: 0), 
+                                    transitionDuration:
+                                        const Duration(seconds: 0),
                                   ),
                                 );
                                 break;
@@ -3051,8 +3119,7 @@ majorVersion = getAndroidVersion();
                                   ),
                                   if (popupMessage != null)
                                     Positioned(
-                                      top: screenHeight *
-                                          0.05, 
+                                      top: screenHeight * 0.05,
                                       child: Container(
                                         padding: EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 3),

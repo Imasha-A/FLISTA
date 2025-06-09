@@ -34,7 +34,7 @@ class APIService {
     final url = Uri.parse(
         'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/GET_AIRPORT_LIST?specialFlag=ALL');
 
-        //
+    //
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -264,23 +264,21 @@ class APIService {
           // '$baseUrl2/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate'),
           'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate&staffID=$staffID'),
     );
-    print('https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate&staffID=$staffID');
-print(response);
+    print(
+        'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/ALLV2?FlightDate=$formattedDate&BoardPoint=$formattedOriginCountryCode&offpoint=$formattedDestinationCountryCode&FlightNo=$selectedUL&longDate=$formattedLongDate&staffID=$staffID');
+    print(response);
     if (response.statusCode != 200) {
-    throw Exception('HTTP ${response.statusCode}');
-  }
+      throw Exception('HTTP ${response.statusCode}');
+    }
 
-  final decoded = json.decode(response.body);
-  if (decoded is Map<String, dynamic> && decoded.containsKey('code')) {
-    final serverMsg = decoded['message'] as String? ?? 'Unknown error';
-    throw Exception(serverMsg);
-  }
+    final decoded = json.decode(response.body);
+    if (decoded is Map<String, dynamic> && decoded.containsKey('code')) {
+      final serverMsg = decoded['message'] as String? ?? 'Unknown error';
+      throw Exception(serverMsg);
+    }
 
-  final List<dynamic> data = decoded as List<dynamic>;
-  return data
-      .map((item) => FlightLoadModel.fromJson(item))
-      .toList();
-
+    final List<dynamic> data = decoded as List<dynamic>;
+    return data.map((item) => FlightLoadModel.fromJson(item)).toList();
   }
 
   Future<List<StaffMember>> viewStaffMembers(
@@ -554,35 +552,34 @@ print(response);
   }
 
   Future<Map<String, String>> getStatusContent() async {
-  final url = Uri.parse(
-    'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
-  );
+    final url = Uri.parse(
+      'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
+    );
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: {
-      'SETTING_CODE': 'TICKET_BUTTON_CONTENT',
-    },
-  );
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'SETTING_CODE': 'TICKET_BUTTON_CONTENT',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final outerJson = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final outerJson = jsonDecode(response.body);
 
-    // Decode the VALUESS field which is a JSON string
-    final innerJson = jsonDecode(outerJson['VALUESS']);
+      // Decode the VALUESS field which is a JSON string
+      final innerJson = jsonDecode(outerJson['VALUESS']);
 
-    return {
-      'button_name': innerJson['button_name'] ?? '',
-      'consent_content': innerJson['consent_content'] ?? '',
-    };
-  } else {
-    throw Exception('Failed to fetch ticket button content');
+      return {
+        'button_name': innerJson['button_name'] ?? '',
+        'consent_content': innerJson['consent_content'] ?? '',
+      };
+    } else {
+      throw Exception('Failed to fetch ticket button content');
+    }
   }
-}
-
 
   Future<List<CheckinSummery>> viewCheckInStatus(String flightDate,
       String boardPoint, String flightNo, String staffID) async {
@@ -656,15 +653,13 @@ print(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-     return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
-
+      return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
     } else {
       throw Exception('Failed to load settings');
     }
   }
 
-
-    Future<bool> getStandbyDisplay() async {
+  Future<bool> getStandbyDisplay() async {
     final url = Uri.parse(
         'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
 
@@ -682,14 +677,13 @@ print(response);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
+      return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
     } else {
       throw Exception('Failed to load settings');
     }
   }
 
-
-     Future<bool> getStandbyMessage() async {
+  Future<bool> getStandbyMessage() async {
     final url = Uri.parse(
         'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings');
 
@@ -713,6 +707,97 @@ return data['VALUESS'].toString().trim().toUpperCase() == 'TRUE';
     }
   }
 
+  Future<String> getAndroidVersionFromServer() async {
+    final url = Uri.parse(
+      'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie':
+            'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+      },
+      body: {'SETTING_CODE': 'ANDROID_APP_VERSION'},
+    );
+
+    if (response.statusCode == 200) {
+      final dynamic responseBody = json.decode(response.body);
+      print('Response data: $responseBody');
+
+      // Check if response is null or not a list
+      if (responseBody == null) {
+        throw Exception('API returned null response');
+      }
+
+      if (responseBody is! List) {
+        throw Exception(
+            'API returned unexpected data format: ${responseBody.runtimeType}');
+      }
+
+      final List<dynamic> data = responseBody as List<dynamic>;
+
+      final versionEntry = data.firstWhere(
+        (item) => item != null && item['SETTING_CODE'] == 'ANDROID_APP_VERSION',
+        orElse: () => null,
+      );
+
+      if (versionEntry != null) {
+        return versionEntry['VALUESS'] ?? '';
+      } else {
+        throw Exception('ANDROID_APP_VERSION not found');
+      }
+    } else {
+      throw Exception('Failed to load Android version: ${response.statusCode}');
+    }
+  }
+
+  Future<String> getIosVersionFromServer() async {
+    final url = Uri.parse(
+      'https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FlistaULOperationHub/GetFlistaSettings',
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie':
+            'visid_incap_2252245=1Gok/SxyRlapatwdhKdpg0DXqmcAAAAAQUIPAAAAAAAncwz9XTxkVwMj7q8arHQN',
+      },
+      body: {'SETTING_CODE': 'IOS_APP_VERSION'},
+    );
+
+    if (response.statusCode == 200) {
+      final dynamic responseBody = json.decode(response.body);
+      print('Response data: $responseBody');
+
+      // Check if response is null or not a list
+      if (responseBody == null) {
+        throw Exception('API returned null response');
+      }
+
+      if (responseBody is! List) {
+        throw Exception(
+            'API returned unexpected data format: ${responseBody.runtimeType}');
+      }
+
+      final List<dynamic> data = responseBody as List<dynamic>;
+
+      final versionEntry = data.firstWhere(
+        (item) => item != null && item['SETTING_CODE'] == 'IOS_APP_VERSION',
+        orElse: () => null,
+      );
+
+      if (versionEntry != null) {
+        return versionEntry['VALUESS'] ?? '';
+      } else {
+        throw Exception('IOS_APP_VERSION not found');
+      }
+    } else {
+      throw Exception('Failed to load iOS version: ${response.statusCode}');
+    }
+  }
 
   Future<StaffMember?> getStaffMember(String flightDate, String boardPoint,
       String flightNo, String ticketNumber) async {

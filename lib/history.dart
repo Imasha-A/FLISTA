@@ -34,7 +34,7 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
- BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
+  BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       String iconPath, String label, bool isHighlighted) {
     return BottomNavigationBarItem(
       icon: Column(
@@ -58,7 +58,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 )
               : Image.asset(
                   iconPath,
-                height: 30,
+                  height: 30,
                   width: 30,
                   fit: BoxFit.contain,
                 ),
@@ -139,7 +139,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 actions: [
                   Padding(
                     padding: EdgeInsets.only(
-                        top: screenHeight * 0.03,
+                        top: screenHeight * 0.025,
                         right: screenWidth * 0.03), // Adjust spacing
                     child: IconButton(
                       icon: const Icon(Icons.delete, color: Colors.white),
@@ -626,34 +626,32 @@ class _HistoryPageState extends State<HistoryPage> {
                             ),
                           );
                           break;
-                       
-                   case 3: // Yaaana
 
-                                Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                    pageBuilder: (context, animation,
-                                            secondaryAnimation) =>
-                                        Yaana(),
-                                    transitionDuration: const Duration(
-                                        seconds: 0), // No animation
-                                  ),
-                                );
-                                break;
-                            }
-                          },
-                          items: [
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/history.png', 'History', true),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/home.png', 'Home', false),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/ticket.png',
-                                'My Tickets',
-                                false),
-                            _buildCustomBottomNavigationBarItem(
-                                'assets/chatboticon.png', 'Yaana', false),
-                          ],
+                        case 3: // Yaaana
+
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      Yaana(),
+                              transitionDuration:
+                                  const Duration(seconds: 0), // No animation
+                            ),
+                          );
+                          break;
+                      }
+                    },
+                    items: [
+                      _buildCustomBottomNavigationBarItem(
+                          'assets/history.png', 'History', true),
+                      _buildCustomBottomNavigationBarItem(
+                          'assets/home.png', 'Home', false),
+                      _buildCustomBottomNavigationBarItem(
+                          'assets/ticket.png', 'My Tickets', false),
+                      _buildCustomBottomNavigationBarItem(
+                          'assets/chatboticon.png', 'Yaana', false),
+                    ],
                   ),
                 ))));
   }

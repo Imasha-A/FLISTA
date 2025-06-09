@@ -56,21 +56,19 @@ class _CapacityInfoState extends State<CapacityInfoPage> {
   bool isLoading = true;
   List<StaffMember> staffMembers = [];
   CheckinSummery? checkinSummery;
-List<String> giveCheckInAccess=[];
+  List<String> giveCheckInAccess = [];
 
-List<String> givePriorityAccess=[];
-String? _apiErrorMessage;
-
+  List<String> givePriorityAccess = [];
+  String? _apiErrorMessage;
 
   final APIService _apiService = APIService();
   late String _userName = 'User Name';
   late String _userId = '123456';
-    Future<int>? majorVersion;
-    String version="";
+  Future<int>? majorVersion;
+  String version = "";
 
-
-bool isCheckInSummaryEnabled = false;
-bool isPriorityButtonEnabled = false;
+  bool isCheckInSummaryEnabled = false;
+  bool isPriorityButtonEnabled = false;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -80,7 +78,7 @@ bool isPriorityButtonEnabled = false;
     selectedDate = widget.selectedDate;
     selectedUL =
         widget.selectedUL; // Initialize selectedUL with the passed value
-        scheduledTime=widget.scheduledTime;
+    scheduledTime = widget.scheduledTime;
     ulList = widget.ulList; // Initialize ulList with the passed value
     formattedDate =
         APIService().formatDate(selectedDate); // Assign formattedDate value
@@ -92,30 +90,27 @@ bool isPriorityButtonEnabled = false;
     _initializeState();
     fetchCheckInPermissions();
     fetchPriorityPermissions();
-    if (Platform.isAndroid)
-    {
-majorVersion = getAndroidVersion();
-    }
-    else{
+    if (Platform.isAndroid) {
+      majorVersion = getAndroidVersion();
+    } else {
       //majorVersion=Future.value(0);
-      version="ios";
+      version = "ios";
     }
   }
 
-   void fetchCheckInPermissions() async {
-  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+  void fetchCheckInPermissions() async {
+    List<FlistaPermission> permissions =
+        await _apiService.getFlistaModulePermissions();
 
-   giveCheckInAccess = permissions
-      .where((p) => p.moduleId == 'CHECKIN_SUMMARY'&& p.isActive=="TRUE")
-      .map((p) => p.staffId)
-      .toList();
+    giveCheckInAccess = permissions
+        .where((p) => p.moduleId == 'CHECKIN_SUMMARY' && p.isActive == "TRUE")
+        .map((p) => p.staffId)
+        .toList();
 
-      print('CheckIn Access: $giveCheckInAccess');
-print('Priority Access: $givePriorityAccess');
+    print('CheckIn Access: $giveCheckInAccess');
+  }
 
-}
-
-Future<int> getAndroidVersion() async {
+  Future<int> getAndroidVersion() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
@@ -143,73 +138,109 @@ Future<int> getAndroidVersion() async {
     }
   }
 
- void fetchPriorityPermissions() async {
-  List<FlistaPermission> permissions = await _apiService.getFlistaModulePermissions();
+  void fetchPriorityPermissions() async {
+    List<FlistaPermission> permissions =
+        await _apiService.getFlistaModulePermissions();
 
-   givePriorityAccess = permissions
-      .where((p) => p.moduleId == 'MY_PRIORITY'&& p.isActive=="TRUE")
-      .map((p) => p.staffId)
-      .toList();
-}
+    givePriorityAccess = permissions
+        .where((p) => p.moduleId == 'MY_PRIORITY' && p.isActive == "TRUE")
+        .map((p) => p.staffId)
+        .toList();
 
-
-
- void _fetchFlightExtraInfo() async {
-  await _loadUserId();
-  await fetchData();
-
-  try {
-    DateTime flightDate = DateTime.now(); // Replace with your actual flight date
-    String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
-
-    var responseList = await _apiService.viewCheckInStatus(
-      formattedDate,
-      widget.originCountryCode,
-      widget.selectedUL,
-      _userId,
-    );
-
-   List<CheckinSummery> summaryList = responseList;
-
-    setState(() {
-      if (summaryList.isNotEmpty) {
-        checkinSummery = summaryList.first;
-      }
-      isLoading = false;
-    });
-  } catch (error) {
-    print('Error fetching flight load information: $error');
-    setState(() {
-      isLoading = false;
-    });
+    print('Priority Access: $givePriorityAccess');
   }
-}
 
+  void _fetchFlightExtraInfo() async {
+    await _loadUserId();
+    await fetchData();
 
+    try {
+      DateTime flightDate =
+          DateTime.now(); // Replace with your actual flight date
+      String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
+
+      var responseList = await _apiService.viewCheckInStatus(
+        formattedDate,
+        widget.originCountryCode,
+        widget.selectedUL,
+        _userId,
+      );
+
+      List<CheckinSummery> summaryList = responseList;
+
+      setState(() {
+        if (summaryList.isNotEmpty) {
+          checkinSummery = summaryList.first;
+        }
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error fetching flight load information: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   Future<void> _initializeState() async {
     await _loadUserName();
     await _loadUserId();
     await fetchData();
+    _checkPermissions();
 
-    for (var staff in staffMembers) {
-    String fullName = '${staff.firstName} ${staff.lastName}';
+    // for (var staff in staffMembers) {
+    // String fullName = '${staff.firstName} ${staff.lastName}';
 
+    // // Check for Check-In Summary Access
+    // if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
+    //   setState(() {
+    //     isCheckInSummaryEnabled = true;
+    //   });
+    // }
+
+    // // Check for Priority Access
+    // if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
+    //   setState(() {
+    //     isPriorityButtonEnabled = true;
+    //   });
+    // }
+    // }
+  }
+
+  void _checkPermissions() {
     // Check for Check-In Summary Access
-    if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
-      setState(() {
-        isCheckInSummaryEnabled = true;
-      });
+    bool hasCheckInAccess = false;
+    bool hasPriorityAccess = false;
+
+    // Check if user has check-in access via permission list
+    if (giveCheckInAccess.contains(_userId)) {
+      hasCheckInAccess = true;
     }
 
-    // Check for Priority Access
-    if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
-      setState(() {
-        isPriorityButtonEnabled = true;
-      });
+    // Check if user has priority access via permission list
+    if (givePriorityAccess.contains(_userId)) {
+      hasPriorityAccess = true;
     }
-  break;
+
+    // Also check against staff members if available
+    for (var staff in staffMembers) {
+      String fullName = '${staff.firstName} ${staff.lastName}';
+
+      // Check for Check-In Summary Access
+      if (fullName == _userName || staff.staffID == _userId) {
+        hasCheckInAccess = true;
+      }
+
+      // Check for Priority Access
+      if (fullName == _userName || staff.staffID == _userId) {
+        hasPriorityAccess = true;
+      }
     }
+
+    setState(() {
+      isCheckInSummaryEnabled = hasCheckInAccess;
+      isPriorityButtonEnabled = hasPriorityAccess;
+    });
   }
 
   Future<void> _loadUserName() async {
@@ -220,79 +251,82 @@ Future<int> getAndroidVersion() async {
     });
   }
 
-Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screenWidth, double screenHeigth) {
-  return Row(
-    children: [
-      // Label column (fixed width)
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-        child: Container(
-          width: screenWidth * 0.5,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: screenWidth * 0.041,
+  Widget _buildDataRow(String label, dynamic jValue, dynamic yValue,
+      double screenWidth, double screenHeigth) {
+    return Row(
+      children: [
+        // Label column (fixed width)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+          child: Container(
+            width: screenWidth * 0.5,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.041,
+              ),
             ),
           ),
         ),
-      ),
-      
-      // BC/J value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$jValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // BC/J value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$jValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      
-      // EY/Y value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$yValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // EY/Y value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$yValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   // Callback for pull-down refresh
   Future<void> _onRefresh() async {
     _fetchFlightLoadInfo();
+    await _loadUserName();
+    await _loadUserId();
     await _initializeState();
     _refreshController.refreshCompleted();
   }
@@ -320,24 +354,23 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
           isLoading = false;
         });
 
-        for (var staff in staffMembers) {
-    String fullName = '${staff.firstName} ${staff.lastName}';
+        //     for (var staff in staffMembers) {
+        // String fullName = '${staff.firstName} ${staff.lastName}';
 
-    // Check for Check-In Summary Access
-    if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
-      setState(() {
-        isCheckInSummaryEnabled = true;
-      });
-    }
+        // // Check for Check-In Summary Access
+        // if (fullName == _userName || staff.staffID == _userId || giveCheckInAccess.contains(_userId)) {
+        //   setState(() {
+        //     isCheckInSummaryEnabled = true;
+        //   });
+        // }
 
-    // Check for Priority Access
-    if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
-      setState(() {
-        isPriorityButtonEnabled = true;
-      });
-    }
-
-        }
+        // // Check for Priority Access
+        // if (fullName == _userName || staff.staffID == _userId || givePriorityAccess.contains(_userId)) {
+        //   setState(() {
+        //     isPriorityButtonEnabled = true;
+        //   });
+        // }}
+        _checkPermissions();
       }
     } catch (error) {
       // Only update state if the widget is still mounted
@@ -346,6 +379,9 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
           staffMembers = [];
           isLoading = false;
         });
+
+        // Still check permissions even if staff data loading fails
+        _checkPermissions();
       }
       print('Error fetching data: $error');
     }
@@ -381,7 +417,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
 //       flightLoad = flightLoadDataList.isNotEmpty
 //           ? flightLoadDataList.first
 //           : null;
-//       _apiErrorMessage = null;      
+//       _apiErrorMessage = null;
 //       isLoading = false;
 //     });
 //   } catch (e) {
@@ -392,43 +428,39 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
 //   }
 // }
 
+  Future<void> _fetchFlightLoadInfo() async {
+    setState(() => isLoading = true);
 
-Future<void> _fetchFlightLoadInfo() async {
-  setState(() => isLoading = true);
+    formattedDate = APIService().formatDate(selectedDate);
+    formattedLongDate = APIService().formatLongDate(selectedDate);
 
-  formattedDate     = APIService().formatDate(selectedDate);
-  formattedLongDate = APIService().formatLongDate(selectedDate);
+    await Future.delayed(const Duration(seconds: 0));
 
-  await Future.delayed(const Duration(seconds: 0));
+    try {
+      final flightLoadDataList = await APIService().fetchFlightLoadInfo(
+        widget.selectedDate,
+        formattedDate,
+        formattedLongDate,
+        widget.originCountryCode,
+        widget.destinationCountryCode,
+        widget.selectedUL,
+        _userId,
+      );
 
-  try {
-    final flightLoadDataList = await APIService().fetchFlightLoadInfo(
-      widget.selectedDate,
-      formattedDate,
-      formattedLongDate,
-      widget.originCountryCode,
-      widget.destinationCountryCode,
-      widget.selectedUL,
-      _userId,
-    );
-
-    setState(() {
-      flightLoad       = flightLoadDataList.isNotEmpty
-                          ? flightLoadDataList.first
-                          : null;
-      _apiErrorMessage = null;
-      isLoading        = false;
-    });
-  } catch (e) {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      _apiErrorMessage = e.toString().replaceFirst('Exception: ', '');
-      isLoading        = false;
-    });
+      setState(() {
+        flightLoad =
+            flightLoadDataList.isNotEmpty ? flightLoadDataList.first : null;
+        _apiErrorMessage = null;
+        isLoading = false;
+      });
+    } catch (e) {
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() {
+        _apiErrorMessage = e.toString().replaceFirst('Exception: ', '');
+        isLoading = false;
+      });
+    }
   }
-}
-
-
 
   void _navigateToPriorityPage(BuildContext context) {
     Navigator.push(
@@ -444,7 +476,7 @@ Future<void> _fetchFlightLoadInfo() async {
     );
   }
 
-   void _navigateToCheckInsSummaryPage(
+  void _navigateToCheckInsSummaryPage(
       BuildContext context, String selectedUL, String scheduledTime) {
     Navigator.push(
       context,
@@ -452,13 +484,10 @@ Future<void> _fetchFlightLoadInfo() async {
         builder: (context) => CheckInPage(
           selectedDate: selectedDate,
           selectedUL: selectedUL,
-          scheduledTime:
-              scheduledTime, 
+          scheduledTime: scheduledTime,
           originCountryCode: widget.originCountryCode,
           destinationCountryCode: widget.destinationCountryCode,
-          onULSelected: (selectedUL) {
-      
-          },
+          onULSelected: (selectedUL) {},
         ),
       ),
     );
@@ -480,10 +509,10 @@ Future<void> _fetchFlightLoadInfo() async {
                   ),
                   child: Image.asset(
                     iconPath,
-                    height: 28, 
+                    height: 28,
                     width: 28,
                     fit: BoxFit.contain,
-                    color: const Color.fromRGBO(2, 77, 117, 1), 
+                    color: const Color.fromRGBO(2, 77, 117, 1),
                   ),
                 )
               : Image.asset(
@@ -500,18 +529,16 @@ Future<void> _fetchFlightLoadInfo() async {
 
   void _changeUL(bool next) {
     setState(() {
-      isLoading = true; 
+      isLoading = true;
       if (next) {
         selectedDate = _getNextDate(selectedDate);
       } else {
         selectedDate = _getPreviousDate(selectedDate);
       }
 
-
       formattedDate = APIService().formatDate(selectedDate);
       formattedLongDate = APIService().formatLongDate(selectedDate);
 
-     
       _fetchFlightLoadInfo();
 
       _initializeState();
@@ -608,16 +635,16 @@ Future<void> _fetchFlightLoadInfo() async {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage("assets/homebgnew.png"), 
+          image: AssetImage("assets/homebgnew.png"),
           fit: BoxFit.fitWidth,
         ),
       ),
       child: Scaffold(
         backgroundColor: const Color.fromARGB(0, 255, 255, 255),
         appBar: PreferredSize(
-preferredSize: Size.fromHeight(
-  version=="ios" ? screenHeigth * 0.145 : screenHeigth * 0.173,
-),
+          preferredSize: Size.fromHeight(
+            version == "ios" ? screenHeigth * 0.145 : screenHeigth * 0.173,
+          ),
           child: AppBar(
             backgroundColor: Colors.transparent,
             titleTextStyle: TextStyle(
@@ -675,28 +702,22 @@ preferredSize: Size.fromHeight(
                         ),
                         SizedBox(
                           height: screenHeigth * 0.04,
-                          width: screenWidth * 0.72, 
+                          width: screenWidth * 0.72,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              
                               SizedBox(
-                                height: screenHeigth *
-                                    0.013, 
-                                width: screenWidth *
-                                    0.72, 
+                                height: screenHeigth * 0.013,
+                                width: screenWidth * 0.72,
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-line.png'),
                                   fit: BoxFit.fill,
                                 ),
                               ),
-
                               SizedBox(
-                                height: screenHeigth *
-                                    0.07, 
-                                width: screenWidth *
-                                    0.3, 
+                                height: screenHeigth * 0.07,
+                                width: screenWidth * 0.3,
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-plane.png'),
@@ -717,8 +738,7 @@ preferredSize: Size.fromHeight(
                                 offset: Offset(-screenWidth * 0.086,
                                     -screenHeigth * 0.035),
                                 child: Text(
-                                  widget.originCountryCode
-                                      .trim(), 
+                                  widget.originCountryCode.trim(),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -732,8 +752,7 @@ preferredSize: Size.fromHeight(
                                 offset: Offset(
                                     screenWidth * 0.08, -screenHeigth * 0.035),
                                 child: Text(
-                                  widget.destinationCountryCode
-                                      .trim(), 
+                                  widget.destinationCountryCode.trim(),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -755,8 +774,7 @@ preferredSize: Size.fromHeight(
         body: isLoading
             ? const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.blue), 
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                 ),
               )
             : SmartRefresher(
@@ -810,8 +828,6 @@ preferredSize: Size.fromHeight(
                                       ),
                                     ),
                                   ),
-                               
-
                                   Column(
                                     children: [
                                       SizedBox(height: screenHeigth * 0.03),
@@ -831,12 +847,10 @@ preferredSize: Size.fromHeight(
                                                 borderRadius:
                                                     BorderRadius.circular(20.0),
                                               ),
-                                         
                                               padding: EdgeInsets.zero,
                                             ),
                                             child: Column(
-                                              mainAxisSize: MainAxisSize
-                                                  .min, 
+                                              mainAxisSize: MainAxisSize.min,
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                               children: [
@@ -850,19 +864,15 @@ preferredSize: Size.fromHeight(
                                                           FontWeight.bold,
                                                       fontSize:
                                                           screenWidth * 0.06,
-                                                      height:
-                                                          1.0, 
+                                                      height: 1.0,
                                                     ),
                                                   ),
                                                 ),
-
-                                                
                                                 Transform.translate(
-                                                  offset: Offset(0,
-                                                      -2), 
+                                                  offset: Offset(0, -2),
                                                   child: Row(
-                                                    mainAxisSize: MainAxisSize
-                                                        .min, 
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .center,
@@ -873,7 +883,7 @@ preferredSize: Size.fromHeight(
                                                         },
                                                         child: Container(
                                                           width: screenWidth *
-                                                              0.12, 
+                                                              0.12,
                                                           height: screenHeigth *
                                                               0.06,
                                                           alignment:
@@ -883,22 +893,21 @@ preferredSize: Size.fromHeight(
                                                                 .arrow_back_ios_rounded,
                                                             color: Colors.white,
                                                             size: screenWidth *
-                                                                0.075, 
+                                                                0.075,
                                                           ),
                                                         ),
                                                       ),
 
                                                       SizedBox(
                                                           width: screenWidth *
-                                                              0.09), 
+                                                              0.09),
 
-                                                      
                                                       Padding(
                                                         padding: EdgeInsets
                                                             .symmetric(
                                                                 horizontal:
                                                                     screenWidth *
-                                                                        0.01), 
+                                                                        0.01),
                                                         child: Text(
                                                           '$selectedDate',
                                                           style: TextStyle(
@@ -906,8 +915,7 @@ preferredSize: Size.fromHeight(
                                                             fontSize:
                                                                 screenWidth *
                                                                     .04,
-                                                            height:
-                                                                1.0, 
+                                                            height: 1.0,
                                                           ),
                                                         ),
                                                       ),
@@ -916,7 +924,6 @@ preferredSize: Size.fromHeight(
                                                           width: screenWidth *
                                                               0.09), // Increased spacing
 
-                                                   
                                                       GestureDetector(
                                                         onTap: () {
                                                           _changeUL(true);
@@ -940,7 +947,6 @@ preferredSize: Size.fromHeight(
                                                     ],
                                                   ),
                                                 ),
-
                                                 Transform.translate(
                                                   offset: Offset(0,
                                                       -12), // Moves scheduled time upwards
@@ -960,146 +966,285 @@ preferredSize: Size.fromHeight(
                                           ),
                                         ),
                                       ),
-                                    
-_apiErrorMessage != null
-  ? Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.05,
-        vertical: screenHeigth * 0.02,
-      ),
-      child: Center(
-        child: Text(
-          _apiErrorMessage!,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: screenWidth * 0.045,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    )
-  : Column(
-      children: [
-        Row(
-          children: [
-            SizedBox(width: screenWidth * 0.53),
-            Expanded(
-              child: Center(
-                child: Text(
-                  'BC',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: screenWidth * 0.041,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: Text(
-                  'EY',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: screenWidth * 0.041,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: screenHeigth * 0.015),
+                                      _apiErrorMessage != null
+                                          ? Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: screenWidth * 0.05,
+                                                vertical: screenHeigth * 0.02,
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  _apiErrorMessage!,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize:
+                                                        screenWidth * 0.045,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    SizedBox(
+                                                        width:
+                                                            screenWidth * 0.53),
+                                                    Expanded(
+                                                      child: Center(
+                                                        child: Text(
+                                                          'BC',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.041,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      child: Center(
+                                                        child: Text(
+                                                          'EY',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.041,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.015),
+                                                _buildDataRow(
+                                                    'Capacity',
+                                                    flightLoad?.jCapacity ?? 0,
+                                                    flightLoad?.yCapacity ?? 0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.01),
+                                                _buildDataRow(
+                                                    'Booked',
+                                                    flightLoad?.jBooked ?? 0,
+                                                    flightLoad?.yBooked ?? 0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.01),
+                                                _buildDataRow(
+                                                    'Checked-In',
+                                                    flightLoad?.jCheckedIn ?? 0,
+                                                    flightLoad?.yCheckedIn ?? 0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.01),
+                                                _buildDataRow(
+                                                    'Commercial Standby',
+                                                    flightLoad
+                                                            ?.jCommercialStandby ??
+                                                        0,
+                                                    flightLoad
+                                                            ?.yCommercialStandby ??
+                                                        0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.01),
+                                                _buildDataRow(
+                                                    'Staff Listed',
+                                                    flightLoad?.jStaffListed ??
+                                                        0,
+                                                    flightLoad?.yStaffListed ??
+                                                        0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.01),
+                                                _buildDataRow(
+                                                    'Staff on Standby',
+                                                    flightLoad
+                                                            ?.jStaffOnStandby ??
+                                                        0,
+                                                    flightLoad
+                                                            ?.yStaffOnStandby ??
+                                                        0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.01),
+                                                _buildDataRow(
+                                                    'Staff Accepted',
+                                                    flightLoad
+                                                            ?.jStaffAccepted ??
+                                                        0,
+                                                    flightLoad
+                                                            ?.yStaffAccepted ??
+                                                        0,
+                                                    screenWidth,
+                                                    screenHeigth),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.028),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      width: screenWidth * 0.4,
+                                                      height:
+                                                          screenHeigth * 0.04,
+                                                      child: ElevatedButton(
+                                                        onPressed:
+                                                            isPriorityButtonEnabled
+                                                                ? () =>
+                                                                    _navigateToPriorityPage(
+                                                                        context)
+                                                                : null,
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              isPriorityButtonEnabled
+                                                                  ? Colors.white
+                                                                  : Colors.grey,
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        9.0),
+                                                          ),
+                                                          disabledForegroundColor:
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      0.38),
+                                                          disabledBackgroundColor:
+                                                              Colors.grey
+                                                                  .withOpacity(
+                                                                      0.12),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      screenWidth *
+                                                                          0.03),
+                                                        ),
+                                                        child: Text(
+                                                          'My Priority',
+                                                          style: TextStyle(
+                                                            color: isPriorityButtonEnabled
+                                                                ? const Color
+                                                                    .fromRGBO(
+                                                                    235,
+                                                                    97,
+                                                                    39,
+                                                                    1)
+                                                                : const Color
+                                                                    .fromARGB(
+                                                                    194,
+                                                                    235,
+                                                                    98,
+                                                                    39),
+                                                            fontWeight:
+                                                                FontWeight.w900,
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.04,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
 
-        _buildDataRow('Capacity', flightLoad?.jCapacity ?? 0, flightLoad?.yCapacity ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.01),
-        _buildDataRow('Booked', flightLoad?.jBooked ?? 0, flightLoad?.yBooked ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.01),
-        _buildDataRow('Checked-In', flightLoad?.jCheckedIn ?? 0, flightLoad?.yCheckedIn ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.01),
-        _buildDataRow('Commercial Standby', flightLoad?.jCommercialStandby ?? 0, flightLoad?.yCommercialStandby ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.01),
-        _buildDataRow('Staff Listed', flightLoad?.jStaffListed ?? 0, flightLoad?.yStaffListed ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.01),
-        _buildDataRow('Staff on Standby', flightLoad?.jStaffOnStandby ?? 0, flightLoad?.yStaffOnStandby ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.01),
-        _buildDataRow('Staff Accepted', flightLoad?.jStaffAccepted ?? 0, flightLoad?.yStaffAccepted ?? 0, screenWidth, screenHeigth),
-        SizedBox(height: screenHeigth * 0.028),
+                                                    SizedBox(
+                                                        width:
+                                                            screenWidth * 0.02),
 
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: screenWidth * 0.4,
-              height: screenHeigth * 0.04,
-              child: ElevatedButton(
-                onPressed: isPriorityButtonEnabled
-                    ? () => _navigateToPriorityPage(context)
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isPriorityButtonEnabled
-                      ? Colors.white
-                      : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(9.0),
-                  ),
-                  disabledForegroundColor: Colors.white.withOpacity(0.38),
-                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
-                ),
-                child: Text(
-                  'My Priority',
-                  style: TextStyle(
-                    color: isPriorityButtonEnabled
-                        ? const Color.fromRGBO(235, 97, 39, 1)
-                        : const Color.fromARGB(194, 235, 98, 39),
-                    fontWeight: FontWeight.w900,
-                    fontSize: screenWidth * 0.04,
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(width: screenWidth * 0.02),
-
-            // Check-in Summary
-            Container(
-              width: screenWidth * 0.4,
-              height: screenHeigth * 0.04,
-              child: ElevatedButton(
-                onPressed: isCheckInSummaryEnabled
-                    ? () => _navigateToCheckInsSummaryPage(context, selectedUL, scheduledTime)
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isCheckInSummaryEnabled
-                      ? const Color.fromRGBO(235, 97, 39, 1)
-                      : Colors.grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(9.0),
-                  ),
-                  disabledForegroundColor: Colors.white.withOpacity(0.38),
-                  disabledBackgroundColor: Colors.grey.withOpacity(0.12),
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-                ),
-                child: Text(
-                  'Check-in Summary',
-                  style: TextStyle(
-                    color: isCheckInSummaryEnabled
-                        ? Colors.white
-                        : const Color.fromARGB(194, 255, 255, 255),
-                    fontWeight: FontWeight.w900,
-                    fontSize: screenWidth * 0.032,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-
-                                     
+                                                    // Check-in Summary
+                                                    Container(
+                                                      width: screenWidth * 0.4,
+                                                      height:
+                                                          screenHeigth * 0.04,
+                                                      child: ElevatedButton(
+                                                        onPressed: isCheckInSummaryEnabled
+                                                            ? () =>
+                                                                _navigateToCheckInsSummaryPage(
+                                                                    context,
+                                                                    selectedUL,
+                                                                    scheduledTime)
+                                                            : null,
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              isCheckInSummaryEnabled
+                                                                  ? const Color
+                                                                      .fromRGBO(
+                                                                      235,
+                                                                      97,
+                                                                      39,
+                                                                      1)
+                                                                  : Colors.grey,
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        9.0),
+                                                          ),
+                                                          disabledForegroundColor:
+                                                              Colors.white
+                                                                  .withOpacity(
+                                                                      0.38),
+                                                          disabledBackgroundColor:
+                                                              Colors.grey
+                                                                  .withOpacity(
+                                                                      0.12),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      screenWidth *
+                                                                          0.01),
+                                                        ),
+                                                        child: Text(
+                                                          'Check-in Summary',
+                                                          style: TextStyle(
+                                                            color: isCheckInSummaryEnabled
+                                                                ? Colors.white
+                                                                : const Color
+                                                                    .fromARGB(
+                                                                    194,
+                                                                    255,
+                                                                    255,
+                                                                    255),
+                                                            fontWeight:
+                                                                FontWeight.w900,
+                                                            fontSize:
+                                                                screenWidth *
+                                                                    0.032,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                     ],
                                   ),
                                 ],
@@ -1140,8 +1285,7 @@ _apiErrorMessage != null
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const HistoryPage(),
-                        transitionDuration:
-                            Duration(seconds: 0), 
+                        transitionDuration: Duration(seconds: 0),
                       ),
                     );
                     break;
@@ -1151,8 +1295,7 @@ _apiErrorMessage != null
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             HomePage(selectedDate: selectedDate),
-                        transitionDuration:
-                            Duration(seconds: 0), 
+                        transitionDuration: Duration(seconds: 0),
                       ),
                     );
                     break;
@@ -1163,8 +1306,7 @@ _apiErrorMessage != null
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const MyTickets(),
-                        transitionDuration:
-                            Duration(seconds: 0),
+                        transitionDuration: Duration(seconds: 0),
                       ),
                     );
                     break;
@@ -1175,8 +1317,7 @@ _apiErrorMessage != null
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             Yaana(),
-                        transitionDuration:
-                            const Duration(seconds: 0), 
+                        transitionDuration: const Duration(seconds: 0),
                       ),
                     );
                     break;

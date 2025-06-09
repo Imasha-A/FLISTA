@@ -59,6 +59,7 @@ dependencies:
   #flutter_inappwebview: ^6.1.5+1  # Latest stable
   font_awesome_flutter: ^10.8.0
   flutter_svg: ^2.0.1
+  url_launcher: ^6.3.1
   
 
 
