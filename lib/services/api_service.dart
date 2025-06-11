@@ -587,7 +587,7 @@ class APIService {
       final response = await http.get(
         Uri.parse(
             '$baseUrl2/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID'),
-      );
+      );//https://ulmobservices.srilankan.com/ULMOBTEAMSERVICES/api/FLIGHTINFO/CHECKINS?FlightDate=110625&BoardPoint=CMB&FlightNo=225&staffID=23799
       print(
           '$baseUrl2/FLIGHTINFO/CHECKINS?FlightDate=$flightDate&BoardPoint=$boardPoint&FlightNo=$flightNo&staffID=$staffID');
 

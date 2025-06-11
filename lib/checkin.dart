@@ -41,11 +41,11 @@ class CheckInPage extends StatefulWidget {
 
 class _CheckInState extends State<CheckInPage> {
   late String selectedDate;
-  late String selectedUL; 
-  late List<String> ulList; 
+  late String selectedUL;
+  late List<String> ulList;
   FlightLoadModel? flightLoad;
   CheckinSummery? checkinSummery;
-  late String formattedDate; 
+  late String formattedDate;
   late String formattedLongDate;
   bool isLoading = true;
   List<StaffMember> staffMembers = [];
@@ -59,25 +59,21 @@ class _CheckInState extends State<CheckInPage> {
   @override
   void initState() {
     super.initState();
-    selectedDate = widget.selectedDate;
-    selectedUL =
-        widget.selectedUL; 
-    formattedDate =
-        APIService().formatDate(selectedDate); 
-    formattedLongDate = APIService()
-        .formatLongDate(selectedDate);
-    _fetchFlightLoadInfo();
+    //_fetchFlightLoadInfo();
 
     _initializeState();
-
     _fetchFlightExtraInfo();
+    selectedDate = widget.selectedDate;
+    selectedUL = widget.selectedUL;
+    formattedDate = APIService().formatDate(selectedDate);
+    formattedLongDate = APIService().formatLongDate(selectedDate);
   }
 
   Future<void> _initializeState() async {
     await _loadUserName();
     await _loadUserId();
     await fetchData();
-
+    _fetchFlightExtraInfo();
   }
 
   Future<void> _loadUserName() async {
@@ -88,78 +84,81 @@ class _CheckInState extends State<CheckInPage> {
     });
   }
 
-Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screenWidth, double screenHeigth) {
-  return Row(
-    children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-        child: Container(
-          width: screenWidth * 0.5,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: screenWidth * 0.041,
+  Widget _buildDataRow(String label, dynamic jValue, dynamic yValue,
+      double screenWidth, double screenHeigth) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+          child: Container(
+            width: screenWidth * 0.5,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.041,
+              ),
             ),
           ),
         ),
-      ),
-      
-      // BC/J value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$jValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // BC/J value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$jValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      
-      // EY/Y value
-      Expanded(
-        child: Center(
-          child: Container(
-            height: screenHeigth * 0.035,
-            width: screenWidth * 0.12,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-              child: Text(
-                '$yValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth * 0.041,
+
+        // EY/Y value
+        Expanded(
+          child: Center(
+            child: Container(
+              height: screenHeigth * 0.035,
+              width: screenWidth * 0.12,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  '$yValue',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth * 0.041,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   // Callback for pull-down refresh
   Future<void> _onRefresh() async {
-    _fetchFlightLoadInfo();
+    //  _fetchFlightLoadInfo();
+    _fetchFlightExtraInfo();
+
     await _initializeState();
     _refreshController.refreshCompleted();
   }
@@ -179,14 +178,12 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
         widget.originCountryCode,
         selectedUL,
       );
-     
+
       if (mounted) {
         setState(() {
-          staffMembers = response; 
+          staffMembers = response;
           isLoading = false;
         });
-
-       
       }
     } catch (error) {
       if (mounted) {
@@ -210,25 +207,22 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
 
   void _fetchFlightLoadInfo() async {
     try {
+      print(formattedDate);
 
-      print (    formattedDate
+      print(
+        widget.originCountryCode,
       );
 
-       print (   
-      widget.originCountryCode,
-     );
+      print(
+        widget.selectedUL,
+      );
 
-       print (    
-      widget.selectedUL,
- );
-
-       print (    
-      _userId);
+      print(_userId);
       List<FlightLoadModel> flightLoadDataList =
           await APIService().fetchFlightLoadInfo(
         widget.selectedDate,
-        formattedDate, 
-        formattedLongDate, 
+        formattedDate,
+        formattedLongDate,
         widget.originCountryCode,
         widget.destinationCountryCode,
         widget.selectedUL,
@@ -244,45 +238,42 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
     } catch (error) {
       print('Error fetching flight load information: $error');
       setState(() {
-        isLoading = false; 
+        isLoading = false;
       });
     }
   }
 
+  void _fetchFlightExtraInfo() async {
+    await _loadUserId();
+    await fetchData();
 
- void _fetchFlightExtraInfo() async {
-  await _loadUserId();
-  await fetchData();
+    try {
+      String selectedDateString = widget.selectedDate;
+      DateTime flightDate = DateFormat('d MMMM yyyy').parse(selectedDateString);
+      String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
 
-  try {
-    DateTime flightDate = DateTime.now(); 
-    String formattedDate = DateFormat('yyyyMMdd').format(flightDate);
+      var responseList = await _apiService.viewCheckInStatus(
+        formattedDate,
+        widget.originCountryCode,
+        widget.selectedUL,
+        _userId,
+      );
 
-    var responseList = await _apiService.viewCheckInStatus(
-      formattedDate,
-      widget.originCountryCode,
-      widget.selectedUL,
-      _userId,
-    );
+      List<CheckinSummery> summaryList = responseList;
 
-   List<CheckinSummery> summaryList = responseList;
-
-    setState(() {
-      if (summaryList.isNotEmpty) {
-        checkinSummery = summaryList.first;
-      }
-      isLoading = false;
-    });
-  } catch (error) {
-    print('Error fetching flight load information: $error');
-    setState(() {
-      isLoading = false;
-    });
+      setState(() {
+        if (summaryList.isNotEmpty) {
+          checkinSummery = summaryList.first;
+        }
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error fetching flight load information: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
-}
-
- 
-  
 
   BottomNavigationBarItem _buildCustomBottomNavigationBarItem(
       String iconPath, String label, bool isHighlighted) {
@@ -300,10 +291,10 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                   ),
                   child: Image.asset(
                     iconPath,
-                    height: 28, 
+                    height: 28,
                     width: 28,
                     fit: BoxFit.contain,
-                    color: const Color.fromRGBO(2, 77, 117, 1), 
+                    color: const Color.fromRGBO(2, 77, 117, 1),
                   ),
                 )
               : Image.asset(
@@ -320,7 +311,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
 
   void _changeUL(bool next) {
     setState(() {
-      isLoading = true; 
+      isLoading = true;
 
       if (next) {
         selectedDate = _getNextDate(selectedDate);
@@ -330,8 +321,9 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
 
       formattedDate = APIService().formatDate(selectedDate);
       formattedLongDate = APIService().formatLongDate(selectedDate);
+      _fetchFlightExtraInfo();
 
-      _fetchFlightLoadInfo();
+      //_fetchFlightLoadInfo();
       _initializeState();
     });
   }
@@ -491,29 +483,23 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                           height: screenHeigth * 0.08,
                         ),
                         SizedBox(
-                          height: screenHeigth * 0.04, 
-                          width: screenWidth * 0.72, 
+                          height: screenHeigth * 0.04,
+                          width: screenWidth * 0.72,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                            
                               SizedBox(
-                                height: screenHeigth *
-                                    0.013, 
-                                width: screenWidth *
-                                    0.72, 
+                                height: screenHeigth * 0.013,
+                                width: screenWidth * 0.72,
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-line.png'),
                                   fit: BoxFit.fill,
                                 ),
                               ),
-
                               SizedBox(
-                                height: screenHeigth *
-                                    0.07, 
-                                width: screenWidth *
-                                    0.3, 
+                                height: screenHeigth * 0.07,
+                                width: screenWidth * 0.3,
                                 child: const Image(
                                   image: AssetImage(
                                       'assets/airplane-route-plane.png'),
@@ -534,8 +520,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                                 offset: Offset(-screenWidth * 0.086,
                                     -screenHeigth * 0.035),
                                 child: Text(
-                                  widget.originCountryCode
-                                      .trim(), 
+                                  widget.originCountryCode.trim(),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -549,8 +534,7 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                                 offset: Offset(
                                     screenWidth * 0.08, -screenHeigth * 0.035),
                                 child: Text(
-                                  widget.destinationCountryCode
-                                      .trim(), 
+                                  widget.destinationCountryCode.trim(),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       color: Colors.white,
@@ -627,130 +611,207 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                                       ),
                                     ),
                                   ),
-
                                   Column(
-  children: [
-    SizedBox(height: screenHeigth * 0.02),
-                            SizedBox(
-                              height: screenHeigth * 0.12,
-                              width: screenWidth * 0.8,
-                              child: Transform.translate(
-                                offset: const Offset(0.4, -15.0),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        const Color.fromARGB(158, 38, 64, 112),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(9.0),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text(
-                                            '         UL $selectedUL',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: screenWidth * 0.06,
+                                      SizedBox(height: screenHeigth * 0.02),
+                                      SizedBox(
+                                        height: screenHeigth * 0.12,
+                                        width: screenWidth * 0.8,
+                                        child: Transform.translate(
+                                          offset: const Offset(0.4, -15.0),
+                                          child: ElevatedButton(
+                                            onPressed: () {},
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      158, 38, 64, 112),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(9.0),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceEvenly,
+                                                  children: [
+                                                    Text(
+                                                      '         UL $selectedUL',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            screenWidth * 0.06,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                        width:
+                                                            screenWidth * .03),
+                                                    // Added SizedBox for spacing
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.002),
+                                                Text(
+                                                  '$selectedDate', // Use selectedDate variable here
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: screenWidth * .04,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.002),
+                                                Text(
+                                                  '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: screenWidth * .04,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                    height:
+                                                        screenHeigth * 0.002),
+                                              ],
                                             ),
                                           ),
-                                          SizedBox(width: screenWidth * .03),
-                                          // Added SizedBox for spacing
-                                        ],
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.002),
-                                      Text(
-                                        '$selectedDate', // Use selectedDate variable here
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: screenWidth * .04,
                                         ),
                                       ),
-                                      SizedBox(height: screenHeigth * 0.002),
-                                      Text(
-                                        '${widget.scheduledTime.substring(0, 2)}:${widget.scheduledTime.substring(2)}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: screenWidth * .04,
-                                        ),
-                                      ),
-                                      SizedBox(height: screenHeigth * 0.002),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
                                       Column(
-  children: [
-    Row(
-      children: [
-        SizedBox(width: screenWidth * 0.53),
-        Expanded(
-          child: Center(
-            child: Text(
-              'BC', 
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.041,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: Text(
-              'EY', 
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: screenWidth * 0.041,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-    SizedBox(height: screenHeigth * 0.015),
-    
-    // Data rows
-    _buildDataRow('Capacity', checkinSummery?.jCapacity?? 0, checkinSummery?.yCapacity ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Booked', checkinSummery?.jBooked?? 0, checkinSummery?.yBooked?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Checked-In', checkinSummery?.jCheckedIn?? 0, checkinSummery?.yCheckedIn?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
+                                        children: [
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                  width: screenWidth * 0.53),
+                                              Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'BC',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.041,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Center(
+                                                  child: Text(
+                                                    'EY',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize:
+                                                          screenWidth * 0.041,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                              height: screenHeigth * 0.015),
 
-     _buildDataRow('Infants Accepted', checkinSummery?.jInfantsAccepted?? 0, checkinSummery?.yInfantsAccepted?? 0, screenWidth, screenHeigth),
-     SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Commercial Standby', checkinSummery?.jCommercialStandby ?? 0, checkinSummery?.yCommercialStandby?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff Listed', checkinSummery?.jStaffListed ?? 0, checkinSummery?.yStaffListed ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff on Standby', checkinSummery?.jStaffOnStandby ?? 0, checkinSummery?.yStaffOnStandby ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-    _buildDataRow('Staff Accepted', checkinSummery?.jStaffAccepted ?? 0, checkinSummery?.yStaffAccepted ?? 0, screenWidth, screenHeigth),
-    SizedBox(height: screenHeigth * 0.01),
-    
-     _buildDataRow('Bookable Staff Accepted', checkinSummery?.jBookableStaffAccepted ?? 0, checkinSummery?.yBookableStaffAccepted ?? 0, screenWidth, screenHeigth),
-     SizedBox(height: screenHeigth * 0.02),
-    
-  ],
-)
-                                      
+                                          // Data rows
+                                          _buildDataRow(
+                                              'Capacity',
+                                              checkinSummery?.jCapacity ?? 0,
+                                              checkinSummery?.yCapacity ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Booked',
+                                              checkinSummery?.jBooked ?? 0,
+                                              checkinSummery?.yBooked ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Checked-In',
+                                              checkinSummery?.jCheckedIn ?? 0,
+                                              checkinSummery?.yCheckedIn ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Infants Accepted',
+                                              checkinSummery
+                                                      ?.jInfantsAccepted ??
+                                                  0,
+                                              checkinSummery
+                                                      ?.yInfantsAccepted ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Commercial Standby',
+                                              checkinSummery
+                                                      ?.jCommercialStandby ??
+                                                  0,
+                                              checkinSummery
+                                                      ?.yCommercialStandby ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff Listed',
+                                              checkinSummery?.jStaffListed ?? 0,
+                                              checkinSummery?.yStaffListed ?? 0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff on Standby',
+                                              checkinSummery?.jStaffOnStandby ??
+                                                  0,
+                                              checkinSummery?.yStaffOnStandby ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Staff Accepted',
+                                              checkinSummery?.jStaffAccepted ??
+                                                  0,
+                                              checkinSummery?.yStaffAccepted ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.01),
+
+                                          _buildDataRow(
+                                              'Bookable Staff Accepted',
+                                              checkinSummery
+                                                      ?.jBookableStaffAccepted ??
+                                                  0,
+                                              checkinSummery
+                                                      ?.yBookableStaffAccepted ??
+                                                  0,
+                                              screenWidth,
+                                              screenHeigth),
+                                          SizedBox(height: screenHeigth * 0.02),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ],
@@ -814,20 +875,17 @@ Widget _buildDataRow(String label, dynamic jValue, dynamic yValue, double screen
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             const MyTickets(),
-                        transitionDuration:
-                            Duration(seconds: 0), 
+                        transitionDuration: Duration(seconds: 0),
                       ),
                     );
                     break;
-                  case 3: 
-
+                  case 3:
                     Navigator.push(
                       context,
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             Yaana(),
-                        transitionDuration:
-                            const Duration(seconds: 0), 
+                        transitionDuration: const Duration(seconds: 0),
                       ),
                     );
                     break;
